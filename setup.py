@@ -16,7 +16,7 @@ setup(
     description = ("python libsodium wrapper"),
     license = "BSD",
     keywords = "cryptography API NaCl libsodium",
-    url = "http://packages.python.org/pysodium",
+    url = "https://github.com/stef/pysodium",
     packages = find_packages(),
     #py_modules=['nacl', 'sodium' ],
     long_description=read('README.md'),
