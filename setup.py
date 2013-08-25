@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -10,21 +10,20 @@ def read(fname):
 
 setup(
     name = "pysodium",
-    version = "0.1",
+    version = "0.5-beta",
     author = "Stefan Marsiske",
     author_email = "s@ctrlc.hu",
-    description = ("yet another libsodium wrapper"),
+    description = ("python libsodium wrapper"),
     license = "BSD",
-    keywords = "cryptography API NaCl",
+    keywords = "cryptography API NaCl libsodium",
     url = "http://packages.python.org/pysodium",
-    #py_modules=['anonshort' ],
+    packages = find_packages(),
+    #py_modules=['nacl', 'sodium' ],
     long_description=read('README.md'),
     install_requires = ("cffi"),
     classifiers = ["Development Status :: 4 - Beta",
-    #               "License :: OSI Approved :: GNU Affero General Public License v3",
-    #               "Environment :: Web Environment",
-    #               "Topic :: Internet :: WWW/HTTP",
-    #               "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+                   "License :: OSI Approved :: BSD License",
+                   "Topic :: Security :: Cryptography",
                    "Topic :: Security",
                    ],
 )
