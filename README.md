@@ -47,3 +47,7 @@ crypto_sign_keypair()
 crypto_sign(m, sk)
 
 crypto_sign_open(sm, pk)
+
+crypto_stream(cnt, nonce = None, key = None)
+
+crypto_stream_xor(msg, cnt, nonce = None, key = None)

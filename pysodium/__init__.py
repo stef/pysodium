@@ -156,8 +156,36 @@ def crypto_sign_open(sm, pk):
         raise ValueError
     return sodium.ffi.buffer(msg, msglen[0])[:]
 
+def crypto_stream(cnt, nonce = None, key = None):
+    res = sodium.ffi.new("unsigned char[]", cnt)
+    if not nonce:
+        nonce = randombytes(crypto_stream_NONCEBYTES)
+    if not key:
+        key = randombytes(crypto_stream_KEYBYTES)
+    if not sodium.lib.crypto_stream(res, len(res), nonce, key):
+        raise ValueError
+    return sodium.ffi.buffer(res, cnt)[:]
+
+def crypto_stream_xor(msg, cnt, nonce = None, key = None):
+    res = sodium.ffi.new("unsigned char[]", cnt)
+    mres = sodium.ffi.new("unsigned char[]", len(msg))
+    if not nonce:
+        nonce = randombytes(crypto_stream_NONCEBYTES)
+    if not key:
+        key = randombytes(crypto_stream_KEYBYTES)
+    if not sodium.lib.crypto_stream_xor(res, msg, len(res), nonce, key):
+        raise ValueError
+    return sodium.ffi.buffer(res, cnt)[:]
+
 def test():
     import binascii
+    print binascii.hexlify(crypto_stream(8))
+    print binascii.hexlify(crypto_stream(16))
+    print binascii.hexlify(crypto_stream(32))
+    print binascii.hexlify(crypto_stream_xor('howdy', len('howdy')))
+    print binascii.hexlify(crypto_stream_xor('howdy' * 16, len('howdy')*16))
+
+    return
     print binascii.hexlify(crypto_generichash('howdy'))
     state = crypto_generichash_init()
     state = crypto_generichash_update(state, 'howdy')

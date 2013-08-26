@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "pysodium",
-    version = "0.5-beta",
+    version = "0.5.3",
     author = "Stefan Marsiske",
     author_email = "s@ctrlc.hu",
     description = ("python libsodium wrapper"),
