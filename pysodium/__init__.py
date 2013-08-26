@@ -58,7 +58,7 @@ def crypto_scalarmult_curve25519_base(n):
     sodium.lib.crypto_scalarmult_curve25519_base(buf, n)
     return sodium.ffi.buffer(buf, crypto_scalarmult_BYTES)[:]
 
-def crypto_generichash(m, k='', outlen=crypto_generichash_BYTES):
+def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     # FIXME returns different result than the 3-step procedure used as a workaround
     #buf = sodium.ffi.new("unsigned char[]", outlen)
     #sodium.lib.crypto_generichash(buf, len(buf), m, len(m), k, len(k))
@@ -68,7 +68,7 @@ def crypto_generichash(m, k='', outlen=crypto_generichash_BYTES):
     return crypto_generichash_final(state)
 
 #crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
-def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=''):
+def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
     buf = sodium.ffi.new("crypto_generichash_state*")
     sodium.lib.crypto_generichash_init(buf, k, len(k), outlen)
     return buf
