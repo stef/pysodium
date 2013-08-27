@@ -179,36 +179,36 @@ def crypto_stream_xor(msg, cnt, nonce = None, key = None):
 
 def test():
     import binascii
-    print binascii.hexlify(crypto_stream(8))
-    print binascii.hexlify(crypto_stream(16))
-    print binascii.hexlify(crypto_stream(32))
-    print binascii.hexlify(crypto_stream_xor('howdy', len('howdy')))
-    print binascii.hexlify(crypto_stream_xor('howdy' * 16, len('howdy')*16))
+    print(binascii.hexlify(crypto_stream(8)))
+    print(binascii.hexlify(crypto_stream(16)))
+    print(binascii.hexlify(crypto_stream(32)))
+    print(binascii.hexlify(crypto_stream_xor('howdy', len('howdy'))))
+    print(binascii.hexlify(crypto_stream_xor('howdy' * 16, len('howdy')*16)))
 
     return
-    print binascii.hexlify(crypto_generichash('howdy'))
+    print(binascii.hexlify(crypto_generichash('howdy')))
     state = crypto_generichash_init()
     state = crypto_generichash_update(state, 'howdy')
-    print binascii.hexlify(crypto_generichash_final(state))
+    print(binascii.hexlify(crypto_generichash_final(state)))
 
     pk, sk = crypto_box_keypair()
     n = randombytes(crypto_box_NONCEBYTES)
     c = crypto_box("howdy", n, pk, sk)
-    print crypto_box_open(c, n, pk, sk)
+    print(crypto_box_open(c, n, pk, sk))
 
     k = randombytes(crypto_secretbox_KEYBYTES)
     n = randombytes(crypto_secretbox_NONCEBYTES)
     c = crypto_secretbox("howdy", n, k)
-    print crypto_secretbox_open(c, n, k)
+    print(crypto_secretbox_open(c, n, k))
 
     s = crypto_scalarmult_curve25519_base(randombytes(crypto_scalarmult_BYTES))
     r = crypto_scalarmult_curve25519_base(randombytes(crypto_scalarmult_BYTES))
-    print 'scalarmult'
-    print repr(crypto_scalarmult_curve25519(s,r))
+    print('scalarmult')
+    print(repr(crypto_scalarmult_curve25519(s,r)))
 
     pk, sk = crypto_sign_keypair()
     signed = crypto_sign('howdy',sk)
-    print crypto_sign_open(signed, pk)
+    print(crypto_sign_open(signed, pk))
 
 if __name__ == '__main__':
     test()
