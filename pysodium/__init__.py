@@ -168,7 +168,6 @@ def crypto_stream(cnt, nonce = None, key = None):
 
 def crypto_stream_xor(msg, cnt, nonce = None, key = None):
     res = sodium.ffi.new("unsigned char[]", cnt)
-    mres = sodium.ffi.new("unsigned char[]", len(msg))
     if not nonce:
         nonce = randombytes(crypto_stream_NONCEBYTES)
     if not key:
