@@ -60,23 +60,19 @@ def crypto_scalarmult_curve25519_base(n):
 
 def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     # FIXME returns different result than the 3-step procedure used as a workaround
-    #buf = sodium.ffi.new("unsigned char[]", outlen)
-    #sodium.lib.crypto_generichash(buf, len(buf), m, len(m), k, len(k))
-    #return sodium.ffi.buffer(buf, crypto_generichash_BYTES)[:]
-    state = crypto_generichash_init(k=k, outlen=outlen)
-    state = crypto_generichash_update(state, m)
-    return crypto_generichash_final(state)
+    buf = sodium.ffi.new("unsigned char[]", outlen)
+    sodium.lib.crypto_generichash(buf, len(buf), m, len(m), k, len(k))
+    return sodium.ffi.buffer(buf, crypto_generichash_BYTES)[:]
 
 #crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
 def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
-    buf = sodium.ffi.new("crypto_generichash_state*")
+    buf = sodium.ffi.new("crypto_generichash_state[]", 1)
     sodium.lib.crypto_generichash_init(buf, k, len(k), outlen)
     return buf
 
 #crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
 def crypto_generichash_update(state, m):
-    buf = sodium.ffi.new("unsigned char[]", len(m))
-    sodium.lib.crypto_generichash_update(state, buf, len(m))
+    sodium.lib.crypto_generichash_update(state, m, len(m))
     return state
 
 #crypto_generichash_final(crypto_generichash_state *state, unsigned char *out, const size_t outlen);
@@ -178,13 +174,13 @@ def crypto_stream_xor(msg, cnt, nonce = None, key = None):
 
 def test():
     import binascii
+
     print(binascii.hexlify(crypto_stream(8)))
     print(binascii.hexlify(crypto_stream(16)))
     print(binascii.hexlify(crypto_stream(32)))
     print(binascii.hexlify(crypto_stream_xor('howdy', len('howdy'))))
     print(binascii.hexlify(crypto_stream_xor('howdy' * 16, len('howdy')*16)))
 
-    return
     print(binascii.hexlify(crypto_generichash('howdy')))
     state = crypto_generichash_init()
     state = crypto_generichash_update(state, 'howdy')
