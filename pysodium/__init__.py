@@ -62,7 +62,7 @@ def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     # FIXME returns different result than the 3-step procedure used as a workaround
     buf = sodium.ffi.new("unsigned char[]", outlen)
     sodium.lib.crypto_generichash(buf, len(buf), m, len(m), k, len(k))
-    return sodium.ffi.buffer(buf, crypto_generichash_BYTES)[:]
+    return sodium.ffi.buffer(buf, outlen)[:]
 
 #crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
 def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
@@ -185,6 +185,11 @@ def test():
     state = crypto_generichash_init()
     state = crypto_generichash_update(state, 'howdy')
     print(binascii.hexlify(crypto_generichash_final(state)))
+    print(binascii.hexlify(crypto_generichash('howdy', outlen=4)))
+    print(binascii.hexlify(crypto_generichash('howdy', outlen=8)))
+    state = crypto_generichash_init(outlen=6)
+    state = crypto_generichash_update(state, 'howdy')
+    print(binascii.hexlify(crypto_generichash_final(state, outlen=6)))
 
     pk, sk = crypto_box_keypair()
     n = randombytes(crypto_box_NONCEBYTES)
