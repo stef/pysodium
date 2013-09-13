@@ -89,7 +89,7 @@ ffi.cdef(
         static const int crypto_generichash_KEYBYTES_MAX;
         static const int crypto_generichash_BLOCKBYTES;
 
-        typedef struct {
+        typedef struct crypto_generichash_blake2b_state {
             uint64_t h[8];
             uint64_t t[2];
             uint64_t f[2];
@@ -97,7 +97,7 @@ ffi.cdef(
             size_t   buflen;
             uint8_t  last_node;
             ...;
-        }  crypto_generichash_state;
+        } crypto_generichash_state;
         int crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen);
         int crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
         int crypto_generichash_final(crypto_generichash_state *state, unsigned char *out, const size_t outlen);
