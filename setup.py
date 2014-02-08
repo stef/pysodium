@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "pysodium",
-    version = "0.5.9.1",
+    version = "0.6",
     author = "Stefan Marsiske",
     author_email = "s@ctrlc.hu",
     description = ("python libsodium wrapper"),
@@ -18,9 +18,7 @@ setup(
     keywords = "cryptography API NaCl libsodium",
     url = "https://github.com/stef/pysodium",
     packages = find_packages(),
-    #py_modules=['nacl', 'sodium' ],
     long_description=read('README.md'),
-    install_requires = ("cffi"),
     classifiers = ["Development Status :: 4 - Beta",
                    "License :: OSI Approved :: BSD License",
                    "Topic :: Security :: Cryptography",
