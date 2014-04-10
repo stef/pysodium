@@ -35,11 +35,13 @@ crypto_box_PUBLICKEYBYTES = 32L
 crypto_box_SECRETKEYBYTES = 32L
 crypto_box_ZEROBYTES = 32L
 crypto_box_BOXZEROBYTES = 16L
+crypto_box_MACBYTES = crypto_box_ZEROBYTES - crypto_box_BOXZEROBYTES
 crypto_secretbox_KEYBYTES = 32L
 crypto_secretbox_NONCEBYTES = 24L
 crypto_secretbox_KEYBYTES = 32L
 crypto_secretbox_ZEROBYTES = 32L
 crypto_secretbox_BOXZEROBYTES = 16L
+crypto_secretbox_MACBYTES = crypto_secretbox_ZEROBYTES - crypto_secretbox_BOXZEROBYTES
 crypto_sign_PUBLICKEYBYTES = 32L
 crypto_sign_SECRETKEYBYTES = 64L
 crypto_stream_KEYBYTES = 32L
@@ -60,7 +62,7 @@ typedef struct crypto_generichash_blake2b_state {
     ...;
 } crypto_generichash_state;
 """
-crypto_generichash_state = 357L
+crypto_generichash_state = 8*12 + 256 + ctypes.sizeof(ctypes.c_size_t) + 1
 
 def crypto_scalarmult_curve25519(n,p):
     buf = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
