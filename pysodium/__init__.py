@@ -44,6 +44,7 @@ crypto_secretbox_BOXZEROBYTES = 16L
 crypto_secretbox_MACBYTES = crypto_secretbox_ZEROBYTES - crypto_secretbox_BOXZEROBYTES
 crypto_sign_PUBLICKEYBYTES = 32L
 crypto_sign_SECRETKEYBYTES = 64L
+crypto_sign_SEEDBYTES = 32L
 crypto_stream_KEYBYTES = 32L
 crypto_stream_NONCEBYTES = 24L
 crypto_generichash_BYTES = 32L
@@ -150,6 +151,13 @@ def crypto_sign_keypair():
         raise ValueError
     return (pk.raw, sk.raw)
 
+def crypto_sign_seed_keypair(seed):
+    pk = ctypes.create_string_buffer(crypto_sign_PUBLICKEYBYTES)
+    sk = ctypes.create_string_buffer(crypto_sign_SECRETKEYBYTES)
+    if not sodium.crypto_sign_seed_keypair(pk, sk, seed) == 0:
+        raise ValueError
+    return (pk.raw, sk.raw)
+
 def crypto_sign(m, sk):
     if None in (m, sk): raise ValueError
     smsg = ctypes.create_string_buffer(len(m)+crypto_sign_BYTES)
@@ -231,6 +239,14 @@ def test():
         crypto_sign_open(changed, pk)
     except ValueError:
         print "signature failed to verify for changed payload"
+
+    seed = crypto_generichash('howdy', outlen=crypto_sign_SEEDBYTES)
+    pk, sk = crypto_sign_seed_keypair(seed)
+    pk2, sk2 = crypto_sign_seed_keypair(seed)
+    print binascii.hexlify(pk)
+    print binascii.hexlify(pk2)
+    assert pk == pk2
+    assert sk == sk2
 
 if __name__ == '__main__':
     test()
