@@ -27,9 +27,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-import ctypes
+import ctypes, platform
 
-sodium = ctypes.cdll.LoadLibrary("libsodium.so")
+if platform.system() == 'Windows':
+    sodium = ctypes.cdll.LoadLibrary("libsodium")
+else:
+    sodium = ctypes.cdll.LoadLibrary("libsodium.so")
+
 crypto_box_NONCEBYTES = 24L
 crypto_box_PUBLICKEYBYTES = 32L
 crypto_box_SECRETKEYBYTES = 32L
