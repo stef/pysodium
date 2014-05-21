@@ -14,6 +14,7 @@ crypto_box_BOXZEROBYTES, crypto_secretbox_KEYBYTES,
 crypto_secretbox_NONCEBYTES, crypto_secretbox_KEYBYTES,
 crypto_secretbox_ZEROBYTES, crypto_secretbox_BOXZEROBYTES,
 crypto_sign_PUBLICKEYBYTES, crypto_sign_SECRETKEYBYTES,
+crypto_sign_SEEDBYTES,
 crypto_stream_KEYBYTES, crypto_stream_NONCEBYTES,
 crypto_generichash_BYTES, crypto_scalarmult_curve25519_BYTES,
 crypto_scalarmult_BYTES, crypto_sign_BYTES
@@ -43,6 +44,8 @@ crypto_secretbox(msg, nonce, k)
 crypto_secretbox_open(c, nonce, k)
 
 crypto_sign_keypair()
+
+crypto_sign_seed_keypair(seed)
 
 crypto_sign(m, sk)
 
