@@ -34,27 +34,26 @@ if platform.system() == 'Windows':
 else:
     sodium = ctypes.cdll.LoadLibrary("libsodium.so")
 
-crypto_box_NONCEBYTES = 24L
-crypto_box_PUBLICKEYBYTES = 32L
-crypto_box_SECRETKEYBYTES = 32L
-crypto_box_ZEROBYTES = 32L
-crypto_box_BOXZEROBYTES = 16L
-crypto_box_MACBYTES = crypto_box_ZEROBYTES - crypto_box_BOXZEROBYTES
-crypto_secretbox_KEYBYTES = 32L
-crypto_secretbox_NONCEBYTES = 24L
-crypto_secretbox_KEYBYTES = 32L
-crypto_secretbox_ZEROBYTES = 32L
-crypto_secretbox_BOXZEROBYTES = 16L
-crypto_secretbox_MACBYTES = crypto_secretbox_ZEROBYTES - crypto_secretbox_BOXZEROBYTES
-crypto_sign_PUBLICKEYBYTES = 32L
-crypto_sign_SECRETKEYBYTES = 64L
-crypto_sign_SEEDBYTES = 32L
-crypto_stream_KEYBYTES = 32L
-crypto_stream_NONCEBYTES = 24L
-crypto_generichash_BYTES = 32L
-crypto_scalarmult_curve25519_BYTES = 32L
-crypto_scalarmult_BYTES = 32L
-crypto_sign_BYTES = 64L
+crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
+crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
+crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
+crypto_box_ZEROBYTES = sodium.crypto_box_zerobytes()
+crypto_box_BOXZEROBYTES = sodium.crypto_box_boxzerobytes()
+crypto_box_MACBYTES = sodium.crypto_box_macbytes()
+crypto_secretbox_KEYBYTES = sodium.crypto_secretbox_keybytes()
+crypto_secretbox_NONCEBYTES = sodium.crypto_secretbox_noncebytes()
+crypto_secretbox_ZEROBYTES = sodium.crypto_secretbox_zerobytes()
+crypto_secretbox_BOXZEROBYTES = sodium.crypto_secretbox_boxzerobytes()
+crypto_secretbox_MACBYTES = sodium.crypto_secretbox_macbytes()
+crypto_sign_PUBLICKEYBYTES = sodium.crypto_sign_publickeybytes()
+crypto_sign_SECRETKEYBYTES = sodium.crypto_sign_secretkeybytes()
+crypto_sign_SEEDBYTES = sodium.crypto_sign_seedbytes()
+crypto_sign_BYTES = sodium.crypto_sign_bytes()
+crypto_stream_KEYBYTES = sodium.crypto_stream_keybytes()
+crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
+crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
+crypto_scalarmult_curve25519_BYTES = sodium.crypto_scalarmult_curve25519_bytes()
+crypto_scalarmult_BYTES = sodium.crypto_scalarmult_bytes()
 
 """
 #pragma pack(push, 1)
