@@ -111,7 +111,7 @@ def crypto_aead_chacha20poly1305_encrypt(message,
     clen  = ctypes.c_ulonglong(0)
 
     sodium.crypto_aead_chacha20poly1305_encrypt(c,
-                                                clen,
+                                                ctypes.byref(clen),
                                                 message,
                                                 mlen,
                                                 ad,
@@ -120,6 +120,41 @@ def crypto_aead_chacha20poly1305_encrypt(message,
                                                 nonce,
                                                 key)
     return c.raw
+
+#int
+#crypto_aead_chacha20poly1305_decrypt(unsigned char *m,
+#                                     unsigned long long *mlen,
+#                                     unsigned char *nsec,
+#                                     const unsigned char *c,
+#                                     unsigned long long clen,
+#                                     const unsigned char *ad,
+#                                     unsigned long long adlen,
+#                                     const unsigned char *npub,
+#                                     const unsigned char *k)
+def crypto_aead_chacha20poly1305_decrypt(ciphertext,
+                                         ad,
+                                         nonce,
+                                         key):
+                                         
+    m = ctypes.create_string_buffer(len(ciphertext)-16L)
+    mlen = ctypes.c_ulonglong(0)
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    adlen = ctypes.c_ulonglong(len(ad))
+    
+    sodium.crypto_aead_chacha20poly1305_decrypt(m,
+                                                ctypes.byref(mlen),
+                                                None,
+                                                ciphertext,
+                                                clen,
+                                                ad,
+                                                adlen,
+                                                nonce,
+                                                key)
+                                                
+    return m.raw
+                                                
+    
+                                         
 
 
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
