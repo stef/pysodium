@@ -81,6 +81,47 @@ def crypto_scalarmult_curve25519_base(n):
     return buf.raw
 
 
+# crypto_aead_chacha20poly1305_encrypt
+# int crypto_aead_chacha20poly1305_encrypt(unsigned char *c,
+#                                          unsigned long long *clen,
+#                                          const unsigned char *m,
+#                                          unsigned long long mlen,
+#                                          const unsigned char *ad,
+#                                          unsigned long long adlen,
+#                                          const unsigned char *nsec,
+#                                          const unsigned char *npub,
+#                                          const unsigned char *k);
+# c:     ciphertext
+# clen:  ciphertext_len
+# m:     message
+# mlen:  messagelen
+# ad:    additionaldata
+# adlen: additionaldatalen
+# nsec:  NULL
+# npub:  nonce
+def crypto_aead_chacha20poly1305_encrypt(message,
+                                         ad,
+                                         nonce,
+                                         key):
+
+    mlen  = ctypes.c_ulonglong(len(message))
+    adlen = ctypes.c_ulonglong(len(ad))
+
+    c    =  ctypes.create_string_buffer(mlen.value+16L)
+    clen  = ctypes.c_ulonglong(0)
+
+    sodium.crypto_aead_chacha20poly1305_encrypt(c,
+                                                clen,
+                                                message,
+                                                mlen,
+                                                ad,
+                                                adlen,
+                                                None,
+                                                nonce,
+                                                key)
+    return c.raw
+
+
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
 def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     buf = ctypes.create_string_buffer(outlen)
