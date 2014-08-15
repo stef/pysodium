@@ -80,6 +80,21 @@ def crypto_scalarmult_curve25519_base(n):
     sodium.crypto_scalarmult_curve25519_base(buf, n)
     return buf.raw
 
+def crypto_stream_chacha20_xor(message,
+                               nonce,
+                               key):
+
+    mlen = ctypes.c_longlong(len(message))
+
+    c = ctypes.create_string_buffer(len(message))
+
+    sodium.crypto_stream_chacha20_xor(c,
+                                      message,
+                                      mlen,
+                                      nonce,
+                                      key)
+
+    return c.raw
 
 # crypto_aead_chacha20poly1305_encrypt
 # int crypto_aead_chacha20poly1305_encrypt(unsigned char *c,
@@ -105,7 +120,11 @@ def crypto_aead_chacha20poly1305_encrypt(message,
                                          key):
 
     mlen  = ctypes.c_ulonglong(len(message))
-    adlen = ctypes.c_ulonglong(len(ad))
+
+    if ad:
+        adlen = ctypes.c_ulonglong(len(ad))
+    else:
+        adlen = ctypes.c_ulonglong(0)
 
     c    =  ctypes.create_string_buffer(mlen.value+16L)
     clen  = ctypes.c_ulonglong(0)
@@ -139,19 +158,24 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext,
     m = ctypes.create_string_buffer(len(ciphertext)-16L)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
-    adlen = ctypes.c_ulonglong(len(ad))
+
+    if ad:
+        adlen = ctypes.c_ulonglong(len(ad))
+    else:
+        adlen = ctypes.c_ulonglong(0)
     
-    sodium.crypto_aead_chacha20poly1305_decrypt(m,
-                                                ctypes.byref(mlen),
-                                                None,
-                                                ciphertext,
-                                                clen,
-                                                ad,
-                                                adlen,
-                                                nonce,
-                                                key)
-                                                
-    return m.raw
+    if not sodium.crypto_aead_chacha20poly1305_decrypt(m,
+                                                       ctypes.byref(mlen),
+                                                       None,
+                                                       ciphertext,
+                                                       clen,
+                                                       ad,
+                                                       adlen,
+                                                       nonce,
+                                                       key) == 0:
+        raise ValueError
+    else:                        
+        return m.raw
                                                 
     
                                          
