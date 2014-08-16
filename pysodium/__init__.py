@@ -27,43 +27,47 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-import ctypes
+import ctypes, platform
 
-sodium = ctypes.cdll.LoadLibrary("libsodium.so")
-crypto_box_NONCEBYTES = 24L
-crypto_box_PUBLICKEYBYTES = 32L
-crypto_box_SECRETKEYBYTES = 32L
-crypto_box_ZEROBYTES = 32L
-crypto_box_BOXZEROBYTES = 16L
-crypto_box_MACBYTES = crypto_box_ZEROBYTES - crypto_box_BOXZEROBYTES
-crypto_secretbox_KEYBYTES = 32L
-crypto_secretbox_NONCEBYTES = 24L
-crypto_secretbox_KEYBYTES = 32L
-crypto_secretbox_ZEROBYTES = 32L
-crypto_secretbox_BOXZEROBYTES = 16L
-crypto_secretbox_MACBYTES = crypto_secretbox_ZEROBYTES - crypto_secretbox_BOXZEROBYTES
-crypto_sign_PUBLICKEYBYTES = 32L
-crypto_sign_SECRETKEYBYTES = 64L
-crypto_sign_SEEDBYTES = 32L
-crypto_stream_KEYBYTES = 32L
-crypto_stream_NONCEBYTES = 24L
-crypto_generichash_BYTES = 32L
-crypto_scalarmult_curve25519_BYTES = 32L
-crypto_scalarmult_BYTES = 32L
-crypto_sign_BYTES = 64L
+if platform.system() == 'Windows':
+    sodium = ctypes.cdll.LoadLibrary("libsodium")
+else:
+    sodium = ctypes.cdll.LoadLibrary("libsodium.so")
+
+crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
+crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
+crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
+crypto_box_ZEROBYTES = sodium.crypto_box_zerobytes()
+crypto_box_BOXZEROBYTES = sodium.crypto_box_boxzerobytes()
+crypto_box_MACBYTES = sodium.crypto_box_macbytes()
+crypto_secretbox_KEYBYTES = sodium.crypto_secretbox_keybytes()
+crypto_secretbox_NONCEBYTES = sodium.crypto_secretbox_noncebytes()
+crypto_secretbox_ZEROBYTES = sodium.crypto_secretbox_zerobytes()
+crypto_secretbox_BOXZEROBYTES = sodium.crypto_secretbox_boxzerobytes()
+crypto_secretbox_MACBYTES = sodium.crypto_secretbox_macbytes()
+crypto_sign_PUBLICKEYBYTES = sodium.crypto_sign_publickeybytes()
+crypto_sign_SECRETKEYBYTES = sodium.crypto_sign_secretkeybytes()
+crypto_sign_SEEDBYTES = sodium.crypto_sign_seedbytes()
+crypto_sign_BYTES = sodium.crypto_sign_bytes()
+crypto_stream_KEYBYTES = sodium.crypto_stream_keybytes()
+crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
+crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
+crypto_scalarmult_curve25519_BYTES = sodium.crypto_scalarmult_curve25519_bytes()
+crypto_scalarmult_BYTES = sodium.crypto_scalarmult_bytes()
 
 """
-typedef struct crypto_generichash_blake2b_state {
+#pragma pack(push, 1)
+CRYPTO_ALIGN(64) typedef struct crypto_generichash_blake2b_state {
     uint64_t h[8];
     uint64_t t[2];
     uint64_t f[2];
-    uint8_t  buf[256];
+    uint8_t  buf[2 * 128];
     size_t   buflen;
     uint8_t  last_node;
-    ...;
-} crypto_generichash_state;
+} crypto_generichash_blake2b_state;
+#pragma pack(pop)
 """
-crypto_generichash_state = 8*12 + 256 + ctypes.sizeof(ctypes.c_size_t) + 1
+crypto_generichash_state = 8*12 + 256 + ctypes.sizeof(ctypes.c_size_t) + 1 + 63
 
 def crypto_scalarmult_curve25519(n,p):
     buf = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
@@ -85,19 +89,25 @@ def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
 
 #crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
 def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
-    buf = ctypes.create_string_buffer(crypto_generichash_state)
-    sodium.crypto_generichash_init(buf, k, ctypes.c_ulonglong(len(k)), outlen)
-    return buf.raw
+    state = ctypes.create_string_buffer(crypto_generichash_state)
+    statealign = ctypes.addressof(state) + 63
+    statealign ^= statealign & 63
+    sodium.crypto_generichash_init(statealign, k, ctypes.c_ulonglong(len(k)), outlen)
+    return state
 
 #crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
 def crypto_generichash_update(state, m):
-    sodium.crypto_generichash_update(state, m, ctypes.c_ulonglong(len(m)))
+    statealign = ctypes.addressof(state) + 63
+    statealign ^= statealign & 63
+    sodium.crypto_generichash_update(statealign, m, ctypes.c_ulonglong(len(m)))
     return state
 
 #crypto_generichash_final(crypto_generichash_state *state, unsigned char *out, const size_t outlen);
 def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
+    statealign = ctypes.addressof(state) + 63
+    statealign ^= statealign & 63
     buf = ctypes.create_string_buffer(outlen)
-    sodium.crypto_generichash_final(state, buf, outlen)
+    sodium.crypto_generichash_final(statealign, buf, outlen)
     return buf.raw
 
 def randombytes(size):

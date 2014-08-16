@@ -1,4 +1,4 @@
-import os
+import os 
 from setuptools import setup, find_packages
 
 # Utility function to read the README file.
@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "pysodium",
-    version = "0.6.1",
+    version = "0.6.2",
     author = "Stefan Marsiske",
     author_email = "s@ctrlc.hu",
     description = ("python libsodium wrapper"),
