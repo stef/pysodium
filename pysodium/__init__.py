@@ -31,6 +31,8 @@ import ctypes, platform
 
 if platform.system() == 'Windows':
     sodium = ctypes.cdll.LoadLibrary("libsodium")
+elif platform.system() == 'Darwin':
+    sodium = ctypes.cdll.LoadLibrary('libsodium.dylib')
 else:
     sodium = ctypes.cdll.LoadLibrary("libsodium.so")
 
