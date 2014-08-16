@@ -176,6 +176,13 @@ def crypto_sign(m, sk):
         raise ValueError
     return smsg.raw
 
+def crypto_sign_detached(m, sk):
+    if None in (m, sk): raise ValueError
+    sig = ctypes.create_string_buffer(crypto_sign_BYTES)
+    if not sodium.crypto_sign_detached(sig, 0, m, ctypes.c_ulonglong(len(m)), sk) == 0:
+        raise ValueError
+    return sig.raw
+
 def crypto_sign_open(sm, pk):
     if None in (sm, pk): raise ValueError
     msg = ctypes.create_string_buffer(len(sm))
@@ -184,6 +191,11 @@ def crypto_sign_open(sm, pk):
     if not sodium.crypto_sign_open(msg, msglenp, sm, ctypes.c_ulonglong(len(sm)), pk) == 0:
         raise ValueError
     return msg.raw[:msglen.value]
+
+def crypto_sign_verify_detached(sig, msg, pk):
+    if None in (sig, msg, pk): raise ValueError
+    if len(sig) != crypto_sign_BYTES: raise ValueError
+    return sodium.crypto_sign_verify_detached(sig, msg, ctypes.c_ulonglong(len(msg)), pk) == 0
 
 def crypto_stream(cnt, nonce = None, key = None):
     res = ctypes.create_string_buffer(cnt)
