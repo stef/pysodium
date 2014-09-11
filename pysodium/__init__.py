@@ -81,7 +81,78 @@ def crypto_scalarmult_curve25519_base(n):
     sodium.crypto_scalarmult_curve25519_base(buf, n)
     return buf.raw
 
+# crypto_stream_chacha20_xor(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, const unsigned char *k)
+def crypto_stream_chacha20_xor(message,
+                               nonce,
+                               key):
 
+    mlen = ctypes.c_longlong(len(message))
+
+    c    = ctypes.create_string_buffer(len(message))
+
+    sodium.crypto_stream_chacha20_xor(c,
+                                      message,
+                                      mlen,
+                                      nonce,
+                                      key)
+
+    return c.raw
+
+# crypto_aead_chacha20poly1305_encrypt(unsigned char *c, unsigned long long *clen, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k);
+def crypto_aead_chacha20poly1305_encrypt(message,
+                                         ad,
+                                         nonce,
+                                         key):
+
+    mlen  = ctypes.c_ulonglong(len(message))
+
+    if ad:
+        adlen = ctypes.c_ulonglong(len(ad))
+    else:
+        adlen = ctypes.c_ulonglong(0)
+
+    c    = ctypes.create_string_buffer(mlen.value+16L)
+    clen = ctypes.c_ulonglong(0)
+
+    sodium.crypto_aead_chacha20poly1305_encrypt(c,
+                                                ctypes.byref(clen),
+                                                message,
+                                                mlen,
+                                                ad,
+                                                adlen,
+                                                None,
+                                                nonce,
+                                                key)
+    return c.raw
+
+#crypto_aead_chacha20poly1305_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+def crypto_aead_chacha20poly1305_decrypt(ciphertext,
+                                         ad,
+                                         nonce,
+                                         key):
+                                         
+    m    = ctypes.create_string_buffer(len(ciphertext)-16L)
+    mlen = ctypes.c_ulonglong(0)
+    clen = ctypes.c_ulonglong(len(ciphertext))
+
+    if ad:
+        adlen = ctypes.c_ulonglong(len(ad))
+    else:
+        adlen = ctypes.c_ulonglong(0)
+    
+    if not sodium.crypto_aead_chacha20poly1305_decrypt(m,
+                                                       ctypes.byref(mlen),
+                                                       None,
+                                                       ciphertext,
+                                                       clen,
+                                                       ad,
+                                                       adlen,
+                                                       nonce,
+                                                       key) == 0:
+        raise ValueError
+    else:                        
+        return m.raw
+                                                
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
 def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     buf = ctypes.create_string_buffer(outlen)
@@ -271,6 +342,42 @@ def test():
     print binascii.hexlify(pk2)
     assert pk == pk2
     assert sk == sk2
+
+    # crypto_aead_chacha20poly1305_encrypt
+    # http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305-04
+    # test vectors
+    key = binascii.unhexlify("4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
+    input_ = binascii.unhexlify("86d09974840bded2a5ca")
+    nonce  = binascii.unhexlify("cd7cf67be39c794a")
+    ad     = binascii.unhexlify("87e229d4500845a079c0")
+    output = crypto_aead_chacha20poly1305_encrypt(input_,
+                                                  ad,
+                                                  nonce,
+                                                  key)
+    print('crypto_aead_chacha20poly1305_encrypt')
+    print(binascii.hexlify(output))
+    assert output == binascii.unhexlify("e3e446f7ede9a19b62a4677dabf4e3d24b876bb284753896e1d6")
+
+    # crypto_aead_chacha20poly1305_decrypt
+    output = crypto_aead_chacha20poly1305_decrypt(output,
+                                                  ad,
+                                                  nonce,
+                                                  key)
+    print('crypto_aead_chacha20poly1305_decrypt')
+    print(binascii.hexlify(output))
+    assert output == input_
+
+
+
+    key = binascii.unhexlify("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+    nonce = binascii.unhexlify("0001020304050607")
+    input_ = '\x00'*256
+    output = crypto_stream_chacha20_xor(input_,
+                                        nonce,
+                                        key)
+    print('crypto_stream_chacha20_xor')
+    print(binascii.hexlify(output))
+    assert output == binascii.unhexlify("f798a189f195e66982105ffb640bb7757f579da31602fc93ec01ac56f85ac3c134a4547b733b46413042c9440049176905d3be59ea1c53f15916155c2be8241a38008b9a26bc35941e2444177c8ade6689de95264986d95889fb60e84629c9bd9a5acb1cc118be563eb9b3a4a472f82e09a7e778492b562ef7130e88dfe031c79db9d4f7c7a899151b9a475032b63fc385245fe054e3dd5a97a5f576fe064025d3ce042c566ab2c507b138db853e3d6959660996546cc9c4a6eafdc777c040d70eaf46f76dad3979e5c5360c3317166a1c894c94a371876a94df7628fe4eaaf2ccb27d5aaae0ad7ad0f9d4b6ad3b54098746d4524d38407a6deb3ab78fab78c9")
 
 if __name__ == '__main__':
     test()
