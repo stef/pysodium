@@ -85,7 +85,7 @@ def crypto_scalarmult_curve25519_base(n):
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
 def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     buf = ctypes.create_string_buffer(outlen)
-    if not sodium.crypto_generichash(buf, ctypes.c_uint(outlen), m, ctypes.c_ulonglong(len(m)), k, ctypes.c_uint(len(k))) == 0:
+    if not sodium.crypto_generichash(buf, ctypes.c_size_t(outlen), m, ctypes.c_ulonglong(len(m)), k, ctypes.c_size_t(len(k))) == 0:
         raise ValueError
     return buf.raw
 
