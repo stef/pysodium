@@ -185,7 +185,7 @@ def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
 
 def randombytes(size):
     buf = ctypes.create_string_buffer(size)
-    sodium.randombytes(buf, ctypes.c_ulonglong(size))
+    sodium.randombytes(buf, ctypes.c_size_t(size))
     return buf.raw
 
 def crypto_box_keypair():
