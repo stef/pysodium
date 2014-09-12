@@ -130,7 +130,7 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext,
                                          ad,
                                          nonce,
                                          key):
-                                         
+
     m    = ctypes.create_string_buffer(len(ciphertext)-16L)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
@@ -139,7 +139,7 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext,
         adlen = ctypes.c_ulonglong(len(ad))
     else:
         adlen = ctypes.c_ulonglong(0)
-    
+
     if not sodium.crypto_aead_chacha20poly1305_decrypt(m,
                                                        ctypes.byref(mlen),
                                                        None,
@@ -150,9 +150,9 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext,
                                                        nonce,
                                                        key) == 0:
         raise ValueError
-    else:                        
+    else:
         return m.raw
-                                                
+
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
 def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     buf = ctypes.create_string_buffer(outlen)
