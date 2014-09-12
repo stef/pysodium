@@ -165,7 +165,7 @@ def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
     state = ctypes.create_string_buffer(crypto_generichash_state)
     statealign = ctypes.addressof(state) + 63
     statealign ^= statealign & 63
-    sodium.crypto_generichash_init(statealign, k, ctypes.c_ulonglong(len(k)), outlen)
+    sodium.crypto_generichash_init(statealign, k, ctypes.c_size_t(len(k)), ctypes.c_size_t(outlen))
     return state
 
 #crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
@@ -180,7 +180,7 @@ def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
     statealign = ctypes.addressof(state) + 63
     statealign ^= statealign & 63
     buf = ctypes.create_string_buffer(outlen)
-    sodium.crypto_generichash_final(statealign, buf, outlen)
+    sodium.crypto_generichash_final(statealign, buf, ctypes.c_size_t(outlen))
     return buf.raw
 
 def randombytes(size):
@@ -252,7 +252,8 @@ def crypto_sign(m, sk):
 def crypto_sign_detached(m, sk):
     if None in (m, sk): raise ValueError
     sig = ctypes.create_string_buffer(crypto_sign_BYTES)
-    if not sodium.crypto_sign_detached(sig, 0, m, ctypes.c_ulonglong(len(m)), sk) == 0:
+    # second parm is for output of signature len (optional, ignored if NULL)
+    if not sodium.crypto_sign_detached(sig, ctypes.c_void_p(0), m, ctypes.c_ulonglong(len(m)), sk) == 0:
         raise ValueError
     return sig.raw
 
