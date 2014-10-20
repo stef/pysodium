@@ -58,19 +58,17 @@ crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
 crypto_scalarmult_curve25519_BYTES = sodium.crypto_scalarmult_curve25519_bytes()
 crypto_scalarmult_BYTES = sodium.crypto_scalarmult_bytes()
 
-"""
-#pragma pack(push, 1)
-CRYPTO_ALIGN(64) typedef struct crypto_generichash_blake2b_state {
-    uint64_t h[8];
-    uint64_t t[2];
-    uint64_t f[2];
-    uint8_t  buf[2 * 128];
-    size_t   buflen;
-    uint8_t  last_node;
-} crypto_generichash_blake2b_state;
-#pragma pack(pop)
-"""
-crypto_generichash_state = 8 * 12 + 256 + ctypes.sizeof(ctypes.c_size_t) + 1 + 63
+
+class CryptoGenericHashState(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('h', ctypes.c_uint64 * 8),
+        ('t', ctypes.c_uint64 * 2),
+        ('f', ctypes.c_uint64 * 2),
+        ('buf', ctypes.c_uint8 * 2 * 128),
+        ('buflen', ctypes.c_size_t),
+        ('last_node', ctypes.c_uint8)
+    ]
 
 
 def crypto_scalarmult_curve25519(n, p):
@@ -116,7 +114,7 @@ def crypto_aead_chacha20poly1305_encrypt(message,
     else:
         adlen = ctypes.c_ulonglong(0)
 
-    c = ctypes.create_string_buffer(mlen.value + 16L)
+    c = ctypes.create_string_buffer(mlen.value + 16)
     clen = ctypes.c_ulonglong(0)
 
     sodium.crypto_aead_chacha20poly1305_encrypt(c,
@@ -137,7 +135,7 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext,
                                          nonce,
                                          key):
 
-    m = ctypes.create_string_buffer(len(ciphertext) - 16L)
+    m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
 
@@ -170,27 +168,23 @@ def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
 
 #crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
 def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
-    state = ctypes.create_string_buffer(crypto_generichash_state)
-    statealign = ctypes.addressof(state) + 63
-    statealign ^= statealign & 63
-    sodium.crypto_generichash_init(statealign, k, ctypes.c_size_t(len(k)), ctypes.c_size_t(outlen))
+    state = CryptoGenericHashState()
+    sodium.crypto_generichash_init(ctypes.byref(state), k, ctypes.c_size_t(len(k)), ctypes.c_size_t(outlen))
     return state
 
 
 #crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
 def crypto_generichash_update(state, m):
-    statealign = ctypes.addressof(state) + 63
-    statealign ^= statealign & 63
-    sodium.crypto_generichash_update(statealign, m, ctypes.c_ulonglong(len(m)))
+    assert isinstance(state, CryptoGenericHashState)
+    sodium.crypto_generichash_update(ctypes.byref(state), m, ctypes.c_ulonglong(len(m)))
     return state
 
 
 #crypto_generichash_final(crypto_generichash_state *state, unsigned char *out, const size_t outlen);
 def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
-    statealign = ctypes.addressof(state) + 63
-    statealign ^= statealign & 63
+    assert isinstance(state, CryptoGenericHashState)
     buf = ctypes.create_string_buffer(outlen)
-    sodium.crypto_generichash_final(statealign, buf, ctypes.c_size_t(outlen))
+    sodium.crypto_generichash_final(ctypes.byref(state), buf, ctypes.c_size_t(outlen))
     return buf.raw
 
 
@@ -328,32 +322,32 @@ def crypto_stream_xor(msg, cnt, nonce=None, key=None):
 def test():
     import binascii
 
-    crypto_stream(8L)
-    crypto_stream(1337L)
-    print(binascii.hexlify(crypto_stream(8L)))
-    print(binascii.hexlify(crypto_stream(16L)))
-    print(binascii.hexlify(crypto_stream(32L)))
-    print(binascii.hexlify(crypto_stream_xor('howdy', len('howdy'))))
-    print(binascii.hexlify(crypto_stream_xor('howdy' * 16, len('howdy') * 16)))
+    crypto_stream(8)
+    crypto_stream(1337)
+    print(binascii.hexlify(crypto_stream(8)))
+    print(binascii.hexlify(crypto_stream(16)))
+    print(binascii.hexlify(crypto_stream(32)))
+    print(binascii.hexlify(crypto_stream_xor(b'howdy', len(b'howdy'))))
+    print(binascii.hexlify(crypto_stream_xor(b'howdy' * 16, len(b'howdy') * 16)))
 
-    print(binascii.hexlify(crypto_generichash('howdy')))
-    state = crypto_generichash_init()
-    state = crypto_generichash_update(state, 'howdy')
-    print(binascii.hexlify(crypto_generichash_final(state)))
-    print(binascii.hexlify(crypto_generichash('howdy', outlen=4)))
-    print(binascii.hexlify(crypto_generichash('howdy', outlen=8)))
+    print(binascii.hexlify(crypto_generichash(b'howdy')))
+    #state = crypto_generichash_init()
+    #state = crypto_generichash_update(state, b'howdy')
+    #print(binascii.hexlify(crypto_generichash_final(state)))
+    print(binascii.hexlify(crypto_generichash(b'howdy', outlen=4)))
+    print(binascii.hexlify(crypto_generichash(b'howdy', outlen=8)))
     state = crypto_generichash_init(outlen=6)
-    state = crypto_generichash_update(state, 'howdy')
+    state = crypto_generichash_update(state, b'howdy')
     print(binascii.hexlify(crypto_generichash_final(state, outlen=6)))
 
     pk, sk = crypto_box_keypair()
     n = randombytes(crypto_box_NONCEBYTES)
-    c = crypto_box("howdy", n, pk, sk)
+    c = crypto_box(b"howdy", n, pk, sk)
     print(crypto_box_open(c, n, pk, sk))
 
     k = randombytes(crypto_secretbox_KEYBYTES)
     n = randombytes(crypto_secretbox_NONCEBYTES)
-    c = crypto_secretbox("howdy", n, k)
+    c = crypto_secretbox(b"howdy", n, k)
     print(crypto_secretbox_open(c, n, k))
 
     s = crypto_scalarmult_curve25519_base(randombytes(crypto_scalarmult_BYTES))
@@ -362,29 +356,29 @@ def test():
     print(repr(crypto_scalarmult_curve25519(s, r)))
 
     pk, sk = crypto_sign_keypair()
-    signed = crypto_sign('howdy', sk)
-    changed = signed[:crypto_sign_BYTES] + '0' + signed[crypto_sign_BYTES + 1:]
-    print crypto_sign_open(signed, pk)
+    signed = crypto_sign(b'howdy', sk)
+    changed = signed[:crypto_sign_BYTES] + b'0' + signed[crypto_sign_BYTES + 1:]
+    print(crypto_sign_open(signed, pk))
     try:
         crypto_sign_open(changed, pk)
     except ValueError:
-        print "signature failed to verify for changed payload"
+        print("signature failed to verify for changed payload")
 
     seed = crypto_generichash('howdy', outlen=crypto_sign_SEEDBYTES)
     pk, sk = crypto_sign_seed_keypair(seed)
     pk2, sk2 = crypto_sign_seed_keypair(seed)
-    print binascii.hexlify(pk)
-    print binascii.hexlify(pk2)
+    print(binascii.hexlify(pk))
+    print(binascii.hexlify(pk2))
     assert pk == pk2
     assert sk == sk2
 
     # crypto_aead_chacha20poly1305_encrypt
     # http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305-04
     # test vectors
-    key = binascii.unhexlify("4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
-    input_ = binascii.unhexlify("86d09974840bded2a5ca")
-    nonce = binascii.unhexlify("cd7cf67be39c794a")
-    ad = binascii.unhexlify("87e229d4500845a079c0")
+    key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
+    input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+    nonce = binascii.unhexlify(b"cd7cf67be39c794a")
+    ad = binascii.unhexlify(b"87e229d4500845a079c0")
     output = crypto_aead_chacha20poly1305_encrypt(input_,
                                                   ad,
                                                   nonce,
@@ -402,15 +396,15 @@ def test():
     print(binascii.hexlify(output))
     assert output == input_
 
-    key = binascii.unhexlify("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
-    nonce = binascii.unhexlify("0001020304050607")
-    input_ = '\x00' * 256
+    key = binascii.unhexlify(b"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+    nonce = binascii.unhexlify(b"0001020304050607")
+    input_ = b'\x00' * 256
     output = crypto_stream_chacha20_xor(input_,
                                         nonce,
                                         key)
     print('crypto_stream_chacha20_xor')
     print(binascii.hexlify(output))
-    assert output == binascii.unhexlify("f798a189f195e66982105ffb640bb7757f579da31602fc93ec01ac56f85ac3c134a4547b733b46413042c9440049176905d3be59ea1c53f15916155c2be8241a38008b9a26bc35941e2444177c8ade6689de95264986d95889fb60e84629c9bd9a5acb1cc118be563eb9b3a4a472f82e09a7e778492b562ef7130e88dfe031c79db9d4f7c7a899151b9a475032b63fc385245fe054e3dd5a97a5f576fe064025d3ce042c566ab2c507b138db853e3d6959660996546cc9c4a6eafdc777c040d70eaf46f76dad3979e5c5360c3317166a1c894c94a371876a94df7628fe4eaaf2ccb27d5aaae0ad7ad0f9d4b6ad3b54098746d4524d38407a6deb3ab78fab78c9")
+    assert output == binascii.unhexlify(b"f798a189f195e66982105ffb640bb7757f579da31602fc93ec01ac56f85ac3c134a4547b733b46413042c9440049176905d3be59ea1c53f15916155c2be8241a38008b9a26bc35941e2444177c8ade6689de95264986d95889fb60e84629c9bd9a5acb1cc118be563eb9b3a4a472f82e09a7e778492b562ef7130e88dfe031c79db9d4f7c7a899151b9a475032b63fc385245fe054e3dd5a97a5f576fe064025d3ce042c566ab2c507b138db853e3d6959660996546cc9c4a6eafdc777c040d70eaf46f76dad3979e5c5360c3317166a1c894c94a371876a94df7628fe4eaaf2ccb27d5aaae0ad7ad0f9d4b6ad3b54098746d4524d38407a6deb3ab78fab78c9")
 
 if __name__ == '__main__':
     test()
