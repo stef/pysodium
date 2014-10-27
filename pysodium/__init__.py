@@ -28,15 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 import ctypes
-import platform
+import ctypes.util
 
-if platform.system() == 'Windows':
-    sodium = ctypes.cdll.LoadLibrary("libsodium")
-elif platform.system() == 'Darwin':
-    sodium = ctypes.cdll.LoadLibrary('libsodium.dylib')
-else:
-    sodium = ctypes.cdll.LoadLibrary("libsodium.so")
-
+sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium'))
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
 crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
@@ -123,12 +117,7 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
-
-    if ad:
-        adlen = ctypes.c_ulonglong(len(ad))
-    else:
-        adlen = ctypes.c_ulonglong(0)
-
+    adlen = ctypes.c_ulonglong(len(ad))
     __check(sodium.crypto_aead_chacha20poly1305_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
     return m.raw
 
@@ -229,8 +218,8 @@ def crypto_sign(m, sk):
     if None in (m, sk):
         raise ValueError("invalid parameters")
     smsg = ctypes.create_string_buffer(len(m) + crypto_sign_BYTES)
-    smsglen = ctypes.pointer(ctypes.c_ulonglong())
-    __check(sodium.crypto_sign(smsg, smsglen, m, ctypes.c_ulonglong(len(m)), sk))
+    smsglen = ctypes.c_ulonglong()
+    __check(sodium.crypto_sign(smsg, ctypes.byref(smsglen), m, ctypes.c_ulonglong(len(m)), sk))
     return smsg.raw
 
 
@@ -248,8 +237,7 @@ def crypto_sign_open(sm, pk):
         raise ValueError("invalid parameters")
     msg = ctypes.create_string_buffer(len(sm))
     msglen = ctypes.c_ulonglong()
-    msglenp = ctypes.pointer(msglen)
-    __check(sodium.crypto_sign_open(msg, msglenp, sm, ctypes.c_ulonglong(len(sm)), pk))
+    __check(sodium.crypto_sign_open(msg, ctypes.byref(msglen), sm, ctypes.c_ulonglong(len(sm)), pk))
     return msg.raw[:msglen.value]
 
 
@@ -257,8 +245,8 @@ def crypto_sign_verify_detached(sig, msg, pk):
     if None in (sig, msg, pk):
         raise ValueError
     if len(sig) != crypto_sign_BYTES:
-        raise ValueError("length of sig should be %d" % crypto_sign_BYTES)
-    return sodium.crypto_sign_verify_detached(sig, msg, ctypes.c_ulonglong(len(msg)), pk) == 0
+        raise ValueError("invalid sign")
+    __check(sodium.crypto_sign_verify_detached(sig, msg, ctypes.c_ulonglong(len(msg)), pk))
 
 
 # int crypto_stream_salsa20(unsigned char *c, unsigned long long clen,
