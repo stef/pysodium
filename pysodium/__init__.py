@@ -271,3 +271,19 @@ def crypto_stream_xor(msg, cnt, nonce=None, key=None):
         key = randombytes(crypto_stream_KEYBYTES)
     __check(sodium.crypto_stream_xor(res, msg, ctypes.c_ulonglong(cnt), nonce, key))
     return res.raw
+
+
+def crypt_sign_pk_to_box_pk(pk):
+    if pk is None:
+        raise ValueError
+    res = ctypes.create_string_buffer(crypto_box_PUBLICKEYBYTES)
+    __check(sodium.crypto_sign_ed25519_pk_to_curve25519(ctypes.byref(res), pk))
+    return res.raw
+
+
+def crypto_sign_sk_to_box_sk(sk):
+    if sk is None:
+        raise ValueError
+    res = ctypes.create_string_buffer(crypto_box_SECRETKEYBYTES)
+    __check(sodium.crypto_sign_ed25519_sk_to_curve25519(ctypes.byref(res), sk))
+    return res.raw
