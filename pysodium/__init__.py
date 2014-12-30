@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import ctypes
 import ctypes.util
 
-sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium'))
+sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('libsodium'))
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
 crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
@@ -111,7 +111,7 @@ def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
     return c.raw
 
 
-#crypto_aead_chacha20poly1305_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+# crypto_aead_chacha20poly1305_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
 def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
 
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
@@ -129,21 +129,21 @@ def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     return buf.raw
 
 
-#crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
+# crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
 def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
     state = CryptoGenericHashState()
     __check(sodium.crypto_generichash_init(ctypes.byref(state), k, ctypes.c_size_t(len(k)), ctypes.c_size_t(outlen)))
     return state
 
 
-#crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
+# crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
 def crypto_generichash_update(state, m):
     assert isinstance(state, CryptoGenericHashState)
     __check(sodium.crypto_generichash_update(ctypes.byref(state), m, ctypes.c_ulonglong(len(m))))
     return state
 
 
-#crypto_generichash_final(crypto_generichash_state *state, unsigned char *out, const size_t outlen);
+# crypto_generichash_final(crypto_generichash_state *state, unsigned char *out, const size_t outlen);
 def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
     assert isinstance(state, CryptoGenericHashState)
     buf = ctypes.create_string_buffer(outlen)
