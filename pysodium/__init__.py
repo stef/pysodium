@@ -56,7 +56,6 @@ crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_s
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
-crypto_pwhash_scryptsalsa208sha256_SALTBYTES = sodium.crypto_pwhash_scryptsalsa208sha256_saltbytes()
 crypto_box_SEEDBYTES = sodium.crypto_box_seedbytes()
 
 class CryptoGenericHashState(ctypes.Structure):
@@ -157,13 +156,13 @@ def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
     return buf.raw
 
 # crypto_pwhash_scryptsalsa208sha256(unsigned char * const out, unsigned long long outlen, const char * const passwd, unsigned long long passwdlen, const unsigned char * const salt, unsigned long long opslimit,size_t memlimit);
-def crypto_pwhash_scryptsalsa208sha256(size, passwd, salt, opslimit = crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE, memlimit = crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE):
+def crypto_pwhash_scryptsalsa208sha256(size, passwd, salt, opslimit=crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE, memlimit=crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE):
     outlen = ctypes.c_ulonglong(size)
     out = ctypes.create_string_buffer(size)
     passwdlen = ctypes.c_ulonglong(len(passwd))
     opslimit = ctypes.c_ulonglong(opslimit)
     memlimit = ctypes.c_size_t(memlimit)
-    __check(sodium.crypto_pwhash_scryptsalsa208sha256(out, outlen, passwd, passwdlen, str(salt), opslimit, memlimit))
+    __check(sodium.crypto_pwhash_scryptsalsa208sha256(out, outlen, passwd, passwdlen, salt, opslimit, memlimit))
     return out.raw
 
 def randombytes(size):

@@ -107,7 +107,7 @@ class TestPySodium(unittest.TestCase):
     def test_crypto_pwhash_scryptsalsa208sha256(self):
         passwd = "howdy"
         outlen = 128
-        salt = pysodium.randombytes(pysodium.crypto_pwhash_scryptsalsa208sha256_SALTBYTES);
+        salt = pysodium.randombytes(pysodium.crypto_pwhash_scryptsalsa208sha256_SALTBYTES)
         output = pysodium.crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt)
         self.assertEqual(128, len(output))
         salt = b'12345678901234567890123456789012'
