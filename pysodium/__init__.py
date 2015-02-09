@@ -51,7 +51,12 @@ crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
 crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
 crypto_scalarmult_curve25519_BYTES = sodium.crypto_scalarmult_curve25519_bytes()
 crypto_scalarmult_BYTES = sodium.crypto_scalarmult_bytes()
-
+crypto_pwhash_scryptsalsa208sha256_SALTBYTES = sodium.crypto_pwhash_scryptsalsa208sha256_saltbytes()
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_interactive()
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
+crypto_box_SEEDBYTES = sodium.crypto_box_seedbytes()
 
 class CryptoGenericHashState(ctypes.Structure):
     _pack_ = 1
@@ -150,6 +155,15 @@ def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
     __check(sodium.crypto_generichash_final(ctypes.byref(state), buf, ctypes.c_size_t(outlen)))
     return buf.raw
 
+# crypto_pwhash_scryptsalsa208sha256(unsigned char * const out, unsigned long long outlen, const char * const passwd, unsigned long long passwdlen, const unsigned char * const salt, unsigned long long opslimit,size_t memlimit);
+def crypto_pwhash_scryptsalsa208sha256(size, passwd, salt, opslimit=crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE, memlimit=crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE):
+    outlen = ctypes.c_ulonglong(size)
+    out = ctypes.create_string_buffer(size)
+    passwdlen = ctypes.c_ulonglong(len(passwd))
+    opslimit = ctypes.c_ulonglong(opslimit)
+    memlimit = ctypes.c_size_t(memlimit)
+    __check(sodium.crypto_pwhash_scryptsalsa208sha256(out, outlen, passwd, passwdlen, salt, opslimit, memlimit))
+    return out.raw
 
 def randombytes(size):
     buf = ctypes.create_string_buffer(size)
