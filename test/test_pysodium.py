@@ -112,7 +112,7 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(128, len(output))
         salt = b'12345678901234567890123456789012'
         output = pysodium.crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt)
-        self.assertEqual(binascii.unhexlify(b'6af52bde42cb37deae6661ba684c78d006ed450542e812a7133f14d052fb59bd400476d2787834df1ab47576cb18da4881e5cea2cba4b676e2abc5411af80d5ddcf36217b43b3eab50a0067e820b5bcc215be0fc6ff016a717ff876304d51a87af7e8d0113f737a268e94a76abd4e690b0012a688e895e7edb93a030cd341b4f'), output)
+        self.assertEqual(binascii.unhexlify(b'6c3c08743a1389029ed68744f24dfd4cd550ad4a78af60e450f310f084bf0fc6fed23c22c71a427308cb4b98e8bbefc2be3c385c585f65b8a23682b44d8b45605f1fec2b1650c7cdedc2a73dcbed13d9cfb630cb207b3a8773b1ae0ff880c2cb5a855b49ab79f85dfd257f6f25e2da17248d81f4b8035220b467d9ca078be5f6'), output)
 
 if __name__ == '__main__':
     unittest.main()
