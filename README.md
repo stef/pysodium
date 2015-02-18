@@ -1,5 +1,7 @@
 This is a very simple wrapper around libsodium masquerading as nacl.
 
+[![Build Status](https://travis-ci.org/stef/pysodium.svg?branch=master)](https://travis-ci.org/stef/pysodium)
+
 This wrapper requires a pre-installed libsodium from:
 
    https://github.com/jedisct1/libsodium
@@ -18,6 +20,13 @@ crypto_sign_SEEDBYTES,
 crypto_stream_KEYBYTES, crypto_stream_NONCEBYTES,
 crypto_generichash_BYTES, crypto_scalarmult_curve25519_BYTES,
 crypto_scalarmult_BYTES, crypto_sign_BYTES
+crypto_pwhash_scryptsalsa208sha256_SALTBYTES
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE
+crypto_pwhash_scryptsalsa208sha256_SALTBYTES
+crypto_box_SEEDBYTES
 
 randombytes(l)
 
@@ -54,3 +63,5 @@ crypto_sign_open(sm, pk)
 crypto_stream(cnt, nonce = None, key = None)
 
 crypto_stream_xor(msg, cnt, nonce = None, key = None)
+
+crypto_pwhash_scryptsalsa208sha256(size, passwd, salt, opslimit = crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE, memlimit = crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE):
