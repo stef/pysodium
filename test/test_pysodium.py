@@ -104,6 +104,17 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(binascii.unhexlify(b"f798a189f195e66982105ffb640bb7757f579da31602fc93ec01ac56f85ac3c134a4547b733b46413042c9440049176905d3be59ea1c53f15916155c2be8241a38008b9a26bc35941e2444177c8ade6689de95264986d95889fb60e84629c9bd9a5acb1cc118be563eb9b3a4a472f82e09a7e778492b562ef7130e88dfe031c79db9d4f7c7a899151b9a475032b63fc385245fe054e3dd5a97a5f576fe064025d3ce042c566ab2c507b138db853e3d6959660996546cc9c4a6eafdc777c040d70eaf46f76dad3979e5c5360c3317166a1c894c94a371876a94df7628fe4eaaf2ccb27d5aaae0ad7ad0f9d4b6ad3b54098746d4524d38407a6deb3ab78fab78c9"),
                          output)
 
+    def test_crypto_blake2b(self):
+        message   = binascii.unhexlify(b'54686520717569636b2062726f776e20666f78206a756d7073206f76657220746865206c617a7920646f67')
+        key       = binascii.unhexlify(b'000102030405060708090a0b0c0d0e0f')
+
+        # Test vectors generated from the blake2b reference implementation
+        self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, key      = key),      binascii.unhexlify(b'0f44eda51dba98442425d486b89962647c1a6e0e8b98a93e7090bf849a5156da'))
+        self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, personal = key),      binascii.unhexlify(b'8c68aecca4b50e91aebaf8c53bde15b68c01b13d571a772fcb8b432affa52a7c'))
+        self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, salt     = key),      binascii.unhexlify(b'43b7feaa91019d0d5b492357fb923211af827d6126af28ccc1874e70bc2177f8'))
+        self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, personal = key[0:8]), binascii.unhexlify(b'31353589b3f179cda74387fbe1deca94f004661f05cde2295a16c0a8d8ead79b'))
+        self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, salt     = key[0:8]), binascii.unhexlify(b'11c29bf7b91b8500a463f27e215dc83afdb71ed5e959f0847e339769c4835fc7'))
+        self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, personal = key, key = key), binascii.unhexlify(b'5a0b3db4bf2dab71485211447fc2014391228cc6c1acd2f3031050a9a32ca407'))
 
 if __name__ == '__main__':
     unittest.main()

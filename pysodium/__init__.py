@@ -51,6 +51,12 @@ crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
 crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
 crypto_scalarmult_curve25519_BYTES = sodium.crypto_scalarmult_curve25519_bytes()
 crypto_scalarmult_BYTES = sodium.crypto_scalarmult_bytes()
+crypto_generichash_blake2b_KEYBYTES_MAX = sodium.crypto_generichash_blake2b_keybytes_max()
+crypto_generichash_blake2b_BYTES = sodium.crypto_generichash_blake2b_bytes()
+crypto_generichash_blake2b_BYTES_MIN = sodium.crypto_generichash_blake2b_bytes_min()
+crypto_generichash_blake2b_BYTES_MAX = sodium.crypto_generichash_blake2b_bytes_max()
+crypto_generichash_blake2b_SALTBYTES = sodium.crypto_generichash_blake2b_saltbytes()
+crypto_generichash_blake2b_PERSONALBYTES = sodium.crypto_generichash_blake2b_personalbytes()
 
 
 class CryptoGenericHashState(ctypes.Structure):
@@ -69,6 +75,17 @@ def __check(code):
     if code != 0:
         raise ValueError
 
+
+def pad_buf(buf, length, name = 'buf'):
+    buflen = len(buf)
+    if buflen > length:
+        raise ValueError("Cannot pad %s (len: %d - expected %d or less)" % (name, buflen, length))
+
+    padding = length - buflen
+    if padding > 0:
+        return buf + b"\x00"*padding
+    else:
+        return buf
 
 def crypto_scalarmult_curve25519(n, p):
     buf = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
@@ -148,6 +165,23 @@ def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
     assert isinstance(state, CryptoGenericHashState)
     buf = ctypes.create_string_buffer(outlen)
     __check(sodium.crypto_generichash_final(ctypes.byref(state), buf, ctypes.c_size_t(outlen)))
+    return buf.raw
+
+def crypto_generichash_blake2b_salt_personal(message, outlen = crypto_generichash_blake2b_BYTES, key = b'', salt = b'', personal = b''):
+    keylen   = len(key)
+
+    if keylen != 0 and not crypto_generichash_blake2b_BYTES_MIN <= keylen <= crypto_generichash_blake2b_KEYBYTES_MAX:
+        raise ValueError("%d <= len(key) <= %d - %d recieved" % (crypto_generichash_blake2b_BYTES_MIN, crypto_generichash_blake2b_KEYBYTES_MAX, keylen))
+
+    salt     = pad_buf(salt, crypto_generichash_blake2b_SALTBYTES, 'salt')
+    personal = pad_buf(personal, crypto_generichash_blake2b_PERSONALBYTES, 'personal')
+
+    buf      = ctypes.create_string_buffer(outlen)
+    outlen   = ctypes.c_size_t(outlen)
+    inlen    = ctypes.c_ulonglong(len(message))
+    keylen   = ctypes.c_size_t(keylen)
+
+    __check(sodium.crypto_generichash_blake2b_salt_personal(buf, outlen, message, inlen, key, keylen, salt, personal))
     return buf.raw
 
 
