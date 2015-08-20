@@ -51,6 +51,10 @@ crypto_secretbox(msg, nonce, k)
 
 crypto_secretbox_open(c, nonce, k)
 
+crypto_box_seal(msg, pk)
+
+crypto_box_seal_open(c, pk, sk)
+
 crypto_sign_keypair()
 
 crypto_sign_seed_keypair(seed)
