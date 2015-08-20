@@ -55,6 +55,11 @@ class TestPySodium(unittest.TestCase):
         pysodium.crypto_generichash_update(state, b'howdy')
         pysodium.crypto_generichash_final(state, outlen=6)
 
+    def test_crypto_box_seal(self):
+        pk, sk = pysodium.crypto_box_keypair()
+        c = pysodium.crypto_box_seal(b"howdy", pk)
+        self.assertEqual(pysodium.crypto_box_seal_open(c, pk, sk), 'howdy')
+
     def test_crypto_box_open(self):
         pk, sk = pysodium.crypto_box_keypair()
         n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)

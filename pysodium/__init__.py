@@ -37,6 +37,7 @@ crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
 crypto_box_ZEROBYTES = sodium.crypto_box_zerobytes()
 crypto_box_BOXZEROBYTES = sodium.crypto_box_boxzerobytes()
 crypto_box_MACBYTES = sodium.crypto_box_macbytes()
+crypto_box_SEALBYTES = sodium.crypto_box_sealbytes()
 crypto_secretbox_KEYBYTES = sodium.crypto_secretbox_keybytes()
 crypto_secretbox_NONCEBYTES = sodium.crypto_secretbox_noncebytes()
 crypto_secretbox_ZEROBYTES = sodium.crypto_secretbox_zerobytes()
@@ -233,6 +234,26 @@ def crypto_secretbox_open(c, nonce, k):
     __check(sodium.crypto_secretbox_open(msg, padded, ctypes.c_ulonglong(len(padded)), nonce, k))
     return msg.raw[crypto_secretbox_ZEROBYTES:]
 
+# int crypto_box_seal(unsigned char *c, const unsigned char *m,
+#                    unsigned long long mlen, const unsigned char *pk);
+
+def crypto_box_seal(msg, k):
+    if None in (msg, k):
+        raise ValueError("invalid parameters")
+    c = ctypes.create_string_buffer(len(msg)+crypto_box_SEALBYTES)
+    __check(sodium.crypto_box_seal(c, msg, ctypes.c_ulonglong(len(msg)), k))
+    return c.raw
+
+# int crypto_box_seal_open(unsigned char *m, const unsigned char *c,
+#                         unsigned long long clen,
+#                         const unsigned char *pk, const unsigned char *sk);
+
+def crypto_box_seal_open(c, pk, sk):
+    if None in (c, pk, sk):
+        raise ValueError("invalid parameters")
+    msg = ctypes.create_string_buffer(len(c)-crypto_box_SEALBYTES)
+    __check(sodium.crypto_box_seal_open(msg, c, ctypes.c_ulonglong(len(c)), pk, sk))
+    return msg.raw
 
 def crypto_sign_keypair():
     pk = ctypes.create_string_buffer(crypto_sign_PUBLICKEYBYTES)
