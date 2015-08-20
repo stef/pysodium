@@ -58,7 +58,7 @@ class TestPySodium(unittest.TestCase):
     def test_crypto_box_seal(self):
         pk, sk = pysodium.crypto_box_keypair()
         c = pysodium.crypto_box_seal(b"howdy", pk)
-        self.assertEqual(pysodium.crypto_box_seal_open(c, pk, sk), 'howdy')
+        self.assertEqual(pysodium.crypto_box_seal_open(c, pk, sk), b'howdy')
 
     def test_crypto_box_open(self):
         pk, sk = pysodium.crypto_box_keypair()
