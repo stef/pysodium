@@ -121,5 +121,18 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, salt     = key[0:8]), binascii.unhexlify(b'11c29bf7b91b8500a463f27e215dc83afdb71ed5e959f0847e339769c4835fc7'))
         self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, personal = key, key = key), binascii.unhexlify(b'5a0b3db4bf2dab71485211447fc2014391228cc6c1acd2f3031050a9a32ca407'))
 
+    def test_crypto_pwhash_salsa208sha256(self):
+        password = 'howdy'
+        salt = b'salt'
+
+        self.assertEqual(pysodium.crypto_pwhash_scryptsalsa208sha256(password, salt), binascii.unhexlify(b'213c5d9bf41a9f00f7eb83ecef8f7080b3d69a4284076cf6c953a252c98d472d'))
+
+    def test_crypto_pwhash_salsa208sha256_str(self):
+        password = 'howdy'
+        pwhash = pysodium.crypto_pwhash_scryptsalsa208sha256_str(password)
+        self.assertEqual(pysodium.crypto_pwhash_scryptsalsa208sha256_str_verify(pwhash, password), None)
+        with self.assertRaises(ValueError):
+            pysodium.crypto_pwhash_scryptsalsa208sha256_str_verify(pwhash, 'wrongpassword')
+
 if __name__ == '__main__':
     unittest.main()
