@@ -31,6 +31,7 @@ import ctypes
 import ctypes.util
 
 sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium') or ctypes.util.find_library('libsodium'))
+sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
 crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
@@ -58,6 +59,13 @@ crypto_generichash_blake2b_BYTES_MIN = sodium.crypto_generichash_blake2b_bytes_m
 crypto_generichash_blake2b_BYTES_MAX = sodium.crypto_generichash_blake2b_bytes_max()
 crypto_generichash_blake2b_SALTBYTES = sodium.crypto_generichash_blake2b_saltbytes()
 crypto_generichash_blake2b_PERSONALBYTES = sodium.crypto_generichash_blake2b_personalbytes()
+crypto_pwhash_scryptsalsa208sha256_SALTBYTES = sodium.crypto_pwhash_scryptsalsa208sha256_saltbytes()
+crypto_pwhash_scryptsalsa208sha256_STRBYTES = sodium.crypto_pwhash_scryptsalsa208sha256_strbytes()
+crypto_pwhash_scryptsalsa208sha256_STRPREFIX = sodium.crypto_pwhash_scryptsalsa208sha256_strprefix()
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_interactive()
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
 
 
 class CryptoGenericHashState(ctypes.Structure):
@@ -342,3 +350,25 @@ def crypto_sign_sk_to_box_sk(sk):
     res = ctypes.create_string_buffer(crypto_box_SECRETKEYBYTES)
     __check(sodium.crypto_sign_ed25519_sk_to_curve25519(ctypes.byref(res), sk))
     return res.raw
+
+
+def crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit):
+    if None in (outlen, passwd, salt, opslimit, memlimit):
+        raise ValueError
+    out = ctypes.create_string_buffer(outlen)
+    __check(sodium.crypto_pwhash_scryptsalsa208sha256(out, ctypes.c_ulonglong(outlen), passwd, ctypes.c_ulonglong(len(passwd)), salt, ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
+    return out.raw
+
+
+def crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit):
+    if None in (passwd, opslimit, memlimit):
+        raise ValueError
+    out = ctypes.create_string_buffer(crypto_pwhash_scryptsalsa208sha256_STRBYTES)
+    __check(sodium.crypto_pwhash_scryptsalsa208sha256_str(out, passwd, ctypes.c_ulonglong(len(passwd)), ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
+    return out.value
+
+
+def crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd):
+    if None in (stored, passwd):
+       raise ValueError
+    __check(sodium.crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd, ctypes.c_ulonglong(len(passwd))))
