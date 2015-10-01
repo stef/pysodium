@@ -142,11 +142,28 @@ class TestPySodium(unittest.TestCase):
         self.assertNotEqual(key, pysodium.crypto_pwhash_scryptsalsa208sha256(32, passwd, other_salt, ops_limit, mem_limit))
         self.assertNotEqual(key, pysodium.crypto_pwhash_scryptsalsa208sha256(32, other_passwd, salt, ops_limit, mem_limit))
 
+    def test_crypto_pwhash_scryptsalsa208sha256_str(self):
+        passwd =       b'Correct Horse Battery Staple'
+
+        # Use very small limits to avoid burning resources in CI
+        mem_limit = 32*1024
+        ops_limit = 1024
+
         storage_string = pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit)
         self.assertTrue(storage_string.startswith(pysodium.crypto_pwhash_scryptsalsa208sha256_STRPREFIX))
         self.assertFalse(b'\x00' in storage_string)
 
         self.assertNotEqual(storage_string, pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit), "Each call should compute a new random salt.")
+
+    def test_crypto_pwhash_scryptsalsa208sha256_str_verify(self):
+        passwd =       b'Correct Horse Battery Staple'
+        other_passwd = b'correct horse battery staple'
+        
+        # Use very small limits to avoid burning resources in CI
+        mem_limit = 32*1024
+        ops_limit = 1024
+
+        storage_string = pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit)
 
         pysodium.crypto_pwhash_scryptsalsa208sha256_str_verify(storage_string, passwd)
 
