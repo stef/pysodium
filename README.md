@@ -74,3 +74,5 @@ crypto_stream_xor(msg, cnt, nonce=None, key=None)
 crypt_sign_pk_to_box_pk(pk)
 
 crypto_sign_sk_to_box_sk(sk)
+
+crypto_sign_sk_to_pk(sk)

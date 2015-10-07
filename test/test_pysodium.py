@@ -134,5 +134,10 @@ class TestPySodium(unittest.TestCase):
         with self.assertRaises(ValueError):
             pysodium.crypto_pwhash_scryptsalsa208sha256_str_verify(pwhash, 'wrongpassword')
 
+    def test_crypto_sign_sk_to_pk(self):
+        pk, sk = pysodium.crypto_sign_keypair()
+        pk2 = pysodium.crypto_sign_sk_to_pk(sk)
+        self.assertEqual(pk, pk2)
+
 if __name__ == '__main__':
     unittest.main()
