@@ -48,6 +48,8 @@ crypto_sign_PUBLICKEYBYTES = sodium.crypto_sign_publickeybytes()
 crypto_sign_SECRETKEYBYTES = sodium.crypto_sign_secretkeybytes()
 crypto_sign_SEEDBYTES = sodium.crypto_sign_seedbytes()
 crypto_sign_BYTES = sodium.crypto_sign_bytes()
+crypto_sign_ed25519_SECRETKEYBYTES = sodium.crypto_sign_ed25519_secretkeybytes()
+crypto_sign_ed25519_PUBLICKEYBYTES = sodium.crypto_sign_ed25519_publickeybytes()
 crypto_stream_KEYBYTES = sodium.crypto_stream_keybytes()
 crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
 crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
@@ -398,3 +400,11 @@ def crypto_pwhash_scryptsalsa208sha256_str_verify(pwhash, password):
     if None in (pwhash, password):
         raise ValueError
     __check(sodium.crypto_pwhash_scryptsalsa208sha256_str_verify(pwhash, password, ctypes.c_ulonglong(len(password))))
+
+# int crypto_sign_ed25519_sk_to_pk(unsigned char *pk, const unsigned char *sk)
+def crypto_sign_sk_to_pk(sk):
+    if sk is None or len(sk) != crypto_sign_ed25519_SECRETKEYBYTES:
+        raise ValueError
+    res = ctypes.create_string_buffer(crypto_sign_ed25519_PUBLICKEYBYTES)
+    __check(sodium.crypto_sign_ed25519_sk_to_pk(ctypes.byref(res), sk))
+    return res.raw
