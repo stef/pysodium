@@ -19,7 +19,14 @@ crypto_sign_PUBLICKEYBYTES, crypto_sign_SECRETKEYBYTES,
 crypto_sign_SEEDBYTES,
 crypto_stream_KEYBYTES, crypto_stream_NONCEBYTES,
 crypto_generichash_BYTES, crypto_scalarmult_curve25519_BYTES,
-crypto_scalarmult_BYTES, crypto_sign_BYTES
+crypto_scalarmult_BYTES, crypto_sign_BYTES,
+crypto_pwhash_scryptsalsa208sha256_SALTBYTES,
+crypto_pwhash_scryptsalsa208sha256_STRBYTES,
+crypto_pwhash_scryptsalsa208sha256_STRPREFIX,
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE,
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE,
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE
 
 crypto_scalarmult_curve25519(n, p)
 
@@ -74,3 +81,9 @@ crypto_stream_xor(msg, cnt, nonce=None, key=None)
 crypt_sign_pk_to_box_pk(pk)
 
 crypto_sign_sk_to_box_sk(sk)
+
+crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit)
+
+crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit)
+
+crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd)
