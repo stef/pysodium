@@ -122,9 +122,9 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, personal = key, key = key), binascii.unhexlify(b'5a0b3db4bf2dab71485211447fc2014391228cc6c1acd2f3031050a9a32ca407'))
 
     def test_crypto_pwhash_scryptsalsa208sha256(self):
-        passwd =       b'Correct Horse Battery Staple'
+        passwd = b'Correct Horse Battery Staple'
         other_passwd = b'correct horse battery staple'
-        salt =       binascii.unhexlify(b'4206baae5578933d7cfb315b1c257cc7af162965a91a74ccbb1cfa1d747eb691')
+        salt = binascii.unhexlify(b'4206baae5578933d7cfb315b1c257cc7af162965a91a74ccbb1cfa1d747eb691')
         other_salt = binascii.unhexlify(b'4206baae5578933d7cfb315b1c257cc7af162965a91a74ccbb1cfa1d747eb692')
         
         # Use very small limits to avoid burning resources in CI
@@ -143,7 +143,7 @@ class TestPySodium(unittest.TestCase):
         self.assertNotEqual(key, pysodium.crypto_pwhash_scryptsalsa208sha256(32, other_passwd, salt, ops_limit, mem_limit))
 
     def test_crypto_pwhash_scryptsalsa208sha256_str(self):
-        passwd =       b'Correct Horse Battery Staple'
+        passwd = b'Correct Horse Battery Staple'
 
         # Use very small limits to avoid burning resources in CI
         mem_limit = 32*1024
@@ -156,7 +156,7 @@ class TestPySodium(unittest.TestCase):
         self.assertNotEqual(storage_string, pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit), "Each call should compute a new random salt.")
 
     def test_crypto_pwhash_scryptsalsa208sha256_str_verify(self):
-        passwd =       b'Correct Horse Battery Staple'
+        passwd = b'Correct Horse Battery Staple'
         other_passwd = b'correct horse battery staple'
         
         # Use very small limits to avoid burning resources in CI
