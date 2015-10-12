@@ -128,7 +128,7 @@ class TestPySodium(unittest.TestCase):
         other_salt = binascii.unhexlify(b'4206baae5578933d7cfb315b1c257cc7af162965a91a74ccbb1cfa1d747eb692')
         
         # Use very small limits to avoid burning resources in CI
-        mem_limit = 32*1024
+        mem_limit = 32 * 1024
         ops_limit = 1024
 
         key16 = pysodium.crypto_pwhash_scryptsalsa208sha256(16, passwd, salt, ops_limit, mem_limit)
@@ -146,12 +146,12 @@ class TestPySodium(unittest.TestCase):
         passwd = b'Correct Horse Battery Staple'
 
         # Use very small limits to avoid burning resources in CI
-        mem_limit = 32*1024
+        mem_limit = 32 * 1024
         ops_limit = 1024
 
         storage_string = pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit)
         self.assertTrue(storage_string.startswith(pysodium.crypto_pwhash_scryptsalsa208sha256_STRPREFIX))
-        self.assertFalse(b'\x00' in storage_string)
+        self.assertNotIn(b'\x00', storage_string)
 
         self.assertNotEqual(storage_string, pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit), "Each call should compute a new random salt.")
 
@@ -160,7 +160,7 @@ class TestPySodium(unittest.TestCase):
         other_passwd = b'correct horse battery staple'
         
         # Use very small limits to avoid burning resources in CI
-        mem_limit = 32*1024
+        mem_limit = 32 * 1024
         ops_limit = 1024
 
         storage_string = pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit)
