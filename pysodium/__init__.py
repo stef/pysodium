@@ -391,7 +391,7 @@ def crypto_pwhash_scryptsalsa208sha256_str(password,
                                                           ctypes.c_ulonglong(len(password)),
                                                           ctypes.c_ulonglong(opslimit),
                                                           ctypes.c_ulonglong(memlimit)))
-    return res.raw
+    return res.raw[:-1]
 
 #int crypto_pwhash_scryptsalsa208sha256_str_verify(const char str[crypto_pwhash_scryptsalsa208sha256_STRBYTES],
 #                                                  const char * const passwd,
