@@ -31,6 +31,7 @@ import ctypes
 import ctypes.util
 
 sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium') or ctypes.util.find_library('libsodium'))
+sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
 crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
@@ -63,6 +64,7 @@ crypto_generichash_blake2b_SALTBYTES = sodium.crypto_generichash_blake2b_saltbyt
 crypto_generichash_blake2b_PERSONALBYTES = sodium.crypto_generichash_blake2b_personalbytes()
 crypto_pwhash_scryptsalsa208sha256_SALTBYTES = sodium.crypto_pwhash_scryptsalsa208sha256_saltbytes()
 crypto_pwhash_scryptsalsa208sha256_STRBYTES = sodium.crypto_pwhash_scryptsalsa208sha256_strbytes()
+crypto_pwhash_scryptsalsa208sha256_STRPREFIX = sodium.crypto_pwhash_scryptsalsa208sha256_strprefix()
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_interactive()
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
@@ -358,48 +360,32 @@ def crypto_sign_sk_to_box_sk(sk):
 #                                        const unsigned char * const salt,
 #                                        unsigned long long opslimit,
 #                                        size_t memlimit);
-def crypto_pwhash_scryptsalsa208sha256(password,
-                                       salt = b'',
-                                       opslimit=crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,
-                                       memlimit=crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE):
-    if None in (password, salt):
+def crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit):
+    if None in (outlen, passwd, salt, opslimit, memlimit):
         raise ValueError
-    res = ctypes.create_string_buffer(crypto_box_SEEDBYTES)
-    salt = pad_buf(salt, crypto_pwhash_scryptsalsa208sha256_SALTBYTES, 'salt')
-    __check(sodium.crypto_pwhash_scryptsalsa208sha256(ctypes.byref(res),
-                                                      ctypes.c_ulonglong(crypto_box_SEEDBYTES),
-                                                      password,
-                                                      ctypes.c_ulonglong(len(password)),
-                                                      salt,
-                                                      ctypes.c_ulonglong(opslimit),
-                                                      ctypes.c_ulonglong(memlimit)))
-    return res.raw
+    out = ctypes.create_string_buffer(outlen)
+    __check(sodium.crypto_pwhash_scryptsalsa208sha256(out, ctypes.c_ulonglong(outlen), passwd, ctypes.c_ulonglong(len(passwd)), salt, ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
+    return out.raw
 
 # int crypto_pwhash_scryptsalsa208sha256_str(char out[crypto_pwhash_scryptsalsa208sha256_STRBYTES],
 #                                            const char * const passwd,
 #                                            unsigned long long passwdlen,
 #                                            unsigned long long opslimit,
 #                                            size_t memlimit);
-def crypto_pwhash_scryptsalsa208sha256_str(password,
-                                           opslimit=crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,
-                                           memlimit=crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE):
-    if password is None:
+def crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit):
+    if None in (passwd, opslimit, memlimit):
         raise ValueError
-    res = ctypes.create_string_buffer(crypto_pwhash_scryptsalsa208sha256_STRBYTES)
-    __check(sodium.crypto_pwhash_scryptsalsa208sha256_str(ctypes.byref(res),
-                                                          password,
-                                                          ctypes.c_ulonglong(len(password)),
-                                                          ctypes.c_ulonglong(opslimit),
-                                                          ctypes.c_ulonglong(memlimit)))
-    return res.raw[:-1]
+    out = ctypes.create_string_buffer(crypto_pwhash_scryptsalsa208sha256_STRBYTES)
+    __check(sodium.crypto_pwhash_scryptsalsa208sha256_str(out, passwd, ctypes.c_ulonglong(len(passwd)), ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
+    return out.value
 
 #int crypto_pwhash_scryptsalsa208sha256_str_verify(const char str[crypto_pwhash_scryptsalsa208sha256_STRBYTES],
 #                                                  const char * const passwd,
 #                                                  unsigned long long passwdlen);
-def crypto_pwhash_scryptsalsa208sha256_str_verify(pwhash, password):
-    if None in (pwhash, password):
-        raise ValueError
-    __check(sodium.crypto_pwhash_scryptsalsa208sha256_str_verify(pwhash, password, ctypes.c_ulonglong(len(password))))
+def crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd):
+    if None in (stored, passwd):
+       raise ValueError
+    __check(sodium.crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd, ctypes.c_ulonglong(len(passwd))))
 
 # int crypto_sign_ed25519_sk_to_pk(unsigned char *pk, const unsigned char *sk)
 def crypto_sign_sk_to_pk(sk):
