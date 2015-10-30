@@ -176,5 +176,15 @@ class TestPySodium(unittest.TestCase):
         pk2 = pysodium.crypto_sign_sk_to_pk(sk)
         self.assertEqual(pk, pk2)
 
+    def test_AsymCrypto_With_Seeded_Keypair(self):
+        msg     = "correct horse battery staple"
+        nonce   = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
+        pk, sk = pysodium.crypto_box_seed_keypair("howdy")
+
+        c = pysodium.crypto_box_easy(msg, nonce, pk, sk)
+        m = pysodium.crypto_box_open_easy(c, nonce, pk, sk)
+        
+        self.assertEqual(msg, m)
+
 if __name__ == '__main__':
     unittest.main()
