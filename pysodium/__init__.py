@@ -214,6 +214,35 @@ def crypto_box_keypair():
     __check(sodium.crypto_box_keypair(pk, sk))
     return pk.raw, sk.raw
 
+# int crypto_box_seed_keypair(unsigned char *pk, unsigned char *sk,
+#                                const unsigned char *seed);
+def crypto_box_seed_keypair(seed):
+    if seed is None:
+        raise ValueError("invalid parameters")
+    pk = ctypes.create_string_buffer(crypto_box_PUBLICKEYBYTES)
+    sk = ctypes.create_string_buffer(crypto_box_SECRETKEYBYTES)
+    __check(sodium.crypto_box_seed_keypair(pk, sk, seed))
+    return pk.raw, sk.raw
+
+# int crypto_box_easy(unsigned char *c, const unsigned char *m,
+#                        unsigned long long mlen, const unsigned char *n,
+#                        const unsigned char *pk, const unsigned char *sk);
+def crypto_box_easy(msg, nonce, pk, sk):
+    if None in (msg, nonce, pk, sk):
+        raise ValueError("invalid parameters")
+    c = ctypes.create_string_buffer(crypto_box_MACBYTES + len(msg))
+    __check(sodium.crypto_box_easy(c, msg.encode(), ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
+    return c.raw
+
+# int crypto_box_open_easy(unsigned char *m, const unsigned char *c,
+#                         unsigned long long clen, const unsigned char *n,
+#                         const unsigned char *pk, const unsigned char *sk);
+def crypto_box_open_easy(c, nonce, pk, sk):
+    if None in (c, nonce, pk, sk):
+        raise ValueError("invalid parameters")
+    msg = ctypes.create_string_buffer(len(c) - crypto_box_MACBYTES)
+    __check(sodium.crypto_box_open_easy(msg, c, ctypes.c_ulonglong(len(c)), nonce, pk, sk))
+    return msg.raw.decode()
 
 def crypto_box(msg, nonce, pk, sk):
     if None in (msg, nonce, pk, sk):
