@@ -50,9 +50,15 @@ randombytes(size)
 
 crypto_box_keypair()
 
+crypto_box_seed_keypair(seed)
+
 crypto_box(msg, nonce, pk, sk)
 
 crypto_box_open(c, nonce, pk, sk)
+
+crypto_box_easy(msg, nonce, pk, sk)
+
+crypto_box_open_easy(c, nonce, pk, sk)
 
 crypto_secretbox(msg, nonce, k)
 
