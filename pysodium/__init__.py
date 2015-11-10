@@ -430,3 +430,20 @@ def crypto_sign_sk_to_pk(sk):
     res = ctypes.create_string_buffer(crypto_sign_ed25519_PUBLICKEYBYTES)
     __check(sodium.crypto_sign_ed25519_sk_to_pk(ctypes.byref(res), sk))
     return res.raw
+
+# int crypto_hash_sha256(unsigned char *out, const unsigned char *in,
+#                       unsigned long long inlen);
+def crypto_hash_sha256(message):
+    if message is None:
+        raise ValueError("invalid parameters")
+    # TODO: use crypto_hash_sha256_BYTES from libsodium here.
+    # Throws library lookup error at the moment without direct value
+    out = ctypes.create_string_buffer(32).raw
+    __check(sodium.crypto_hash_sha256(out, message.encode(), ctypes.c_ulonglong(len(message))))
+    result = ""
+    for i in range(0, len(out)):
+        tmp = str(hex(out[i]))[2:]
+        if len(tmp) is 1:
+            tmp = "0" + tmp
+        result += tmp
+    return result
