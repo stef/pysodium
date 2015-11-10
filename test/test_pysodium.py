@@ -199,7 +199,7 @@ class TestPySodium(unittest.TestCase):
     def byteHashToString(self, input):
         result = ""
         for i in range(0, len(input)):
-            tmp = str(hex(input[i]))[2:]
+            tmp = str(hex(int(input[i])))[2:]
             if len(tmp) is 1:
                 tmp = "0" + tmp
             result += tmp
