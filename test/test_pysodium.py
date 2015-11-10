@@ -197,9 +197,13 @@ class TestPySodium(unittest.TestCase):
             "0a53ef9bc1bea173118a42bbbe8300abb6bbef83139046940e9593d9559a5df7")
 
     def byteHashToString(self, input):
+        import sys
         result = ""
         for i in range(0, len(input)):
-            tmp = str(hex(int(input[i])))[2:]
+            if sys.version_info.major == 3:
+                tmp = str(hex(ord(chr(input[i]))))[2:]
+            else:
+                tmp = str(hex(ord(input[i])))[2:]
             if len(tmp) is 1:
                 tmp = "0" + tmp
             result += tmp
