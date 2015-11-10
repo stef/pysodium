@@ -30,7 +30,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import ctypes
 import ctypes.util
 
-sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium') or ctypes.util.find_library('libsodium'))
+# load libsodium for different oses
+import platform
+if platform.system() == "Darwin":
+    sodium = ctypes.cdll.LoadLibrary("../3rdparty/libsodium/libsodium-osx/lib/libsodium.dylib")
+elif platform.system() == "Linux":
+    sodium = ctypes.cdll.LoadLibrary("../3rdparty/libsodium/libsodium-linux/lib/libsodium.so")
+
+#sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium') or ctypes.util.find_library('libsodium'))
 sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
@@ -423,3 +430,20 @@ def crypto_sign_sk_to_pk(sk):
     res = ctypes.create_string_buffer(crypto_sign_ed25519_PUBLICKEYBYTES)
     __check(sodium.crypto_sign_ed25519_sk_to_pk(ctypes.byref(res), sk))
     return res.raw
+
+# int crypto_hash_sha256(unsigned char *out, const unsigned char *in,
+#                       unsigned long long inlen);
+def crypto_hash_sha256(message):
+    if message is None:
+        raise ValueError("invalid parameters")
+    # TODO: use crypto_hash_sha256_BYTES from libsodium here.
+    # Throws library lookup error at the moment without direct value
+    out = ctypes.create_string_buffer(32).raw
+    __check(sodium.crypto_hash_sha256(out, message.encode(), ctypes.c_ulonglong(len(message))))
+    result = ""
+    for i in range(0, len(out)):
+        tmp = str(hex(out[i]))[2:]
+        if len(tmp) is 1:
+            tmp = "0" + tmp
+        result += tmp
+    return result

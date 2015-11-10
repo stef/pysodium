@@ -186,5 +186,15 @@ class TestPySodium(unittest.TestCase):
         
         self.assertEqual(msg, m)
 
+    def test_crypto_hash_sha256(self):
+        self.assertEqual(pysodium.crypto_hash_sha256("test"),
+            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
+        self.assertEqual(pysodium.crypto_hash_sha256("howdy"),
+            "0f1128046248f83dc9b9ab187e16fad0ff596128f1524d05a9a77c4ad932f10a")
+        self.assertEqual(pysodium.crypto_hash_sha256("Correct Horse Battery Staple"),
+            "af139fa284364215adfa49c889ab7feddc5e5d1c52512ffb2cfc9baeb67f220e")
+        self.assertEqual(pysodium.crypto_hash_sha256("pysodium"),
+            "0a53ef9bc1bea173118a42bbbe8300abb6bbef83139046940e9593d9559a5df7")
+
 if __name__ == '__main__':
     unittest.main()
