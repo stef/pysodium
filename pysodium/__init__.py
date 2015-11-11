@@ -69,6 +69,7 @@ crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_s
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
+crypto_hash_sha256_BYTES = sodium.crypto_hash_sha256_bytes()
 
 class CryptoGenericHashState(ctypes.Structure):
     _pack_ = 1
@@ -429,8 +430,6 @@ def crypto_sign_sk_to_pk(sk):
 def crypto_hash_sha256(message):
     if message is None:
         raise ValueError("invalid parameters")
-    # TODO: use crypto_hash_sha256_BYTES from libsodium here.
-    # Throws library lookup error at the moment without direct value
-    out = ctypes.create_string_buffer(32).raw
+    out = ctypes.create_string_buffer(crypto_hash_sha256_BYTES).raw
     __check(sodium.crypto_hash_sha256(out, message.encode(), ctypes.c_ulonglong(len(message))))
     return out
