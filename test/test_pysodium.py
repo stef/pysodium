@@ -61,10 +61,31 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pysodium.crypto_box_seal_open(c, pk, sk), b'howdy')
 
     def test_crypto_box_open(self):
+        m = b"howdy"
         pk, sk = pysodium.crypto_box_keypair()
         n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
-        c = pysodium.crypto_box(b"howdy", n, pk, sk)
-        pysodium.crypto_box_open(c, n, pk, sk)
+        c = pysodium.crypto_box(m, n, pk, sk)
+        plaintext = pysodium.crypto_box_open(c, n, pk, sk)
+        self.assertEqual(m, plaintext)
+
+        # Test the easy variants on the same message.
+        c_easy = pysodium.crypto_box_easy(m.decode(), n, pk, sk)
+        self.assertEqual(c, c_easy)
+        plaintext_easy = pysodium.crypto_box_open_easy(c, n, pk, sk)
+        self.assertEqual(m.decode(), plaintext_easy)
+
+        # Test the precomputation variants on the same message.
+        k = pysodium.crypto_box_beforenm(pk, sk)
+        c_precomp = pysodium.crypto_box_afternm(m, n, k)
+        self.assertEqual(c, c_precomp)
+        plaintext_precomp = pysodium.crypto_box_open_afternm(c, n, k)
+        self.assertEqual(m, plaintext_precomp)
+
+        # And finally the easy+precomputation variants.
+        c_precomp_easy = pysodium.crypto_box_easy_afternm(m.decode(), n, k)
+        self.assertEqual(c, c_precomp_easy)
+        plaintext_precomp_easy = pysodium.crypto_box_open_easy_afternm(c, n, k)
+        self.assertEqual(m.decode(), plaintext_precomp_easy)
 
     def test_crypto_secretbox_open(self):
         k = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
