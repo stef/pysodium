@@ -317,7 +317,7 @@ def crypto_secretbox_open(c, nonce, k):
 #                    unsigned long long mlen, const unsigned char *pk);
 
 def crypto_box_seal(msg, k):
-    if None in (msg, k):
+    if msg is None or k is None:
         raise ValueError("invalid parameters")
     c = ctypes.create_string_buffer(len(msg)+crypto_box_SEALBYTES)
     __check(sodium.crypto_box_seal(c, msg, ctypes.c_ulonglong(len(msg)), k))
@@ -349,7 +349,7 @@ def crypto_sign_seed_keypair(seed):
 
 
 def crypto_sign(m, sk):
-    if None in (m, sk):
+    if m is None or sk is None:
         raise ValueError("invalid parameters")
     smsg = ctypes.create_string_buffer(len(m) + crypto_sign_BYTES)
     smsglen = ctypes.c_ulonglong()
@@ -358,7 +358,7 @@ def crypto_sign(m, sk):
 
 
 def crypto_sign_detached(m, sk):
-    if None in (m, sk):
+    if m is None or sk is None:
         raise ValueError("invalid parameters")
     sig = ctypes.create_string_buffer(crypto_sign_BYTES)
     # second parm is for output of signature len (optional, ignored if NULL)
@@ -367,7 +367,7 @@ def crypto_sign_detached(m, sk):
 
 
 def crypto_sign_open(sm, pk):
-    if None in (sm, pk):
+    if sm is None or pk is None:
         raise ValueError("invalid parameters")
     msg = ctypes.create_string_buffer(len(sm))
     msglen = ctypes.c_ulonglong()
@@ -452,7 +452,7 @@ def crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit):
 #                                                  const char * const passwd,
 #                                                  unsigned long long passwdlen);
 def crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd):
-    if None in (stored, passwd):
+    if stored is None or passwd is None:
        raise ValueError
     __check(sodium.crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd, ctypes.c_ulonglong(len(passwd))))
 
