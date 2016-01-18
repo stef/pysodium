@@ -222,7 +222,7 @@ def crypto_box_seed_keypair(seed):
     return pk.raw, sk.raw
 
 def crypto_box_beforenm(pk, sk):
-    if None in (pk, sk):
+    if pk is None or sk is None:
         raise ValueError("invalid parameters")
     c = ctypes.create_string_buffer(crypto_secretbox_KEYBYTES)
     __check(sodium.crypto_box_beforenm(c, pk, sk))
