@@ -228,73 +228,33 @@ def crypto_box_beforenm(pk, sk):
     __check(sodium.crypto_box_beforenm(c, pk, sk))
     return c.raw
 
-# int crypto_box_easy(unsigned char *c, const unsigned char *m,
-#                        unsigned long long mlen, const unsigned char *n,
-#                        const unsigned char *pk, const unsigned char *sk);
-def crypto_box_easy(msg, nonce, pk, sk):
-    if None in (msg, nonce, pk, sk):
-        raise ValueError("invalid parameters")
-    c = ctypes.create_string_buffer(crypto_box_MACBYTES + len(msg))
-    __check(sodium.crypto_box_easy(c, msg.encode(), ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
-    return c.raw
-
-def crypto_box_easy_afternm(msg, nonce, k):
-    if None in (msg, nonce, k):
-        raise ValueError("invalid parameters")
-    c = ctypes.create_string_buffer(crypto_box_MACBYTES + len(msg))
-    __check(sodium.crypto_box_easy_afternm(c, msg.encode(), ctypes.c_ulonglong(len(msg)), nonce, k))
-    return c.raw
-
-# int crypto_box_open_easy(unsigned char *m, const unsigned char *c,
-#                         unsigned long long clen, const unsigned char *n,
-#                         const unsigned char *pk, const unsigned char *sk);
-def crypto_box_open_easy(c, nonce, pk, sk):
-    if None in (c, nonce, pk, sk):
-        raise ValueError("invalid parameters")
-    msg = ctypes.create_string_buffer(len(c) - crypto_box_MACBYTES)
-    __check(sodium.crypto_box_open_easy(msg, c, ctypes.c_ulonglong(len(c)), nonce, pk, sk))
-    return msg.raw.decode()
-
-def crypto_box_open_easy_afternm(c, nonce, k):
-    if None in (c, nonce, k):
-        raise ValueError("invalid parameters")
-    msg = ctypes.create_string_buffer(len(c) - crypto_box_MACBYTES)
-    __check(sodium.crypto_box_open_easy_afternm(msg, c, ctypes.c_ulonglong(len(c)), nonce, k))
-    return msg.raw.decode()
-
 def crypto_box(msg, nonce, pk, sk):
     if None in (msg, nonce, pk, sk):
         raise ValueError("invalid parameters")
-    padded = b"\x00" * crypto_box_ZEROBYTES + msg
-    c = ctypes.create_string_buffer(len(padded))
-    __check(sodium.crypto_box(c, padded, ctypes.c_ulonglong(len(padded)), nonce, pk, sk))
-    return c.raw[crypto_box_BOXZEROBYTES:]
+    c = ctypes.create_string_buffer(crypto_box_MACBYTES + len(msg))
+    __check(sodium.crypto_box_easy(c, msg, ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
+    return c.raw
 
 def crypto_box_afternm(msg, nonce, k):
     if None in (msg, nonce, k):
         raise ValueError("invalid parameters")
-    padded = b"\x00" * crypto_box_ZEROBYTES + msg
-    c = ctypes.create_string_buffer(len(padded))
-    __check(sodium.crypto_box_afternm(c, padded, ctypes.c_ulonglong(len(padded)), nonce, k))
-    return c.raw[crypto_box_BOXZEROBYTES:]
-
+    c = ctypes.create_string_buffer(crypto_box_MACBYTES + len(msg))
+    __check(sodium.crypto_box_easy_afternm(c, msg, ctypes.c_ulonglong(len(msg)), nonce, k))
+    return c.raw
 
 def crypto_box_open(c, nonce, pk, sk):
     if None in (c, nonce, pk, sk):
         raise ValueError("invalid parameters")
-    padded = b"\x00" * crypto_box_BOXZEROBYTES + c
-    msg = ctypes.create_string_buffer(len(padded))
-    __check(sodium.crypto_box_open(msg, padded, ctypes.c_ulonglong(len(padded)), nonce, pk, sk))
-    return msg.raw[crypto_box_ZEROBYTES:]
+    msg = ctypes.create_string_buffer(len(c) - crypto_box_MACBYTES)
+    __check(sodium.crypto_box_open_easy(msg, c, ctypes.c_ulonglong(len(c)), nonce, pk, sk))
+    return msg.raw
 
 def crypto_box_open_afternm(c, nonce, k):
     if None in (c, nonce, k):
         raise ValueError("invalid parameters")
-    padded = b"\x00" * crypto_box_BOXZEROBYTES + c
-    msg = ctypes.create_string_buffer(len(padded))
-    __check(sodium.crypto_box_open_afternm(msg, padded, ctypes.c_ulonglong(len(padded)), nonce, k))
-    return msg.raw[crypto_box_ZEROBYTES:]
-
+    msg = ctypes.create_string_buffer(len(c) - crypto_box_MACBYTES)
+    __check(sodium.crypto_box_open_easy_afternm(msg, c, ctypes.c_ulonglong(len(c)), nonce, k))
+    return msg.raw
 
 def crypto_secretbox(msg, nonce, k):
     if None in (msg, nonce, k):
