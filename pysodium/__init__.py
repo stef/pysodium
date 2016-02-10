@@ -310,11 +310,13 @@ def crypto_box_detached(msg, nonce, pk, sk):
         c = ctypes.create_string_buffer(len(msg))
         mac = ctypes.create_string_buffer(crypto_box_MACBYTES)
         __check(sodium.crypto_box_detached(c, mac, msg.encode(), ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
-        return c.raw,mac.raw
+        return c.raw, mac.raw
 
 # int crypto_box_open_detached(unsigned char *m, const unsigned char *c,
-#                             const unsigned char *mac, unsigned long long clen,
-#                             const unsigned char *n, const unsigned char *pk,
+#                             const unsigned char *mac, 
+#                             unsigned long long clen,
+#                             const unsigned char *n,
+#                             const unsigned char *pk,
 #                             const unsigned char *sk);
 
 def crypto_box_open_detached(c, mac, nonce, pk, sk):
