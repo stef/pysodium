@@ -65,6 +65,12 @@ class TestPySodium(unittest.TestCase):
         n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
         c = pysodium.crypto_box(b"howdy", n, pk, sk)
         pysodium.crypto_box_open(c, n, pk, sk)
+    
+    def test_crypto_box_open_detached(self):
+        pk,sk = pysodium.crypto_box_keypair()
+        n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
+        c, mac = pysodium.crypto_box_detached(b"howdy", n, pk, sk)
+        pysodium.crypto_box_open_detached(c, mac, n, pk, sk)
 
     def test_crypto_secretbox_open(self):
         k = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
