@@ -229,7 +229,7 @@ def crypto_box_easy(msg, nonce, pk, sk):
     if None in (msg, nonce, pk, sk):
         raise ValueError("invalid parameters")
     c = ctypes.create_string_buffer(crypto_box_MACBYTES + len(msg))
-    __check(sodium.crypto_box_easy(c, msg.encode(), ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
+    __check(sodium.crypto_box_easy(c, msg, ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
     return c.raw
 
 # int crypto_box_open_easy(unsigned char *m, const unsigned char *c,
@@ -240,7 +240,7 @@ def crypto_box_open_easy(c, nonce, pk, sk):
         raise ValueError("invalid parameters")
     msg = ctypes.create_string_buffer(len(c) - crypto_box_MACBYTES)
     __check(sodium.crypto_box_open_easy(msg, c, ctypes.c_ulonglong(len(c)), nonce, pk, sk))
-    return msg.raw.decode()
+    return msg.raw
 
 def crypto_box(msg, nonce, pk, sk):
     if None in (msg, nonce, pk, sk):
