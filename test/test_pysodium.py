@@ -177,7 +177,7 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pk, pk2)
 
     def test_AsymCrypto_With_Seeded_Keypair(self):
-        msg     = "correct horse battery staple"
+        msg     = b"correct horse battery staple"
         nonce   = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
         pk, sk = pysodium.crypto_box_seed_keypair("howdy")
 
