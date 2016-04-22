@@ -101,6 +101,16 @@ class TestPySodium(unittest.TestCase):
         output = pysodium.crypto_aead_chacha20poly1305_decrypt(output, ad, nonce, key)
         self.assertEqual(output, input_)
 
+    def test_aead_chacha20poly1305_ietf(self):
+        key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
+        input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+        nonce = binascii.unhexlify(b"cd7cf67be39c794a")
+        ad = binascii.unhexlify(b"87e229d4500845a079c0")
+        output = pysodium.crypto_aead_chacha20poly1305_ietf_encrypt(input_, ad, nonce, key)
+        self.assertEqual(binascii.unhexlify(b"e3e446f7ede9a19b62a4677dabf4e3d24b876bb284753896e1d6"), output)
+        output = pysodium.crypto_aead_chacha20poly1305_ietf_decrypt(output, ad, nonce, key)
+        self.assertEqual(output, input_)
+
     def test_crypto_stream_chacha20_xor(self):
         key = binascii.unhexlify(b"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
         nonce = binascii.unhexlify(b"0001020304050607")
@@ -126,7 +136,7 @@ class TestPySodium(unittest.TestCase):
         other_passwd = b'correct horse battery staple'
         salt = binascii.unhexlify(b'4206baae5578933d7cfb315b1c257cc7af162965a91a74ccbb1cfa1d747eb691')
         other_salt = binascii.unhexlify(b'4206baae5578933d7cfb315b1c257cc7af162965a91a74ccbb1cfa1d747eb692')
-        
+
         # Use very small limits to avoid burning resources in CI
         mem_limit = 32 * 1024
         ops_limit = 1024
@@ -158,7 +168,7 @@ class TestPySodium(unittest.TestCase):
     def test_crypto_pwhash_scryptsalsa208sha256_str_verify(self):
         passwd = b'Correct Horse Battery Staple'
         other_passwd = b'correct horse battery staple'
-        
+
         # Use very small limits to avoid burning resources in CI
         mem_limit = 32 * 1024
         ops_limit = 1024
@@ -183,7 +193,7 @@ class TestPySodium(unittest.TestCase):
 
         c = pysodium.crypto_box_easy(msg, nonce, pk, sk)
         m = pysodium.crypto_box_open_easy(c, nonce, pk, sk)
-        
+
         self.assertEqual(msg, m)
 
     def test_crypto_hash_sha256(self):
