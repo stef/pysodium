@@ -10,6 +10,8 @@ then it provides access to the following functions:
 
 Constants:
 
+crypto_aead_chacha20poly1305_KEYBYTES, crypto_aead_chacha20poly1305_NONCEBYTES
+crypto_aead_chacha20poly1305_ietf_KEYBYTES, crypto_aead_chacha20poly1305_ietf_NONCEBYTES
 crypto_box_NONCEBYTES, crypto_box_PUBLICKEYBYTES,
 crypto_box_SECRETKEYBYTES, crypto_box_ZEROBYTES,
 crypto_box_BOXZEROBYTES, crypto_secretbox_KEYBYTES,
@@ -38,6 +40,10 @@ crypto_stream_chacha20_xor(message, nonce, key)
 crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key)
 
 crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key)
+
+crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key)
+
+crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key)
 
 crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES)
 

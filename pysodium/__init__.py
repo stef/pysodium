@@ -33,6 +33,10 @@ import ctypes.util
 sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium') or ctypes.util.find_library('libsodium'))
 sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
 sodium.sodium_version_string.restype = ctypes.c_char_p
+crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
+crypto_aead_chacha20poly1305_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
+crypto_aead_chacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_chacha20poly1305_ietf_keybytes()
+crypto_aead_chacha20poly1305_ietf_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_ietf_npubbytes()
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
 crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
@@ -153,6 +157,33 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     __check(sodium.crypto_aead_chacha20poly1305_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
     return m.raw
 
+# crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
+def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
+
+    if ad == None: raise ValueError("ad cannot be None")
+    mlen = ctypes.c_ulonglong(len(message))
+
+    if ad:
+        adlen = ctypes.c_ulonglong(len(ad))
+    else:
+        adlen = ctypes.c_ulonglong(0)
+
+    c = ctypes.create_string_buffer(mlen.value + 16)
+    clen = ctypes.c_ulonglong(0)
+
+    __check(sodium.crypto_aead_chacha20poly1305_ietf_encrypt(c, ctypes.byref(clen), message, mlen, ad, adlen, None, nonce, key))
+    return c.raw
+
+# crypto_aead_chacha20poly1305_ietf_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
+
+    if ad == None: raise ValueError("ad cannot be None")
+    m = ctypes.create_string_buffer(len(ciphertext) - 16)
+    mlen = ctypes.c_ulonglong(0)
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    adlen = ctypes.c_ulonglong(len(ad))
+    __check(sodium.crypto_aead_chacha20poly1305_ietf_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
+    return m.raw
 
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
 def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
