@@ -131,13 +131,8 @@ def crypto_stream_chacha20_xor(message, nonce, key):
 # crypto_aead_chacha20poly1305_encrypt(unsigned char *c, unsigned long long *clen, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k);
 def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
 
-    if ad == None: raise ValueError("ad cannot be None")
     mlen = ctypes.c_ulonglong(len(message))
-
-    if ad:
-        adlen = ctypes.c_ulonglong(len(ad))
-    else:
-        adlen = ctypes.c_ulonglong(0)
+    adlen = ctypes.c_ulonglong(len(ad))
 
     c = ctypes.create_string_buffer(mlen.value + 16)
     clen = ctypes.c_ulonglong(0)
@@ -149,7 +144,6 @@ def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
 # crypto_aead_chacha20poly1305_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
 def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
 
-    if ad == None: raise ValueError("ad cannot be None")
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
@@ -160,14 +154,8 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
 # crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 
-    if ad == None: raise ValueError("ad cannot be None")
     mlen = ctypes.c_ulonglong(len(message))
-
-    if ad:
-        adlen = ctypes.c_ulonglong(len(ad))
-    else:
-        adlen = ctypes.c_ulonglong(0)
-
+    adlen = ctypes.c_ulonglong(len(ad))
     c = ctypes.create_string_buffer(mlen.value + 16)
     clen = ctypes.c_ulonglong(0)
 
@@ -177,7 +165,6 @@ def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 # crypto_aead_chacha20poly1305_ietf_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
 def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
 
-    if ad == None: raise ValueError("ad cannot be None")
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
