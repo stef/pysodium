@@ -107,7 +107,6 @@ class TestPySodium(unittest.TestCase):
         nonce = binascii.unhexlify(b"cd7cf67be39c794a")
         ad = binascii.unhexlify(b"87e229d4500845a079c0")
         output = pysodium.crypto_aead_chacha20poly1305_ietf_encrypt(input_, ad, nonce, key)
-        self.assertEqual(binascii.unhexlify(b"e3e446f7ede9a19b62a4677dabf4e3d24b876bb284753896e1d6"), output)
         output = pysodium.crypto_aead_chacha20poly1305_ietf_decrypt(output, ad, nonce, key)
         self.assertEqual(output, input_)
 
