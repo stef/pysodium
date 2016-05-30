@@ -61,6 +61,10 @@ crypto_box_easy(msg, nonce, pk, sk)
 
 crypto_box_open_easy(c, nonce, pk, sk)
 
+crypto_box_detached(msg, nonce, pk, sk)
+
+crypto_box_open_detached(c, mac, nonce, pk, sk)
+
 crypto_secretbox(msg, nonce, k)
 
 crypto_secretbox_open(c, nonce, k)

@@ -77,6 +77,12 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(c, c)
         plaintext = pysodium.crypto_box_open_afternm(c, n, k)
         self.assertEqual(m, plaintext)
+    
+    def test_crypto_box_open_detached(self):
+        pk, sk = pysodium.crypto_box_keypair()
+        n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
+        c, mac = pysodium.crypto_box_detached("howdy", n, pk, sk) 
+        pysodium.crypto_box_open_detached(c, mac, n, pk, sk)
 
     def test_crypto_secretbox_open(self):
         k = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
