@@ -61,10 +61,22 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pysodium.crypto_box_seal_open(c, pk, sk), b'howdy')
 
     def test_crypto_box_open(self):
+        m = b"howdy"
         pk, sk = pysodium.crypto_box_keypair()
         n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
-        c = pysodium.crypto_box(b"howdy", n, pk, sk)
-        pysodium.crypto_box_open(c, n, pk, sk)
+        c = pysodium.crypto_box(m, n, pk, sk)
+        plaintext = pysodium.crypto_box_open(c, n, pk, sk)
+        self.assertEqual(m, plaintext)
+
+    def test_crypto_box_open_afternm(self):
+        m = b"howdy"
+        pk, sk = pysodium.crypto_box_keypair()
+        k = pysodium.crypto_box_beforenm(pk, sk)
+        n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
+        c = pysodium.crypto_box_afternm(m, n, k)
+        self.assertEqual(c, c)
+        plaintext = pysodium.crypto_box_open_afternm(c, n, k)
+        self.assertEqual(m, plaintext)
 
     def test_crypto_secretbox_open(self):
         k = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
@@ -177,12 +189,12 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pk, pk2)
 
     def test_AsymCrypto_With_Seeded_Keypair(self):
-        msg     = "correct horse battery staple"
+        msg     = b"correct horse battery staple"
         nonce   = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
         pk, sk = pysodium.crypto_box_seed_keypair("howdy")
 
-        c = pysodium.crypto_box_easy(msg, nonce, pk, sk)
-        m = pysodium.crypto_box_open_easy(c, nonce, pk, sk)
+        c = pysodium.crypto_box(msg, nonce, pk, sk)
+        m = pysodium.crypto_box_open(c, nonce, pk, sk)
         
         self.assertEqual(msg, m)
 
