@@ -31,12 +31,40 @@ import ctypes
 import ctypes.util
 
 sodium = ctypes.cdll.LoadLibrary(ctypes.util.find_library('sodium') or ctypes.util.find_library('libsodium'))
-sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
+if not sodium._name:
+    raise ValueError('Unable to find libsodium')
+
 sodium.sodium_version_string.restype = ctypes.c_char_p
-crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
-crypto_aead_chacha20poly1305_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
-crypto_aead_chacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_chacha20poly1305_ietf_keybytes()
-crypto_aead_chacha20poly1305_ietf_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_ietf_npubbytes()
+
+try:
+    sodium_major = int(sodium.sodium_version_string().split('.')[0])
+    sodium_minor = int(sodium.sodium_version_string().split('.')[1])
+    sodium_patch = int(sodium.sodium_version_string().split('.')[2])
+except (IndexError, ValueError):
+    raise ValueError('Unable to parse version string from libsodium')
+
+def sodium_version_check(major, minor, patch):
+    """Check if the current libsodium version is greater or equal to the supplied one
+    """
+    if major > sodium_major:
+        return False
+    if major == sodium_major and minor > sodium_minor:
+        return False
+    if major == sodium_major and minor == sodium_minor and patch > sodium_patch:
+        return False
+    return True
+
+def sodium_version(major, minor, patch):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            if sodium_version_check(major, minor, patch) == False:
+                raise ValueError('Unavailable in this libsodium version')
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
+
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
 crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
@@ -75,6 +103,11 @@ crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_s
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
 crypto_hash_sha256_BYTES = sodium.crypto_hash_sha256_bytes()
+if sodium_version_check(1, 0, 10):
+    crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
+    crypto_aead_chacha20poly1305_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
+    crypto_aead_chacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_chacha20poly1305_ietf_keybytes()
+    crypto_aead_chacha20poly1305_ietf_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_ietf_npubbytes()
 
 class CryptoGenericHashState(ctypes.Structure):
     _pack_ = 1
@@ -152,6 +185,7 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     return m.raw
 
 # crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 
     mlen = ctypes.c_ulonglong(len(message))
@@ -163,6 +197,7 @@ def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
     return c.raw
 
 # crypto_aead_chacha20poly1305_ietf_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
 
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
@@ -295,6 +330,7 @@ def crypto_secretbox_open(c, nonce, k):
 # int crypto_box_seal(unsigned char *c, const unsigned char *m,
 #                    unsigned long long mlen, const unsigned char *pk);
 
+@sodium_version(1, 0, 3)
 def crypto_box_seal(msg, k):
     if msg is None or k is None:
         raise ValueError("invalid parameters")
@@ -306,6 +342,7 @@ def crypto_box_seal(msg, k):
 #                         unsigned long long clen,
 #                         const unsigned char *pk, const unsigned char *sk);
 
+@sodium_version(1, 0, 3)
 def crypto_box_seal_open(c, pk, sk):
     if None in (c, pk, sk):
         raise ValueError("invalid parameters")
