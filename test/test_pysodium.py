@@ -56,8 +56,7 @@ class TestPySodium(unittest.TestCase):
         pysodium.crypto_generichash_final(state, outlen=6)
 
     def test_crypto_box_seal(self):
-        try: pysodium.sodium_version_check(1, 0, 3)
-        except: return
+        if not pysodium.sodium_version_check(1, 0, 3): return
         pk, sk = pysodium.crypto_box_keypair()
         c = pysodium.crypto_box_seal(b"howdy", pk)
         self.assertEqual(pysodium.crypto_box_seal_open(c, pk, sk), b'howdy')
@@ -122,8 +121,7 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(output, input_)
 
     def test_aead_chacha20poly1305_ietf(self):
-        try: pysodium.sodium_version_check(1, 0, 4)
-        except: return
+        if not pysodium.sodium_version_check(1, 0, 4): return
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
         input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
         nonce = binascii.unhexlify(b"cd7cf67be39c794a")
