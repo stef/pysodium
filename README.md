@@ -12,6 +12,7 @@ Constants:
 
 crypto_aead_chacha20poly1305_KEYBYTES, crypto_aead_chacha20poly1305_NONCEBYTES
 crypto_aead_chacha20poly1305_ietf_KEYBYTES, crypto_aead_chacha20poly1305_ietf_NONCEBYTES
+crypto_auth_KEYBYTES, crypto_auth_BYTES,
 crypto_box_NONCEBYTES, crypto_box_PUBLICKEYBYTES,
 crypto_box_SECRETKEYBYTES, crypto_box_ZEROBYTES,
 crypto_box_BOXZEROBYTES, crypto_secretbox_KEYBYTES,
@@ -36,6 +37,10 @@ crypto_scalarmult_curve25519(n, p)
 crypto_scalarmult_curve25519_base(n)
 
 crypto_stream_chacha20_xor(message, nonce, key)
+
+crypto_auth(message, key)
+
+crypto_auth(tag, message, key)
 
 crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key)
 
