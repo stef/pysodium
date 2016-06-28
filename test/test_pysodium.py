@@ -78,7 +78,7 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(c, c)
         plaintext = pysodium.crypto_box_open_afternm(c, n, k)
         self.assertEqual(m, plaintext)
-    
+
     def test_crypto_box_open_detached(self):
         pk, sk = pysodium.crypto_box_keypair()
         n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
@@ -212,7 +212,7 @@ class TestPySodium(unittest.TestCase):
 
         c = pysodium.crypto_box(msg, nonce, pk, sk)
         m = pysodium.crypto_box_open(c, nonce, pk, sk)
-        
+
         self.assertEqual(msg, m)
 
     def test_crypto_hash_sha256(self):
@@ -237,6 +237,11 @@ class TestPySodium(unittest.TestCase):
                 tmp = "0" + tmp
             result += tmp
         return result
+
+    def test_crypto_auth(self):
+        sk = pysodium.randombytes(pysodium.crypto_auth_KEYBYTES)
+        tag = pysodium.crypto_auth("howdy", sk)
+        pysodium.crypto_auth_verify(tag, "howdy", sk)
 
 if __name__ == '__main__':
     unittest.main()

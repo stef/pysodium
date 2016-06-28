@@ -65,6 +65,8 @@ def sodium_version(major, minor, patch):
 
 sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
 
+crypto_auth_KEYBYTES = sodium.crypto_auth_keybytes()
+crypto_auth_BYTES = sodium.crypto_auth_bytes()
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
 crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
@@ -206,6 +208,22 @@ def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
     adlen = ctypes.c_ulonglong(len(ad))
     __check(sodium.crypto_aead_chacha20poly1305_ietf_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
     return m.raw
+
+# crypto_auth(unsigned char *out, const unsigned char *in, unsigned long long inlen, const unsigned char *k)
+def crypto_auth(m, k=b''):
+    if m is None:
+        raise ValueError("invalid parameters")
+    buf = ctypes.create_string_buffer(crypto_auth_BYTES)
+    __check(sodium.crypto_auth(buf, m, ctypes.c_ulonglong(len(m)), k))
+    return buf.raw
+
+# crypto_auth_verify(const unsigned char *h, const unsigned char *in, unsigned long long inlen, const unsigned char *k)
+def crypto_auth_verify(h, m, k=b''):
+    if h is None or m is None:
+        raise ValueError("invalid parameters")
+    if len(h) != crypto_auth_BYTES:
+        raise ValueError("invalid tag")
+    __check(sodium.crypto_auth_verify(h, m, ctypes.c_ulonglong(len(m)), k))
 
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
 def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
