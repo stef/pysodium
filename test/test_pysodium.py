@@ -55,6 +55,11 @@ class TestPySodium(unittest.TestCase):
         pysodium.crypto_generichash_update(state, b'howdy')
         pysodium.crypto_generichash_final(state, outlen=6)
 
+    def test_crypto_box_pk_from_sk(self):
+        pk1, sk = pysodium.crypto_box_keypair()
+        pk2 = pysodium.crypto_scalarmult_curve25519_base(sk)
+        self.assertEqual(pk1, pk2)
+
     def test_crypto_box_seal(self):
         if not pysodium.sodium_version_check(1, 0, 3): return
         pk, sk = pysodium.crypto_box_keypair()
@@ -91,7 +96,7 @@ class TestPySodium(unittest.TestCase):
         c = pysodium.crypto_secretbox(b"howdy", n, k)
         pysodium.crypto_secretbox_open(c, n, k)
 
-    def test_crypto_scalarmut_curve25519_base(self):
+    def test_crypto_scalarmult_curve25519_base(self):
         s = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         r = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         pysodium.crypto_scalarmult_curve25519(s, r)
@@ -204,6 +209,12 @@ class TestPySodium(unittest.TestCase):
         pk, sk = pysodium.crypto_sign_keypair()
         pk2 = pysodium.crypto_sign_sk_to_pk(sk)
         self.assertEqual(pk, pk2)
+
+    def test_crypto_sign_sk_to_seed(self):
+        seed1 = pysodium.crypto_generichash(b'howdy', outlen=pysodium.crypto_sign_SEEDBYTES)
+        _, sk = pysodium.crypto_sign_seed_keypair(seed1)
+        seed2 = pysodium.crypto_sign_sk_to_seed(sk)
+        self.assertEqual(seed1, seed2)
 
     def test_AsymCrypto_With_Seeded_Keypair(self):
         msg     = b"correct horse battery staple"
