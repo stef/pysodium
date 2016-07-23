@@ -106,6 +106,8 @@ crypto_sign_sk_to_box_sk(sk)
 
 crypto_sign_sk_to_pk(sk)
 
+crypto_sign_sk_to_seed(sk)
+
 crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit)
 
 crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit)

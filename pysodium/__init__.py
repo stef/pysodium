@@ -146,10 +146,11 @@ def crypto_scalarmult_curve25519(n, p):
 
 
 def crypto_scalarmult_curve25519_base(n):
+    if n is None:
+        raise ValueError("invalid parameters")
     buf = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
-    __check(sodium.crypto_scalarmult_curve25519_base(buf, n))
+    __check(sodium.crypto_scalarmult_curve25519_base(ctypes.byref(buf), n))
     return buf.raw
-
 
 # crypto_stream_chacha20_xor(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, const unsigned char *k)
 def crypto_stream_chacha20_xor(message, nonce, key):
@@ -409,7 +410,6 @@ def crypto_sign_seed_keypair(seed):
     __check(sodium.crypto_sign_seed_keypair(pk, sk, seed))
     return pk.raw, sk.raw
 
-
 def crypto_sign(m, sk):
     if m is None or sk is None:
         raise ValueError("invalid parameters")
@@ -483,6 +483,13 @@ def crypto_sign_sk_to_box_sk(sk):
     res = ctypes.create_string_buffer(crypto_box_SECRETKEYBYTES)
     __check(sodium.crypto_sign_ed25519_sk_to_curve25519(ctypes.byref(res), sk))
     return res.raw
+
+def crypto_sign_sk_to_seed(sk):
+    if sk is None:
+        raise ValueError
+    seed = ctypes.create_string_buffer(crypto_sign_SEEDBYTES)
+    __check(sodium.crypto_sign_ed25519_sk_to_seed(ctypes.byref(seed), sk))
+    return seed.raw
 
 # int crypto_pwhash_scryptsalsa208sha256(unsigned char * const out,
 #                                        unsigned long long outlen,
