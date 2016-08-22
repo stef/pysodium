@@ -509,7 +509,7 @@ def crypto_stream_xor(msg, cnt, nonce=None, key=None):
     return res.raw
 
 
-def crypt_sign_pk_to_box_pk(pk):
+def crypto_sign_pk_to_box_pk(pk):
     if pk is None:
         raise ValueError
     res = ctypes.create_string_buffer(crypto_box_PUBLICKEYBYTES)
