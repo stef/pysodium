@@ -256,6 +256,16 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256("pysodium")),
             "0a53ef9bc1bea173118a42bbbe8300abb6bbef83139046940e9593d9559a5df7")
 
+    def test_crypto_hash_sha512(self):
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("test")),
+            "ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("howdy")),
+            "905caca5c4685f296c5491d38660d7720ee87bef08f829332e905593522907674de8490de46c969d2c585b40af40439b387562d6f776023507753d1a9554ebbb")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("Correct Horse Battery Staple")),
+            "0675070bda47bef936f0b65ae721d90f82ca137841df4d7cae27776501ae4b446ab926d64dc1d282c8758ac0eb02cc4aa11b2452d4f8ffeb795023b797fe2b80")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("pysodium")),
+            "ecbc6f4ffdb6e6dcbe6e6beecf0b8e05c11b0cc8a56f2b4098cd613585749fcca5ed1cfda3518e33a5d2c63746ee2857ff6857b9a2eeda4cc208c1e7fd89cc17")
+
     def byteHashToString(self, input):
         import sys
         result = ""

@@ -40,6 +40,7 @@ crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE,
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE,
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE,
 crypto_hash_sha256_BYTES
+crypto_hash_sha512_BYTES
 
 crypto_scalarmult_curve25519(n, p)
 
@@ -130,3 +131,5 @@ crypto_pwhash_str(passwd, opslimit, memlimit)
 crypto_pwhash_str_verify(pstr, passwd)
 
 crypto_hash_sha256(message)
+
+crypto_hash_sha512(message)
