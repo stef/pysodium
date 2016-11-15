@@ -126,6 +126,7 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(output, input_)
         
     def test_aead_chacha20poly1305_detached(self):
+        if not pysodium.sodium_version_check(1, 0, 9): return
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
         input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
         nonce = binascii.unhexlify(b"cd7cf67be39c794a")
