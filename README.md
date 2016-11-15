@@ -12,6 +12,7 @@ Constants:
 
 crypto_aead_chacha20poly1305_KEYBYTES, crypto_aead_chacha20poly1305_NONCEBYTES
 crypto_aead_chacha20poly1305_ietf_KEYBYTES, crypto_aead_chacha20poly1305_ietf_NONCEBYTES
+crypto_aead_chacha20poly1305_ABYTES,
 crypto_auth_KEYBYTES, crypto_auth_BYTES,
 crypto_box_NONCEBYTES, crypto_box_PUBLICKEYBYTES,
 crypto_box_SECRETKEYBYTES, crypto_box_ZEROBYTES,
@@ -23,6 +24,15 @@ crypto_sign_SEEDBYTES,
 crypto_stream_KEYBYTES, crypto_stream_NONCEBYTES,
 crypto_generichash_BYTES, crypto_scalarmult_curve25519_BYTES,
 crypto_scalarmult_BYTES, crypto_sign_BYTES,
+crypto_pwhash_SALTBYTES,
+crypto_pwhash_STRBYTES,
+crypto_pwhash_OPSLIMIT_INTERACTIVE,
+crypto_pwhash_MEMLIMIT_INTERACTIVE,
+crypto_pwhash_OPSLIMIT_MODERATE,
+crypto_pwhash_MEMLIMIT_MODERATE,
+crypto_pwhash_OPSLIMIT_SENSITIVE,
+crypto_pwhash_MEMLIMIT_SENSITIVE,
+crypto_pwhash_ALG_DEFAULT,
 crypto_pwhash_scryptsalsa208sha256_SALTBYTES,
 crypto_pwhash_scryptsalsa208sha256_STRBYTES,
 crypto_pwhash_scryptsalsa208sha256_STRPREFIX,
@@ -31,6 +41,7 @@ crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE,
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE,
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE,
 crypto_hash_sha256_BYTES
+crypto_hash_sha512_BYTES
 
 crypto_scalarmult_curve25519(n, p)
 
@@ -45,6 +56,10 @@ crypto_auth(tag, message, key)
 crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key)
 
 crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key)
+
+crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key)
+
+crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key)
 
 crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key)
 
@@ -100,11 +115,13 @@ crypto_stream(cnt, nonce=None, key=None)
 
 crypto_stream_xor(msg, cnt, nonce=None, key=None)
 
-crypt_sign_pk_to_box_pk(pk)
+crypto_sign_pk_to_box_pk(pk)
 
 crypto_sign_sk_to_box_sk(sk)
 
 crypto_sign_sk_to_pk(sk)
+
+crypto_sign_sk_to_seed(sk)
 
 crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit)
 
@@ -112,4 +129,12 @@ crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit)
 
 crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd)
 
+crypto_pwhash(outlen, passwd, salt, opslimit, memlimit, alg)
+
+crypto_pwhash_str(passwd, opslimit, memlimit)
+
+crypto_pwhash_str_verify(pstr, passwd)
+
 crypto_hash_sha256(message)
+
+crypto_hash_sha512(message)

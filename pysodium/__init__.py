@@ -63,6 +63,35 @@ def sodium_version(major, minor, patch):
         return wrapper
     return decorator
 
+def encode_strings(func):
+    """
+    This decorator forces the encoding of str function parameters to UTF-8
+    to elliminate the differences between Python 3.x and Python 2.x. The only
+    caveat is that bytes and str are both str types in Python 2.x so it is
+    possible for the encode() function to fail. It is OK for us to accept that
+    failure, hence the pass in the except block.
+
+    Use this decorator on any functions that can take strings as parameters
+    such as crypto_pwhash().
+    """
+    def wrapper(*args, **kwargs):
+        largs = []
+        for arg in args:
+            if isinstance(arg, str):
+                try:
+                    arg = arg.encode(encoding='utf-8')
+                except:
+                    pass
+            largs.append(arg)
+        for k in kwargs.keys():
+            if isinstance(kwargs[k], str):
+                try:
+                    kwargs[k] = kwargs[k].encode(encoding='utf-8')
+                except:
+                    pass
+        return func(*largs, **kwargs)
+    return wrapper
+
 sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
 
 crypto_auth_KEYBYTES = sodium.crypto_auth_keybytes()
@@ -105,11 +134,24 @@ crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_s
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
 crypto_hash_sha256_BYTES = sodium.crypto_hash_sha256_bytes()
-if sodium_version_check(1, 0, 10):
-    crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
-    crypto_aead_chacha20poly1305_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
+crypto_hash_sha512_BYTES = sodium.crypto_hash_sha512_bytes()
+crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
+crypto_aead_chacha20poly1305_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
+crypto_aead_chacha20poly1305_ABYTES = sodium.crypto_aead_chacha20poly1305_abytes()
+if sodium_version_check(1, 0, 9):
     crypto_aead_chacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_chacha20poly1305_ietf_keybytes()
     crypto_aead_chacha20poly1305_ietf_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_ietf_npubbytes()
+    crypto_pwhash_SALTBYTES = sodium.crypto_pwhash_saltbytes()
+    crypto_pwhash_STRBYTES = sodium.crypto_pwhash_strbytes()
+    crypto_pwhash_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_opslimit_interactive()
+    crypto_pwhash_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_memlimit_interactive()
+    crypto_pwhash_OPSLIMIT_MODERATE = sodium.crypto_pwhash_opslimit_moderate()
+    crypto_pwhash_MEMLIMIT_MODERATE = sodium.crypto_pwhash_memlimit_moderate()
+    crypto_pwhash_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_opslimit_sensitive()
+    crypto_pwhash_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_memlimit_sensitive()
+    crypto_pwhash_ALG_DEFAULT = sodium.crypto_pwhash_alg_default()
+else:
+    crypto_pwhash_ALG_DEFAULT = None
 
 class CryptoGenericHashState(ctypes.Structure):
     _pack_ = 1
@@ -146,10 +188,11 @@ def crypto_scalarmult_curve25519(n, p):
 
 
 def crypto_scalarmult_curve25519_base(n):
+    if n is None:
+        raise ValueError("invalid parameters")
     buf = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
-    __check(sodium.crypto_scalarmult_curve25519_base(buf, n))
+    __check(sodium.crypto_scalarmult_curve25519_base(ctypes.byref(buf), n))
     return buf.raw
-
 
 # crypto_stream_chacha20_xor(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, const unsigned char *k)
 def crypto_stream_chacha20_xor(message, nonce, key):
@@ -186,6 +229,43 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     __check(sodium.crypto_aead_chacha20poly1305_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
     return m.raw
 
+# crypto_aead_chacha20poly1305_encrypt_detached(unsigned char *c, unsigned char *mac, unsigned long long *maclen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 9)
+def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
+    """ Return ciphertext, mac tag """
+    
+    mlen = ctypes.c_ulonglong(len(message))
+    if ad is None:
+        adlen = ctypes.c_ulonglong(0)
+    else:
+        adlen = ctypes.c_ulonglong(len(ad))
+
+    c = ctypes.create_string_buffer(mlen.value)
+    maclen_p = ctypes.c_ulonglong(crypto_aead_chacha20poly1305_ABYTES)
+    mac = ctypes.create_string_buffer(maclen_p.value)    
+
+    __check(sodium.crypto_aead_chacha20poly1305_encrypt_detached(c, mac, ctypes.byref(maclen_p), message, mlen, ad, adlen, None, nonce, key))
+    return c.raw, mac.raw
+
+# crypto_aead_chacha20poly1305_decrypt_detached(unsigned char *m, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *mac, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 9)
+def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key):
+    """ Return message if successful or -1 (ValueError) if not successful"""
+    
+    if len(mac) != crypto_aead_chacha20poly1305_ABYTES:
+        raise ValueError("mac length != %i" % crypto_aead_chacha20poly1305_ABYTES)
+    
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    m = ctypes.create_string_buffer(clen.value)
+
+    if ad is None:
+        adlen = ctypes.c_ulonglong(0)
+    else:
+        adlen = ctypes.c_ulonglong(len(ad))
+
+    __check(sodium.crypto_aead_chacha20poly1305_decrypt_detached(m, None, ciphertext, clen, mac, ad, adlen, nonce, key))
+    return m.raw
+    
 # crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
 @sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
@@ -383,7 +463,7 @@ def crypto_box_detached(msg, nonce, pk, sk):
         return c.raw, mac.raw
 
 # int crypto_box_open_detached(unsigned char *m, const unsigned char *c,
-#                             const unsigned char *mac, 
+#                             const unsigned char *mac,
 #                             unsigned long long clen,
 #                             const unsigned char *n,
 #                             const unsigned char *pk,
@@ -408,7 +488,6 @@ def crypto_sign_seed_keypair(seed):
     sk = ctypes.create_string_buffer(crypto_sign_SECRETKEYBYTES)
     __check(sodium.crypto_sign_seed_keypair(pk, sk, seed))
     return pk.raw, sk.raw
-
 
 def crypto_sign(m, sk):
     if m is None or sk is None:
@@ -469,7 +548,7 @@ def crypto_stream_xor(msg, cnt, nonce=None, key=None):
     return res.raw
 
 
-def crypt_sign_pk_to_box_pk(pk):
+def crypto_sign_pk_to_box_pk(pk):
     if pk is None:
         raise ValueError
     res = ctypes.create_string_buffer(crypto_box_PUBLICKEYBYTES)
@@ -483,6 +562,53 @@ def crypto_sign_sk_to_box_sk(sk):
     res = ctypes.create_string_buffer(crypto_box_SECRETKEYBYTES)
     __check(sodium.crypto_sign_ed25519_sk_to_curve25519(ctypes.byref(res), sk))
     return res.raw
+
+def crypto_sign_sk_to_seed(sk):
+    if sk is None:
+        raise ValueError
+    seed = ctypes.create_string_buffer(crypto_sign_SEEDBYTES)
+    __check(sodium.crypto_sign_ed25519_sk_to_seed(ctypes.byref(seed), sk))
+    return seed.raw
+
+# int crypto_pwhash(unsigned char * const out,
+#                   unsigned long long outlen,
+#                   const char * const passwd,
+#                   unsigned long long passwdlen,
+#                   const unsigned char * const salt,
+#                   unsigned long long opslimit,
+#                   size_t memlimit, int alg);
+@sodium_version(1, 0, 9)
+@encode_strings
+def crypto_pwhash(outlen, passwd, salt, opslimit, memlimit, alg=crypto_pwhash_ALG_DEFAULT):
+    if None in (outlen, passwd, salt, opslimit, memlimit):
+        raise ValueError("invalid parameters")
+    out = ctypes.create_string_buffer(outlen)
+    __check(sodium.crypto_pwhash(ctypes.byref(out), ctypes.c_ulonglong(outlen), passwd, ctypes.c_ulonglong(len(passwd)), salt, ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit), ctypes.c_int(alg)))
+    return out.raw
+
+# int crypto_pwhash_str(char out[crypto_pwhash_STRBYTES],
+#                       const char * const passwd,
+#                       unsigned long long passwdlen,
+#                       unsigned long long opslimit,
+#                       size_t memlimit);
+@sodium_version(1, 0, 9)
+@encode_strings
+def crypto_pwhash_str(passwd, opslimit, memlimit):
+    if None in (passwd, opslimit, memlimit):
+        raise ValueError("invalid parameters")
+    out = ctypes.create_string_buffer(crypto_pwhash_STRBYTES)
+    __check(sodium.crypto_pwhash_str(ctypes.byref(out), passwd, ctypes.c_ulonglong(len(passwd)), ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
+    return out.raw
+
+# int crypto_pwhash_str_verify(const char str[crypto_pwhash_STRBYTES],
+#                              const char * const passwd,
+#                              unsigned long long passwdlen);
+@sodium_version(1, 0, 9)
+@encode_strings
+def crypto_pwhash_str_verify(pstr, passwd):
+    if None in (pstr, passwd) or len(pstr) != crypto_pwhash_STRBYTES:
+        raise ValueError("invalid parameters")
+    return sodium.crypto_pwhash_str_verify(pstr, passwd, ctypes.c_ulonglong(len(passwd))) == 0
 
 # int crypto_pwhash_scryptsalsa208sha256(unsigned char * const out,
 #                                        unsigned long long outlen,
@@ -533,4 +659,13 @@ def crypto_hash_sha256(message):
         raise ValueError("invalid parameters")
     out = ctypes.create_string_buffer(crypto_hash_sha256_BYTES).raw
     __check(sodium.crypto_hash_sha256(out, message.encode(), ctypes.c_ulonglong(len(message))))
+    return out
+
+# int crypto_hash_sha512(unsigned char *out, const unsigned char *in,
+#                       unsigned long long inlen);
+def crypto_hash_sha512(message):
+    if message is None:
+        raise ValueError("invalid parameters")
+    out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES).raw
+    __check(sodium.crypto_hash_sha512(out, message.encode(), ctypes.c_ulonglong(len(message))))
     return out

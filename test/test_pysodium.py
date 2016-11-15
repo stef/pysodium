@@ -55,6 +55,11 @@ class TestPySodium(unittest.TestCase):
         pysodium.crypto_generichash_update(state, b'howdy')
         pysodium.crypto_generichash_final(state, outlen=6)
 
+    def test_crypto_box_pk_from_sk(self):
+        pk1, sk = pysodium.crypto_box_keypair()
+        pk2 = pysodium.crypto_scalarmult_curve25519_base(sk)
+        self.assertEqual(pk1, pk2)
+
     def test_crypto_box_seal(self):
         if not pysodium.sodium_version_check(1, 0, 3): return
         pk, sk = pysodium.crypto_box_keypair()
@@ -82,7 +87,7 @@ class TestPySodium(unittest.TestCase):
     def test_crypto_box_open_detached(self):
         pk, sk = pysodium.crypto_box_keypair()
         n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
-        c, mac = pysodium.crypto_box_detached("howdy", n, pk, sk) 
+        c, mac = pysodium.crypto_box_detached("howdy", n, pk, sk)
         pysodium.crypto_box_open_detached(c, mac, n, pk, sk)
 
     def test_crypto_secretbox_open(self):
@@ -91,7 +96,7 @@ class TestPySodium(unittest.TestCase):
         c = pysodium.crypto_secretbox(b"howdy", n, k)
         pysodium.crypto_secretbox_open(c, n, k)
 
-    def test_crypto_scalarmut_curve25519_base(self):
+    def test_crypto_scalarmult_curve25519_base(self):
         s = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         r = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         pysodium.crypto_scalarmult_curve25519(s, r)
@@ -118,6 +123,18 @@ class TestPySodium(unittest.TestCase):
         output = pysodium.crypto_aead_chacha20poly1305_encrypt(input_, ad, nonce, key)
         self.assertEqual(binascii.unhexlify(b"e3e446f7ede9a19b62a4677dabf4e3d24b876bb284753896e1d6"), output)
         output = pysodium.crypto_aead_chacha20poly1305_decrypt(output, ad, nonce, key)
+        self.assertEqual(output, input_)
+        
+    def test_aead_chacha20poly1305_detached(self):
+        if not pysodium.sodium_version_check(1, 0, 9): return
+        key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
+        input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+        nonce = binascii.unhexlify(b"cd7cf67be39c794a")
+        ad = binascii.unhexlify(b"87e229d4500845a079c0")
+        output, mac = pysodium.crypto_aead_chacha20poly1305_encrypt_detached(input_, ad, nonce, key)
+        self.assertEqual(binascii.unhexlify(b"e3e446f7ede9a19b62a4"), output)
+        self.assertEqual(binascii.unhexlify(b"677dabf4e3d24b876bb284753896e1d6"), mac)
+        output = pysodium.crypto_aead_chacha20poly1305_decrypt_detached(output, mac, ad, nonce, key)
         self.assertEqual(output, input_)
 
     def test_aead_chacha20poly1305_ietf(self):
@@ -149,6 +166,26 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, personal = key[0:8]), binascii.unhexlify(b'31353589b3f179cda74387fbe1deca94f004661f05cde2295a16c0a8d8ead79b'))
         self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, salt     = key[0:8]), binascii.unhexlify(b'11c29bf7b91b8500a463f27e215dc83afdb71ed5e959f0847e339769c4835fc7'))
         self.assertEqual(pysodium.crypto_generichash_blake2b_salt_personal(message, personal = key, key = key), binascii.unhexlify(b'5a0b3db4bf2dab71485211447fc2014391228cc6c1acd2f3031050a9a32ca407'))
+
+
+    def test_crypto_pwhash(self):
+        if not pysodium.sodium_version_check(1, 0, 9): return
+        pw = "Correct Horse Battery Staple"
+        salt = binascii.unhexlify(b'0f58b94c7a369fd8a9a7083e4cd75266')
+        out = pysodium.crypto_pwhash(pysodium.crypto_auth_KEYBYTES, pw, salt, pysodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, pysodium.crypto_pwhash_MEMLIMIT_INTERACTIVE)
+        self.assertEqual(binascii.hexlify(out), b'79db3095517c7358449d84ee3b2f81f0e9907fbd4e0bae4e0bcc6c79821427dc')
+
+    def test_crypto_pwhash_storage(self):
+        if not pysodium.sodium_version_check(1, 0, 9): return
+        pw = "Correct Horse Battery Staple"
+        pstr = pysodium.crypto_pwhash_str(pw, pysodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, pysodium.crypto_pwhash_MEMLIMIT_INTERACTIVE)
+        self.assertTrue(pysodium.crypto_pwhash_str_verify(pstr, pw))
+
+    def test_crypto_pwhash_str(self):
+        if not pysodium.sodium_version_check(1, 0, 9): return
+
+    def test_crypto_pwhash_str_verify(self):
+        if not pysodium.sodium_version_check(1, 0, 9): return
 
     def test_crypto_pwhash_scryptsalsa208sha256(self):
         passwd = b'Correct Horse Battery Staple'
@@ -205,6 +242,12 @@ class TestPySodium(unittest.TestCase):
         pk2 = pysodium.crypto_sign_sk_to_pk(sk)
         self.assertEqual(pk, pk2)
 
+    def test_crypto_sign_sk_to_seed(self):
+        seed1 = pysodium.crypto_generichash(b'howdy', outlen=pysodium.crypto_sign_SEEDBYTES)
+        _, sk = pysodium.crypto_sign_seed_keypair(seed1)
+        seed2 = pysodium.crypto_sign_sk_to_seed(sk)
+        self.assertEqual(seed1, seed2)
+
     def test_AsymCrypto_With_Seeded_Keypair(self):
         msg     = b"correct horse battery staple"
         nonce   = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
@@ -224,6 +267,16 @@ class TestPySodium(unittest.TestCase):
             "af139fa284364215adfa49c889ab7feddc5e5d1c52512ffb2cfc9baeb67f220e")
         self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256("pysodium")),
             "0a53ef9bc1bea173118a42bbbe8300abb6bbef83139046940e9593d9559a5df7")
+
+    def test_crypto_hash_sha512(self):
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("test")),
+            "ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("howdy")),
+            "905caca5c4685f296c5491d38660d7720ee87bef08f829332e905593522907674de8490de46c969d2c585b40af40439b387562d6f776023507753d1a9554ebbb")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("Correct Horse Battery Staple")),
+            "0675070bda47bef936f0b65ae721d90f82ca137841df4d7cae27776501ae4b446ab926d64dc1d282c8758ac0eb02cc4aa11b2452d4f8ffeb795023b797fe2b80")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("pysodium")),
+            "ecbc6f4ffdb6e6dcbe6e6beecf0b8e05c11b0cc8a56f2b4098cd613585749fcca5ed1cfda3518e33a5d2c63746ee2857ff6857b9a2eeda4cc208c1e7fd89cc17")
 
     def byteHashToString(self, input):
         import sys
