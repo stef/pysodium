@@ -137,6 +137,7 @@ crypto_hash_sha256_BYTES = sodium.crypto_hash_sha256_bytes()
 crypto_hash_sha512_BYTES = sodium.crypto_hash_sha512_bytes()
 crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
 crypto_aead_chacha20poly1305_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
+crypto_aead_chacha20poly1305_ABYTES = sodium.crypto_aead_chacha20poly1305_abytes()
 if sodium_version_check(1, 0, 9):
     crypto_aead_chacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_chacha20poly1305_ietf_keybytes()
     crypto_aead_chacha20poly1305_ietf_NONCEBYTES = sodium.crypto_aead_chacha20poly1305_ietf_npubbytes()
@@ -228,6 +229,41 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     __check(sodium.crypto_aead_chacha20poly1305_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
     return m.raw
 
+# crypto_aead_chacha20poly1305_encrypt_detached(unsigned char *c, unsigned char *mac, unsigned long long *maclen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
+def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
+    """ Return ciphertext, mac tag """
+    
+    mlen = ctypes.c_ulonglong(len(message))
+    if ad is None:
+        adlen = ctypes.c_ulonglong(0)
+    else:
+        adlen = ctypes.c_ulonglong(len(ad))
+
+    c = ctypes.create_string_buffer(mlen.value)
+    maclen_p = ctypes.c_ulonglong(crypto_aead_chacha20poly1305_ABYTES)
+    mac = ctypes.create_string_buffer(maclen_p.value)    
+
+    __check(sodium.crypto_aead_chacha20poly1305_encrypt_detached(c, mac, ctypes.byref(maclen_p), message, mlen, ad, adlen, None, nonce, key))
+    return c.raw, mac.raw
+
+# crypto_aead_chacha20poly1305_decrypt_detached(unsigned char *m, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *mac, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key):
+    """ Return message if successful or -1 (ValueError) if not successful"""
+    
+    if len(mac) != crypto_aead_chacha20poly1305_ABYTES:
+        raise ValueError("mac length != %i" % crypto_aead_chacha20poly1305_ABYTES)
+    
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    m = ctypes.create_string_buffer(clen.value)
+
+    if ad is None:
+        adlen = ctypes.c_ulonglong(0)
+    else:
+        adlen = ctypes.c_ulonglong(len(ad))
+
+    __check(sodium.crypto_aead_chacha20poly1305_decrypt_detached(m, None, ciphertext, clen, mac, ad, adlen, nonce, key))
+    return m.raw
+    
 # crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
 @sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):

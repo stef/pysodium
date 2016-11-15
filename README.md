@@ -12,6 +12,7 @@ Constants:
 
 crypto_aead_chacha20poly1305_KEYBYTES, crypto_aead_chacha20poly1305_NONCEBYTES
 crypto_aead_chacha20poly1305_ietf_KEYBYTES, crypto_aead_chacha20poly1305_ietf_NONCEBYTES
+crypto_aead_chacha20poly1305_ABYTES,
 crypto_auth_KEYBYTES, crypto_auth_BYTES,
 crypto_box_NONCEBYTES, crypto_box_PUBLICKEYBYTES,
 crypto_box_SECRETKEYBYTES, crypto_box_ZEROBYTES,
@@ -55,6 +56,10 @@ crypto_auth(tag, message, key)
 crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key)
 
 crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key)
+
+crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key)
+
+crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key)
 
 crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key)
 
