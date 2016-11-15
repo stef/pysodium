@@ -230,6 +230,7 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     return m.raw
 
 # crypto_aead_chacha20poly1305_encrypt_detached(unsigned char *c, unsigned char *mac, unsigned long long *maclen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 9)
 def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
     """ Return ciphertext, mac tag """
     
@@ -247,6 +248,7 @@ def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
     return c.raw, mac.raw
 
 # crypto_aead_chacha20poly1305_decrypt_detached(unsigned char *m, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *mac, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 9)
 def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key):
     """ Return message if successful or -1 (ValueError) if not successful"""
     
