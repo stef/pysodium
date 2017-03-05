@@ -138,3 +138,10 @@ crypto_pwhash_str_verify(pstr, passwd)
 crypto_hash_sha256(message)
 
 crypto_hash_sha512(message)
+
+Note
+
+most of the the `*_easy` functions are not implemented as the "non-easy"
+functions provide already the "easy" interface, which hides the placement of
+buffers in memory, which makes little sense in python, so this wrapper handles
+this.
