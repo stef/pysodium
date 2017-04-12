@@ -210,7 +210,7 @@ def crypto_stream_chacha20_xor(message, nonce, key):
 def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
 
     mlen = ctypes.c_ulonglong(len(message))
-    adlen = ctypes.c_ulonglong(len(ad))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
 
     c = ctypes.create_string_buffer(mlen.value + 16)
     clen = ctypes.c_ulonglong(0)
@@ -225,7 +225,7 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
-    adlen = ctypes.c_ulonglong(len(ad))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     __check(sodium.crypto_aead_chacha20poly1305_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
     return m.raw
 
@@ -235,11 +235,7 @@ def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
     """ Return ciphertext, mac tag """
     
     mlen = ctypes.c_ulonglong(len(message))
-    if ad is None:
-        adlen = ctypes.c_ulonglong(0)
-    else:
-        adlen = ctypes.c_ulonglong(len(ad))
-
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     c = ctypes.create_string_buffer(mlen.value)
     maclen_p = ctypes.c_ulonglong(crypto_aead_chacha20poly1305_ABYTES)
     mac = ctypes.create_string_buffer(maclen_p.value)    
@@ -257,12 +253,7 @@ def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, ke
     
     clen = ctypes.c_ulonglong(len(ciphertext))
     m = ctypes.create_string_buffer(clen.value)
-
-    if ad is None:
-        adlen = ctypes.c_ulonglong(0)
-    else:
-        adlen = ctypes.c_ulonglong(len(ad))
-
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     __check(sodium.crypto_aead_chacha20poly1305_decrypt_detached(m, None, ciphertext, clen, mac, ad, adlen, nonce, key))
     return m.raw
     
@@ -271,7 +262,7 @@ def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, ke
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 
     mlen = ctypes.c_ulonglong(len(message))
-    adlen = ctypes.c_ulonglong(len(ad))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     c = ctypes.create_string_buffer(mlen.value + 16)
     clen = ctypes.c_ulonglong(0)
 
@@ -285,7 +276,7 @@ def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
-    adlen = ctypes.c_ulonglong(len(ad))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     __check(sodium.crypto_aead_chacha20poly1305_ietf_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
     return m.raw
 
