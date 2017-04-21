@@ -214,8 +214,10 @@ def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
 
     c = ctypes.create_string_buffer(mlen.value + 16)
     clen = ctypes.c_ulonglong(0)
-
-    __check(sodium.crypto_aead_chacha20poly1305_encrypt(c, ctypes.byref(clen), message, mlen, ad, adlen, None, nonce, key))
+    
+    npub = nonce.to_bytes(8,'big')
+   
+    __check(sodium.crypto_aead_chacha20poly1305_encrypt(c, ctypes.byref(clen), message, mlen, ad, adlen, None, npub, key))
     return c.raw
 
 
@@ -226,7 +228,8 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
-    __check(sodium.crypto_aead_chacha20poly1305_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
+    npub = nonce.to_bytes(8,'big')
+    __check(sodium.crypto_aead_chacha20poly1305_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, npub, key))
     return m.raw
 
 # crypto_aead_chacha20poly1305_encrypt_detached(unsigned char *c, unsigned char *mac, unsigned long long *maclen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
