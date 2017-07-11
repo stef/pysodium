@@ -164,6 +164,13 @@ class CryptoGenericHashState(ctypes.Structure):
         ('last_node', ctypes.c_uint8)
     ]
 
+class CryptoSignState(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('state', ctypes.c_uint64 * 8),
+        ('count', ctypes.c_uint64 * 2),
+        ('buf', ctypes.c_uint8 * 128)
+    ]
 
 def __check(code):
     if code != 0:
@@ -513,6 +520,49 @@ def crypto_sign_verify_detached(sig, msg, pk):
     if len(sig) != crypto_sign_BYTES:
         raise ValueError("invalid sign")
     __check(sodium.crypto_sign_verify_detached(sig, msg, ctypes.c_ulonglong(len(msg)), pk))
+
+
+# crypto_sign_init(crypto_sign_state *state);
+@sodium_version(1, 0, 12)
+def crypto_sign_init():
+    state = CryptoSignState()
+    __check(sodium.crypto_sign_init(ctypes.byref(state)))
+    return state
+
+
+# crypto_sign_update(crypto_sign_state *state, const unsigned char *m, unsigned long long mlen);
+@sodium_version(1, 0, 12)
+def crypto_sign_update(state, m):
+    assert isinstance(state, CryptoSignState)
+    if m is None:
+        raise ValueError("invalid parameters")
+    __check(sodium.crypto_sign_update(ctypes.byref(state), m, ctypes.c_ulonglong(len(m))))
+
+
+# crypto_sign_final_create(crypto_sign_state *state, unsigned char *sig, unsigned long long *siglen_p, const unsigned char *sk);
+@sodium_version(1, 0, 12)
+def crypto_sign_final_create(state, sk):
+    assert isinstance(state, CryptoSignState)
+    if sk is None:
+        raise ValueError("invalid parameters")
+    if len(sk) != crypto_sign_SECRETKEYBYTES:
+        raise ValueError("invalid secret key")
+    buf = ctypes.create_string_buffer(crypto_sign_BYTES)
+    __check(sodium.crypto_sign_final_create(ctypes.byref(state), buf, ctypes.c_void_p(0), sk))
+    return buf.raw
+
+
+# crypto_sign_final_verify(crypto_sign_state *state, unsigned char *sig, const unsigned char *sk);
+@sodium_version(1, 0, 12)
+def crypto_sign_final_verify(state, sig, pk):
+    assert isinstance(state, CryptoSignState)
+    if None in (sig, pk):
+        raise ValueError("invalid parameters")
+    if len(sig) != crypto_sign_BYTES:
+        raise ValueError("invalid signature")
+    if len(pk) != crypto_sign_PUBLICKEYBYTES:
+        raise ValueError("invalid public key")
+    __check(sodium.crypto_sign_final_verify(ctypes.byref(state), sig, pk))
 
 
 # int crypto_stream_salsa20(unsigned char *c, unsigned long long clen,

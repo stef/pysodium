@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name="pysodium",
-    version="0.6.11",
+    version="0.6.12",
     author="Stefan Marsiske",
     author_email="s@ctrlc.hu",
     description="python libsodium wrapper",
