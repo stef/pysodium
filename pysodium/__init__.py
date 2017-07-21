@@ -152,6 +152,10 @@ if sodium_version_check(1, 0, 9):
     crypto_pwhash_ALG_DEFAULT = sodium.crypto_pwhash_alg_default()
 else:
     crypto_pwhash_ALG_DEFAULT = None
+if sodium_version_check(1, 0, 12):
+    crypto_kx_PUBLICKEYBYTES = sodium.crypto_kx_publickeybytes()
+    crypto_kx_SECRETKEYBYTES = sodium.crypto_kx_secretkeybytes()
+    crypto_kx_SESSIONKEYBYTES = sodium.crypto_kx_sessionkeybytes()
 
 class CryptoGenericHashState(ctypes.Structure):
     _pack_ = 1
@@ -240,12 +244,12 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
 @sodium_version(1, 0, 9)
 def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
     """ Return ciphertext, mac tag """
-    
+
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     c = ctypes.create_string_buffer(mlen.value)
     maclen_p = ctypes.c_ulonglong(crypto_aead_chacha20poly1305_ABYTES)
-    mac = ctypes.create_string_buffer(maclen_p.value)    
+    mac = ctypes.create_string_buffer(maclen_p.value)
 
     __check(sodium.crypto_aead_chacha20poly1305_encrypt_detached(c, mac, ctypes.byref(maclen_p), message, mlen, ad, adlen, None, nonce, key))
     return c.raw, mac.raw
@@ -254,16 +258,16 @@ def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
 @sodium_version(1, 0, 9)
 def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key):
     """ Return message if successful or -1 (ValueError) if not successful"""
-    
+
     if len(mac) != crypto_aead_chacha20poly1305_ABYTES:
         raise ValueError("mac length != %i" % crypto_aead_chacha20poly1305_ABYTES)
-    
+
     clen = ctypes.c_ulonglong(len(ciphertext))
     m = ctypes.create_string_buffer(clen.value)
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     __check(sodium.crypto_aead_chacha20poly1305_decrypt_detached(m, None, ciphertext, clen, mac, ad, adlen, nonce, key))
     return m.raw
-    
+
 # crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
 @sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
@@ -710,3 +714,40 @@ def crypto_hash_sha512(message):
     out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES).raw
     __check(sodium.crypto_hash_sha512(out, message.encode(), ctypes.c_ulonglong(len(message))))
     return out
+
+# int crypto_kx_keypair(unsigned char pk[crypto_kx_PUBLICKEYBYTES],
+#                      unsigned char sk[crypto_kx_SECRETKEYBYTES]);
+@sodium_version(1, 0, 12)
+def crypto_kx_keypair():
+    pk = ctypes.create_string_buffer(crypto_kx_PUBLICKEYBYTES)
+    sk = ctypes.create_string_buffer(crypto_kx_SECRETKEYBYTES)
+    __check(sodium.crypto_kx_keypair(pk, sk))
+    return pk.raw, sk.raw
+
+# int crypto_kx_client_session_keys(unsigned char rx[crypto_kx_SESSIONKEYBYTES],
+#                                  unsigned char tx[crypto_kx_SESSIONKEYBYTES],
+#                                  const unsigned char client_pk[crypto_kx_PUBLICKEYBYTES],
+#                                  const unsigned char client_sk[crypto_kx_SECRETKEYBYTES],
+#                                  const unsigned char server_pk[crypto_kx_PUBLICKEYBYTES]);
+@sodium_version(1, 0, 12)
+def crypto_kx_client_session_keys(client_pk, client_sk, server_pk):
+    if None in (client_pk, client_sk, server_pk):
+        raise ValueError("invalid parameters")
+    rx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
+    tx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
+    __check(sodium.crypto_kx_client_session_keys(rx, tx, client_pk, client_sk, server_pk))
+    return rx.raw, tx.raw
+
+# int crypto_kx_server_session_keys(unsigned char rx[crypto_kx_SESSIONKEYBYTES],
+#                                  unsigned char tx[crypto_kx_SESSIONKEYBYTES],
+#                                  const unsigned char server_pk[crypto_kx_PUBLICKEYBYTES],
+#                                  const unsigned char server_sk[crypto_kx_SECRETKEYBYTES],
+#                                  const unsigned char client_pk[crypto_kx_PUBLICKEYBYTES]);
+@sodium_version(1, 0, 12)
+def crypto_kx_server_session_keys(server_pk, server_sk, client_pk):
+    if None in (server_pk, server_sk, client_pk):
+        raise ValueError("invalid parameters")
+    rx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
+    tx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
+    __check(sodium.crypto_kx_server_session_keys(rx, tx, server_pk, server_sk, client_pk))
+    return rx.raw, tx.raw

@@ -1,4 +1,4 @@
-import os 
+import os
 from setuptools import setup, find_packages
 
 
@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name="pysodium",
-    version="0.6.12",
+    version="0.6.13dev0",
     author="Stefan Marsiske",
     author_email="s@ctrlc.hu",
     description="python libsodium wrapper",
