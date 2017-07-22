@@ -36,6 +36,9 @@ crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES)
 crypto_generichash_update(state, m)
 crypto_hash_sha256(message)
 crypto_hash_sha512(message)
+crypto_kx_client_session_keys(client_pk, client_sk, server_pk)
+crypto_kx_keypair()
+crypto_kx_server_session_keys(server_pk, server_sk, client_pk)
 crypto_pwhash(outlen, passwd, salt, opslimit, memlimit, alg)
 crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit)
 crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit)
@@ -93,6 +96,9 @@ crypto_generichash_blake2b_PERSONALBYTES
 crypto_generichash_blake2b_SALTBYTES
 crypto_hash_sha256_BYTES
 crypto_hash_sha512_BYTES
+crypto_kx_PUBLICKEYBYTES
+crypto_kx_SECRETKEYBYTES
+crypto_kx_SESSIONKEYBYTES
 crypto_pwhash_ALG_DEFAULT
 crypto_pwhash_MEMLIMIT_INTERACTIVE
 crypto_pwhash_MEMLIMIT_MODERATE

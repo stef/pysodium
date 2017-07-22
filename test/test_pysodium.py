@@ -303,5 +303,16 @@ class TestPySodium(unittest.TestCase):
         tag = pysodium.crypto_auth("howdy", sk)
         pysodium.crypto_auth_verify(tag, "howdy", sk)
 
+    def test_crypto_kx(self):
+        if not pysodium.sodium_version_check(1, 0, 12): return
+        client_pk, client_sk = pysodium.crypto_kx_keypair()
+        server_pk, server_sk = pysodium.crypto_kx_keypair()
+
+        crx, ctx = pysodium.crypto_kx_client_session_keys(client_pk, client_sk, server_pk)
+        srx, stx = pysodium.crypto_kx_server_session_keys(server_pk, server_sk, client_pk)
+
+        self.assertEqual(crx, stx)
+        self.assertEqual(ctx, srx)
+
 if __name__ == '__main__':
     unittest.main()
