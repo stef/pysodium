@@ -303,8 +303,8 @@ class TestPySodium(unittest.TestCase):
         tag = pysodium.crypto_auth("howdy", sk)
         pysodium.crypto_auth_verify(tag, "howdy", sk)
 
-    @pysodium.sodium_version(1, 0, 12)
     def test_crypto_kx(self):
+        if not pysodium.sodium_version_check(1, 0, 12): return
         client_pk, client_sk = pysodium.crypto_kx_keypair()
         server_pk, server_sk = pysodium.crypto_kx_keypair()
 
