@@ -157,17 +157,6 @@ if sodium_version_check(1, 0, 12):
     crypto_kx_SECRETKEYBYTES = sodium.crypto_kx_secretkeybytes()
     crypto_kx_SESSIONKEYBYTES = sodium.crypto_kx_sessionkeybytes()
 
-class CryptoGenericHashState(ctypes.Structure):
-    _pack_ = 1
-    _fields_ = [
-        ('h', ctypes.c_uint64 * 8),
-        ('t', ctypes.c_uint64 * 2),
-        ('f', ctypes.c_uint64 * 2),
-        ('buf', ctypes.c_uint8 * 2 * 128),
-        ('buflen', ctypes.c_size_t),
-        ('last_node', ctypes.c_uint8)
-    ]
-
 class CryptoSignState(ctypes.Structure):
     _pack_ = 1
     _fields_ = [
@@ -316,21 +305,19 @@ def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
 
 # crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
 def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
-    state = CryptoGenericHashState()
+    state = ctypes.create_string_buffer(sodium.crypto_generichash_statebytes())
     __check(sodium.crypto_generichash_init(ctypes.byref(state), k, ctypes.c_size_t(len(k)), ctypes.c_size_t(outlen)))
     return state
 
 
 # crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
 def crypto_generichash_update(state, m):
-    assert isinstance(state, CryptoGenericHashState)
     __check(sodium.crypto_generichash_update(ctypes.byref(state), m, ctypes.c_ulonglong(len(m))))
     return state
 
 
 # crypto_generichash_final(crypto_generichash_state *state, unsigned char *out, const size_t outlen);
 def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
-    assert isinstance(state, CryptoGenericHashState)
     buf = ctypes.create_string_buffer(outlen)
     __check(sodium.crypto_generichash_final(ctypes.byref(state), buf, ctypes.c_size_t(outlen)))
     return buf.raw
