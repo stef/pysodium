@@ -326,7 +326,7 @@ def crypto_generichash_blake2b_salt_personal(message, outlen = crypto_generichas
     keylen   = len(key)
 
     if keylen != 0 and not crypto_generichash_blake2b_BYTES_MIN <= keylen <= crypto_generichash_blake2b_KEYBYTES_MAX:
-        raise ValueError("%d <= len(key) <= %d - %d recieved" % (crypto_generichash_blake2b_BYTES_MIN, crypto_generichash_blake2b_KEYBYTES_MAX, keylen))
+        raise ValueError("%d <= len(key) <= %d - %d received" % (crypto_generichash_blake2b_BYTES_MIN, crypto_generichash_blake2b_KEYBYTES_MAX, keylen))
 
     salt     = pad_buf(salt, crypto_generichash_blake2b_SALTBYTES, 'salt')
     personal = pad_buf(personal, crypto_generichash_blake2b_PERSONALBYTES, 'personal')
