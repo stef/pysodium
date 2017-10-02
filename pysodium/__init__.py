@@ -577,7 +577,7 @@ def crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
                                                                 state, 
                                                                 m,                   # char *m,
                                                                 ctypes.byref(mlen),  # long long *mlen_p,
-                                                                tag,        # char *tag_p,
+                                                                ctypes.byref(tag),   # char *tag_p,
                                                                 ciphertext, # unsigned char *in,
                                                                 clen,       # long long inlen,
                                                                 ad,         # unsigned char *ad,
