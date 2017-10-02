@@ -150,8 +150,23 @@ if sodium_version_check(1, 0, 9):
     crypto_pwhash_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_opslimit_sensitive()
     crypto_pwhash_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_memlimit_sensitive()
     crypto_pwhash_ALG_DEFAULT = sodium.crypto_pwhash_alg_default()
+    crypto_pwhash_ALG_ARGON2I13 = sodium.crypto_pwhash_alg_argon2i13()
+    crypto_pwhash_argon2i_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_argon2i_opslimit_interactive()
+    crypto_pwhash_argon2i_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_argon2i_memlimit_interactive()
+    crypto_pwhash_argon2i_OPSLIMIT_MODERATE = sodium.crypto_pwhash_argon2i_opslimit_moderate()
+    crypto_pwhash_argon2i_MEMLIMIT_MODERATE = sodium.crypto_pwhash_argon2i_memlimit_moderate()
+    crypto_pwhash_argon2i_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_argon2i_opslimit_sensitive()
+    crypto_pwhash_argon2i_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_argon2i_memlimit_sensitive()
 else:
     crypto_pwhash_ALG_DEFAULT = None
+if sodium_version_check(1, 0, 13):
+    crypto_pwhash_ALG_ARGON2ID13 = sodium.crypto_pwhash_alg_argon2id13()
+    crypto_pwhash_argon2id_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_argon2id_opslimit_interactive()
+    crypto_pwhash_argon2id_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_argon2id_memlimit_interactive()
+    crypto_pwhash_argon2id_OPSLIMIT_MODERATE = sodium.crypto_pwhash_argon2id_opslimit_moderate()
+    crypto_pwhash_argon2id_MEMLIMIT_MODERATE = sodium.crypto_pwhash_argon2id_memlimit_moderate()
+    crypto_pwhash_argon2id_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_argon2id_opslimit_sensitive()
+    crypto_pwhash_argon2id_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_argon2id_memlimit_sensitive()
 if sodium_version_check(1, 0, 12):
     crypto_kx_PUBLICKEYBYTES = sodium.crypto_kx_publickeybytes()
     crypto_kx_SECRETKEYBYTES = sodium.crypto_kx_secretkeybytes()
