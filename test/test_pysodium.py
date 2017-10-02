@@ -96,7 +96,42 @@ class TestPySodium(unittest.TestCase):
         c = pysodium.crypto_secretbox(b"howdy", n, k)
         pysodium.crypto_secretbox_open(c, n, k)
 
-    def test_crypto_scalarmult_curve25519_base(self):
+################################
+
+    def test_crypto_secretstream_xchacha20poly1305_keygen(self):
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+
+    def test_crypto_secretstream_xchacha20poly1305_init_push(self):
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+    def test_crypto_secretstream_xchacha20poly1305_init_pull(self):
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+
+    def test_crypto_secretstream_xchacha20poly1305_rekey(self):
+        pysodium.crypto_secretstream_xchacha20poly1305_rekey()
+
+    def test_crypto_secretstream_xchacha20poly1305_push(self):
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, 0)
+
+    def test_crypto_secretstream_xchacha20poly1305_pull(self):
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, 0)
+
+        msg, tag = pysodium.crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, None)
+
+
+################################
+
+
+    def test_test_crypto_scalarmult_curve25519_base(self):
         s = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         r = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         pysodium.crypto_scalarmult_curve25519(s, r)
