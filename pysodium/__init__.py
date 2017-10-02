@@ -583,7 +583,7 @@ def crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
                                                                 ad,         # unsigned char *ad,
                                                                 adlen       # long long adlen)
                                                                 ))
-    return m.raw, tag.raw
+    return m.raw, tag.value
 
 
 

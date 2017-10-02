@@ -111,7 +111,10 @@ class TestPySodium(unittest.TestCase):
         state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
 
     def test_crypto_secretstream_xchacha20poly1305_rekey(self):
-        pysodium.crypto_secretstream_xchacha20poly1305_rekey()
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, 0)
+        pysodium.crypto_secretstream_xchacha20poly1305_rekey(state)
 
     def test_crypto_secretstream_xchacha20poly1305_push(self):
         key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
@@ -125,7 +128,8 @@ class TestPySodium(unittest.TestCase):
         state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
         ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, 0)
 
-        msg, tag = pysodium.crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, None)
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        msg, tag = pysodium.crypto_secretstream_xchacha20poly1305_pull(state2, ciphertext, None)
 
 
 ################################
