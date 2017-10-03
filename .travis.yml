@@ -1,3 +1,4 @@
+dist: artful
 language: python
 sudo: required
 python:
