@@ -492,14 +492,6 @@ def crypto_box_open_detached(c, mac, nonce, pk, sk):
     return msg.raw.decode()
 
 
-
-
-
-
-
-################################
-
-
 # void crypto_secretstream_xchacha20poly1305_keygen (unsigned char k[crypto_secretstream_xchacha20poly1305_KEYBYTES])
 @sodium_version(1, 0, 15)
 def crypto_secretstream_xchacha20poly1305_keygen():
@@ -558,7 +550,7 @@ def crypto_secretstream_xchacha20poly1305_push(state, message, ad, tag):
     clen = ctypes.c_ulonglong(0)
 
     __check(sodium.crypto_secretstream_xchacha20poly1305_push(
-                                                                state,    #  crypto_secretstream_xchacha20poly1305_state *state,
+                                                                state,                  #  crypto_secretstream_xchacha20poly1305_state *state,
                                                                 c,                      #  unsigned char *out
                                                                 ctypes.byref(clen),     #  unsigned long long *outlen_p,
                                                                 message,                #  const unsigned char *m,
@@ -593,17 +585,12 @@ def crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
                                                                 m,                   # char *m,
                                                                 ctypes.byref(mlen),  # long long *mlen_p,
                                                                 ctypes.byref(tag),   # char *tag_p,
-                                                                ciphertext, # unsigned char *in,
-                                                                clen,       # long long inlen,
-                                                                ad,         # unsigned char *ad,
-                                                                adlen       # long long adlen)
+                                                                ciphertext,          # unsigned char *in,
+                                                                clen,                # long long inlen,
+                                                                ad,                  # unsigned char *ad,
+                                                                adlen                # long long adlen)
                                                                 ))
     return m.raw, tag.value
-
-
-
-################################
-
 
 
 def crypto_sign_keypair():
