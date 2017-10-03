@@ -478,7 +478,7 @@ def crypto_box_open_detached(c, mac, nonce, pk, sk):
         raise ValueError("invalid parameters")
     msg = ctypes.create_string_buffer(len(c))
     __check(sodium.crypto_box_open_detached(msg, c, mac, ctypes.c_ulonglong(len(c)), nonce, pk, sk))
-    return msg.raw.decode()
+    return msg.raw
 
 def crypto_sign_keypair():
     pk = ctypes.create_string_buffer(crypto_sign_PUBLICKEYBYTES)
@@ -704,18 +704,18 @@ def crypto_sign_sk_to_pk(sk):
 def crypto_hash_sha256(message):
     if message is None:
         raise ValueError("invalid parameters")
-    out = ctypes.create_string_buffer(crypto_hash_sha256_BYTES).raw
+    out = ctypes.create_string_buffer(crypto_hash_sha256_BYTES)
     __check(sodium.crypto_hash_sha256(out, message.encode(), ctypes.c_ulonglong(len(message))))
-    return out
+    return out.raw
 
 # int crypto_hash_sha512(unsigned char *out, const unsigned char *in,
 #                       unsigned long long inlen);
 def crypto_hash_sha512(message):
     if message is None:
         raise ValueError("invalid parameters")
-    out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES).raw
+    out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES)
     __check(sodium.crypto_hash_sha512(out, message.encode(), ctypes.c_ulonglong(len(message))))
-    return out
+    return out.raw
 
 # int crypto_kx_keypair(unsigned char pk[crypto_kx_PUBLICKEYBYTES],
 #                      unsigned char sk[crypto_kx_SECRETKEYBYTES]);
