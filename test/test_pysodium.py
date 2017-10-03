@@ -43,17 +43,19 @@ class TestPySodium(unittest.TestCase):
         pysodium.crypto_stream_xor(b'howdy' * 16, len(b'howdy') * 16)
 
     def test_crypto_generichash(self):
-        pysodium.crypto_generichash(b'howdy')
+        r=pysodium.crypto_generichash(b'howdy')
         pysodium.crypto_generichash(b'howdy', outlen=4)
-        pysodium.crypto_generichash(b'howdy', outlen=6)
+        r6=pysodium.crypto_generichash(b'howdy', outlen=6)
         pysodium.crypto_generichash(b'howdy', outlen=8)
         state = pysodium.crypto_generichash_init()
         pysodium.crypto_generichash_update(state, b'howdy')
-        pysodium.crypto_generichash_final(state)
+        r1=pysodium.crypto_generichash_final(state)
 
         state = pysodium.crypto_generichash_init(outlen=6)
         pysodium.crypto_generichash_update(state, b'howdy')
-        pysodium.crypto_generichash_final(state, outlen=6)
+        r61=pysodium.crypto_generichash_final(state, outlen=6)
+        self.assertEqual(r, r1)
+        self.assertEqual(r6, r61)
 
     def test_crypto_box_pk_from_sk(self):
         pk1, sk = pysodium.crypto_box_keypair()
@@ -88,7 +90,10 @@ class TestPySodium(unittest.TestCase):
         pk, sk = pysodium.crypto_box_keypair()
         n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
         c, mac = pysodium.crypto_box_detached("howdy", n, pk, sk)
-        pysodium.crypto_box_open_detached(c, mac, n, pk, sk)
+        r = pysodium.crypto_box_open_detached(c, mac, n, pk, sk)
+        self.assertEqual(r, b"howdy")
+        changed = "\0"*len(c)
+        self.assertRaises(ValueError, pysodium.crypto_box_open_detached,changed, mac, n, pk, sk)
 
     def test_crypto_secretbox_open(self):
         k = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
@@ -187,12 +192,6 @@ class TestPySodium(unittest.TestCase):
         pw = "Correct Horse Battery Staple"
         pstr = pysodium.crypto_pwhash_str(pw, pysodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, pysodium.crypto_pwhash_MEMLIMIT_INTERACTIVE)
         self.assertTrue(pysodium.crypto_pwhash_str_verify(pstr, pw))
-
-    def test_crypto_pwhash_str(self):
-        if not pysodium.sodium_version_check(1, 0, 9): return
-
-    def test_crypto_pwhash_str_verify(self):
-        if not pysodium.sodium_version_check(1, 0, 9): return
 
     def test_crypto_pwhash_scryptsalsa208sha256(self):
         passwd = b'Correct Horse Battery Staple'
