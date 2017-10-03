@@ -1,3 +1,4 @@
+dist: artful
 language: python
 sudo: required
 python:
@@ -5,7 +6,7 @@ python:
   - "3.4"
 
 install:
- - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ wily universe multiverse"
+ - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ artful universe multiverse"
  - sudo apt-get update -qq
  - sudo apt-get install -y libsodium13
  - python setup.py install

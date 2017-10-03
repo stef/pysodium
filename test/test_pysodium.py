@@ -218,7 +218,7 @@ class TestPySodium(unittest.TestCase):
         if not pysodium.sodium_version_check(1, 0, 9): return
         pw = "Correct Horse Battery Staple"
         salt = binascii.unhexlify(b'0f58b94c7a369fd8a9a7083e4cd75266')
-        out = pysodium.crypto_pwhash(pysodium.crypto_auth_KEYBYTES, pw, salt, pysodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, pysodium.crypto_pwhash_MEMLIMIT_INTERACTIVE)
+        out = pysodium.crypto_pwhash(pysodium.crypto_auth_KEYBYTES, pw, salt, pysodium.crypto_pwhash_argon2i_OPSLIMIT_INTERACTIVE, pysodium.crypto_pwhash_argon2i_MEMLIMIT_INTERACTIVE, pysodium.crypto_pwhash_ALG_ARGON2I13)
         self.assertEqual(binascii.hexlify(out), b'79db3095517c7358449d84ee3b2f81f0e9907fbd4e0bae4e0bcc6c79821427dc')
 
     def test_crypto_pwhash_storage(self):
