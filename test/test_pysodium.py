@@ -140,6 +140,17 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(msg, b"howdy")
         self.assertEqual(tag, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
 
+    def test_crypto_secretstream_xchacha20poly1305_pull_changed_ad(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", b"some data", pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext, b"different data")
+
+
     def test_crypto_secretstream_xchacha20poly1305_pull_incorrect_key(self):
         if not pysodium.sodium_version_check(1, 0, 15): return
 
