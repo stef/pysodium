@@ -16,8 +16,7 @@ crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key)
 crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key)
 crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key)
 crypto_auth(message, key)
-crypto_auth(tag, message, key)
-crypto_auth_verify(h, m, k=b'')
+crypto_auth_verify(tag, message, key)
 crypto_box_afternm(msg, nonce, k)
 crypto_box_beforenm(pk, sk)
 crypto_box_detached(msg, nonce, pk, sk)
@@ -87,7 +86,10 @@ crypto_box_SEALBYTES
 crypto_box_SECRETKEYBYTES
 crypto_box_SEEDBYTES
 crypto_box_ZEROBYTES
+crypto_generichash_KEYBYTES_MAX
 crypto_generichash_BYTES
+crypto_generichash_BYTES_MAX
+crypto_generichash_BYTES_MIN
 crypto_generichash_blake2b_BYTES
 crypto_generichash_blake2b_BYTES_MAX
 crypto_generichash_blake2b_BYTES_MIN
