@@ -463,7 +463,7 @@ def crypto_box_detached(msg, nonce, pk, sk):
             raise ValueError("invalid parameters")
         c = ctypes.create_string_buffer(len(msg))
         mac = ctypes.create_string_buffer(crypto_box_MACBYTES)
-        __check(sodium.crypto_box_detached(c, mac, msg.encode(), ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
+        __check(sodium.crypto_box_detached(c, mac, msg, ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
         return c.raw, mac.raw
 
 # int crypto_box_open_detached(unsigned char *m, const unsigned char *c,
