@@ -273,6 +273,8 @@ class TestPySodium(unittest.TestCase):
             "af139fa284364215adfa49c889ab7feddc5e5d1c52512ffb2cfc9baeb67f220e")
         self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256("pysodium")),
             "0a53ef9bc1bea173118a42bbbe8300abb6bbef83139046940e9593d9559a5df7")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256("\x80")),
+            "76be8b528d0075f7aae98d6fa57a6d3c83ae480a8469e668d7b0af968995ac71")
 
     def test_crypto_hash_sha512(self):
         self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("test")),
@@ -283,6 +285,8 @@ class TestPySodium(unittest.TestCase):
             "0675070bda47bef936f0b65ae721d90f82ca137841df4d7cae27776501ae4b446ab926d64dc1d282c8758ac0eb02cc4aa11b2452d4f8ffeb795023b797fe2b80")
         self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("pysodium")),
             "ecbc6f4ffdb6e6dcbe6e6beecf0b8e05c11b0cc8a56f2b4098cd613585749fcca5ed1cfda3518e33a5d2c63746ee2857ff6857b9a2eeda4cc208c1e7fd89cc17")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("\x80")),
+            "dfe8ef54110b3324d3b889035c95cfb80c92704614bf76f17546ad4f4b08218a630e16da7df34766a975b3bb85b01df9e99a4ec0a1d0ec3de6bed7b7a40b2f10")
 
     def byteHashToString(self, input):
         import sys
