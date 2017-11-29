@@ -117,7 +117,10 @@ crypto_sign_ed25519_SECRETKEYBYTES = sodium.crypto_sign_ed25519_secretkeybytes()
 crypto_sign_ed25519_PUBLICKEYBYTES = sodium.crypto_sign_ed25519_publickeybytes()
 crypto_stream_KEYBYTES = sodium.crypto_stream_keybytes()
 crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
+crypto_generichash_KEYBYTES_MAX = sodium.crypto_generichash_keybytes_max()
 crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
+crypto_generichash_BYTES_MIN = sodium.crypto_generichash_bytes_min()
+crypto_generichash_BYTES_MAX = sodium.crypto_generichash_bytes_max()
 crypto_scalarmult_curve25519_BYTES = sodium.crypto_scalarmult_curve25519_bytes()
 crypto_scalarmult_BYTES = sodium.crypto_scalarmult_bytes()
 crypto_generichash_blake2b_KEYBYTES_MAX = sodium.crypto_generichash_blake2b_keybytes_max()
@@ -463,7 +466,7 @@ def crypto_box_detached(msg, nonce, pk, sk):
             raise ValueError("invalid parameters")
         c = ctypes.create_string_buffer(len(msg))
         mac = ctypes.create_string_buffer(crypto_box_MACBYTES)
-        __check(sodium.crypto_box_detached(c, mac, msg.encode(), ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
+        __check(sodium.crypto_box_detached(c, mac, msg, ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
         return c.raw, mac.raw
 
 # int crypto_box_open_detached(unsigned char *m, const unsigned char *c,
@@ -705,7 +708,7 @@ def crypto_hash_sha256(message):
     if message is None:
         raise ValueError("invalid parameters")
     out = ctypes.create_string_buffer(crypto_hash_sha256_BYTES)
-    __check(sodium.crypto_hash_sha256(out, message.encode(), ctypes.c_ulonglong(len(message))))
+    __check(sodium.crypto_hash_sha256(out, message, ctypes.c_ulonglong(len(message))))
     return out.raw
 
 # int crypto_hash_sha512(unsigned char *out, const unsigned char *in,
@@ -714,7 +717,7 @@ def crypto_hash_sha512(message):
     if message is None:
         raise ValueError("invalid parameters")
     out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES)
-    __check(sodium.crypto_hash_sha512(out, message.encode(), ctypes.c_ulonglong(len(message))))
+    __check(sodium.crypto_hash_sha512(out, message, ctypes.c_ulonglong(len(message))))
     return out.raw
 
 # int crypto_kx_keypair(unsigned char pk[crypto_kx_PUBLICKEYBYTES],
