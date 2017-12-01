@@ -187,6 +187,24 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(msg2, b"howdy")
         self.assertEqual(tag2, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
 
+    def test_crypto_secretstream_xchacha20poly1305_pull_corrupted(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+        ad = 'additional data'
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"Correct Horse Battery Staple", ad, 0)
+
+        # Verify error is raised if cypher text is changed
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext + 'this is a corruption', ad)
+
+        # Verify error is raised if additional data is changed
+        ad2 = 'this is not the same'
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext, ad2)
+
     def test_crypto_secretstream_xchacha20poly1305_rekey(self):
         if not pysodium.sodium_version_check(1, 0, 15): return
 

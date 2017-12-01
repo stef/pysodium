@@ -577,6 +577,9 @@ def crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
     if None in (state, ciphertext):
         raise ValueError("invalid parameters")
 
+    if len(ciphertext) < crypto_secretstream_xchacha20poly1305_ABYTES:
+        raise ValueError("truncated cyphertext")
+
     m = ctypes.create_string_buffer(len(ciphertext) - crypto_secretstream_xchacha20poly1305_ABYTES)
     mlen = ctypes.c_ulonglong(0)
     tag  = ctypes.c_ubyte(0)
@@ -594,7 +597,6 @@ def crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
                                                                 adlen                # long long adlen)
                                                                 ))
     return m.raw, tag.value
-
 
 def crypto_sign_keypair():
     pk = ctypes.create_string_buffer(crypto_sign_PUBLICKEYBYTES)
