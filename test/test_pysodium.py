@@ -43,17 +43,19 @@ class TestPySodium(unittest.TestCase):
         pysodium.crypto_stream_xor(b'howdy' * 16, len(b'howdy') * 16)
 
     def test_crypto_generichash(self):
-        pysodium.crypto_generichash(b'howdy')
+        r=pysodium.crypto_generichash(b'howdy')
         pysodium.crypto_generichash(b'howdy', outlen=4)
-        pysodium.crypto_generichash(b'howdy', outlen=6)
+        r6=pysodium.crypto_generichash(b'howdy', outlen=6)
         pysodium.crypto_generichash(b'howdy', outlen=8)
         state = pysodium.crypto_generichash_init()
         pysodium.crypto_generichash_update(state, b'howdy')
-        pysodium.crypto_generichash_final(state)
+        r1=pysodium.crypto_generichash_final(state)
 
         state = pysodium.crypto_generichash_init(outlen=6)
         pysodium.crypto_generichash_update(state, b'howdy')
-        pysodium.crypto_generichash_final(state, outlen=6)
+        r61=pysodium.crypto_generichash_final(state, outlen=6)
+        self.assertEqual(r, r1)
+        self.assertEqual(r6, r61)
 
     def test_crypto_box_pk_from_sk(self):
         pk1, sk = pysodium.crypto_box_keypair()
@@ -87,8 +89,11 @@ class TestPySodium(unittest.TestCase):
     def test_crypto_box_open_detached(self):
         pk, sk = pysodium.crypto_box_keypair()
         n = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
-        c, mac = pysodium.crypto_box_detached("howdy", n, pk, sk)
-        pysodium.crypto_box_open_detached(c, mac, n, pk, sk)
+        c, mac = pysodium.crypto_box_detached(b"howdy", n, pk, sk)
+        r = pysodium.crypto_box_open_detached(c, mac, n, pk, sk)
+        self.assertEqual(r, b"howdy")
+        changed = "\0"*len(c)
+        self.assertRaises(ValueError, pysodium.crypto_box_open_detached,changed, mac, n, pk, sk)
 
     def test_crypto_secretbox_open(self):
         k = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
@@ -326,12 +331,6 @@ class TestPySodium(unittest.TestCase):
         pstr = pysodium.crypto_pwhash_str(pw, pysodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, pysodium.crypto_pwhash_MEMLIMIT_INTERACTIVE)
         self.assertTrue(pysodium.crypto_pwhash_str_verify(pstr, pw))
 
-    def test_crypto_pwhash_str(self):
-        if not pysodium.sodium_version_check(1, 0, 9): return
-
-    def test_crypto_pwhash_str_verify(self):
-        if not pysodium.sodium_version_check(1, 0, 9): return
-
     def test_crypto_pwhash_scryptsalsa208sha256(self):
         passwd = b'Correct Horse Battery Staple'
         other_passwd = b'correct horse battery staple'
@@ -404,24 +403,28 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(msg, m)
 
     def test_crypto_hash_sha256(self):
-        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256("test")),
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256(b"test")),
             "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
-        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256("howdy")),
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256(b"howdy")),
             "0f1128046248f83dc9b9ab187e16fad0ff596128f1524d05a9a77c4ad932f10a")
-        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256("Correct Horse Battery Staple")),
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256(b"Correct Horse Battery Staple")),
             "af139fa284364215adfa49c889ab7feddc5e5d1c52512ffb2cfc9baeb67f220e")
-        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256("pysodium")),
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256(b"pysodium")),
             "0a53ef9bc1bea173118a42bbbe8300abb6bbef83139046940e9593d9559a5df7")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha256(b"\x80")),
+            "76be8b528d0075f7aae98d6fa57a6d3c83ae480a8469e668d7b0af968995ac71")
 
     def test_crypto_hash_sha512(self):
-        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("test")),
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512(b"test")),
             "ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff")
-        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("howdy")),
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512(b"howdy")),
             "905caca5c4685f296c5491d38660d7720ee87bef08f829332e905593522907674de8490de46c969d2c585b40af40439b387562d6f776023507753d1a9554ebbb")
-        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("Correct Horse Battery Staple")),
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512(b"Correct Horse Battery Staple")),
             "0675070bda47bef936f0b65ae721d90f82ca137841df4d7cae27776501ae4b446ab926d64dc1d282c8758ac0eb02cc4aa11b2452d4f8ffeb795023b797fe2b80")
-        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512("pysodium")),
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512(b"pysodium")),
             "ecbc6f4ffdb6e6dcbe6e6beecf0b8e05c11b0cc8a56f2b4098cd613585749fcca5ed1cfda3518e33a5d2c63746ee2857ff6857b9a2eeda4cc208c1e7fd89cc17")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512(b"\x80")),
+            "dfe8ef54110b3324d3b889035c95cfb80c92704614bf76f17546ad4f4b08218a630e16da7df34766a975b3bb85b01df9e99a4ec0a1d0ec3de6bed7b7a40b2f10")
 
     def byteHashToString(self, input):
         import sys
