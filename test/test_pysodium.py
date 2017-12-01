@@ -198,7 +198,7 @@ class TestPySodium(unittest.TestCase):
 
         # Verify error is raised if cypher text is changed
         state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
-        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext + 'this is a corruption', ad)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext + 'this is a corruption'.encode(), ad)
 
         # Verify error is raised if additional data is changed
         ad2 = 'this is not the same'
