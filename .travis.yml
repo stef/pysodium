@@ -9,7 +9,7 @@ install:
    #- sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ artful universe multiverse"
    #- sudo apt-get update -qq
    #- sudo apt-get install -y libsodium13
- - wget https://download.libsodium.org/libsodium/releases/LATEST.tar.gz && tar xzf LATEST.tar.gz && pushd libsodium-stable/ && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install && popd
+ - wget https://download.libsodium.org/libsodium/releases/LATEST.tar.gz && tar xzf LATEST.tar.gz && pushd libsodium-stable/ && ./configure --prefix=/usr && make && make check && sudo make install && popd
  - python setup.py install
 
 script:
