@@ -205,6 +205,7 @@ class TestPySodium(unittest.TestCase):
         state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
         self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext, ad2)
 
+
     def test_crypto_secretstream_xchacha20poly1305_rekey(self):
         if not pysodium.sodium_version_check(1, 0, 15): return
 
