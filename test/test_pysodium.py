@@ -101,7 +101,164 @@ class TestPySodium(unittest.TestCase):
         c = pysodium.crypto_secretbox(b"howdy", n, k)
         pysodium.crypto_secretbox_open(c, n, k)
 
-    def test_crypto_scalarmult_curve25519_base(self):
+    def test_crypto_secretstream_xchacha20poly1305_keygen(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        self.assertEqual(len(key), 32)
+
+    # The following 3 tests verify that no exceptions are raised. Cannot check these
+    # in any more detail as doing so would require internal knowledge of the state and
+    # header structures, which may change. This can be assumed to be correct as long
+    # as 'pull' test passes, it's decrypted values matches the original plain text.
+    def test_crypto_secretstream_xchacha20poly1305_init_push(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+    def test_crypto_secretstream_xchacha20poly1305_init_pull(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+
+    def test_crypto_secretstream_xchacha20poly1305_push(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, 0)
+    #----
+
+    def test_crypto_secretstream_xchacha20poly1305_pull(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        msg, tag = pysodium.crypto_secretstream_xchacha20poly1305_pull(state2, ciphertext, None)
+
+        self.assertEqual(msg, b"howdy")
+        self.assertEqual(tag, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+    def test_crypto_secretstream_xchacha20poly1305_pull_changed_ad(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", b"some data", pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext, b"different data")
+
+
+    def test_crypto_secretstream_xchacha20poly1305_pull_incorrect_key(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+        bad_key = b'this is not correct'
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, bad_key)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext, None)
+
+    def test_crypto_secretstream_xchacha20poly1305_pull_multiple(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"Correct Horse Battery Staple", None, 0)
+        ciphertext2 = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+        # Verify decryption
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        msg, tag = pysodium.crypto_secretstream_xchacha20poly1305_pull(state2, ciphertext, None)
+        msg2, tag2 = pysodium.crypto_secretstream_xchacha20poly1305_pull(state2, ciphertext2, None)
+
+        self.assertEqual(msg, b"Correct Horse Battery Staple")
+        self.assertEqual(tag, 0)
+
+        self.assertEqual(msg2, b"howdy")
+        self.assertEqual(tag2, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+    def test_crypto_secretstream_xchacha20poly1305_pull_corrupted(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+        ad = 'additional data'
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"Correct Horse Battery Staple", ad, 0)
+
+        # Verify error is raised if cypher text is changed
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext + 'this is a corruption'.encode(), ad)
+
+        # Verify error is raised if additional data is changed
+        ad2 = 'this is not the same'
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext, ad2)
+
+
+    def test_crypto_secretstream_xchacha20poly1305_rekey(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+        # Encrypt two messages with intermediate re-key
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"Correct Horse Battery Staple", None, 0)
+        pysodium.crypto_secretstream_xchacha20poly1305_rekey(state)
+        ciphertext2 = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+        # Verify by decrypting them
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        msg, tag = pysodium.crypto_secretstream_xchacha20poly1305_pull(state2, ciphertext, None)
+        pysodium.crypto_secretstream_xchacha20poly1305_rekey(state2)
+        msg2, tag2 = pysodium.crypto_secretstream_xchacha20poly1305_pull(state2, ciphertext2, None)
+
+        self.assertEqual(msg, b"Correct Horse Battery Staple")
+        self.assertEqual(tag, 0)
+
+        self.assertEqual(msg2, b"howdy")
+        self.assertEqual(tag2, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+    def test_crypto_secretstream_xchacha20poly1305_missing_rekey(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+        # Encrypt two messages with intermediate re-key
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"Correct Horse Battery Staple", None, 0)
+        pysodium.crypto_secretstream_xchacha20poly1305_rekey(state)
+        ciphertext2 = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        msg, tag = pysodium.crypto_secretstream_xchacha20poly1305_pull(state2, ciphertext, None)
+        # re-key should be here, so following call should fail
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext2, None)
+
+    def test_crypto_secretstream_xchacha20poly1305_out_of_order_messeges(self):
+        if not pysodium.sodium_version_check(1, 0, 15): return
+
+        key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
+        state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+
+        ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"Correct Horse Battery Staple", None, 0)
+        ciphertext2 = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+
+        # Decrypting the second message first should fail
+        state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+        self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext2, None)
+
+    def test_test_crypto_scalarmult_curve25519_base(self):
         s = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         r = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         pysodium.crypto_scalarmult_curve25519(s, r)

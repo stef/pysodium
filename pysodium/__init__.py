@@ -174,6 +174,17 @@ if sodium_version_check(1, 0, 12):
     crypto_kx_PUBLICKEYBYTES = sodium.crypto_kx_publickeybytes()
     crypto_kx_SECRETKEYBYTES = sodium.crypto_kx_secretkeybytes()
     crypto_kx_SESSIONKEYBYTES = sodium.crypto_kx_sessionkeybytes()
+if sodium_version_check(1, 0, 15):
+    crypto_secretstream_xchacha20poly1305_STATEBYTES = sodium.crypto_secretstream_xchacha20poly1305_statebytes()
+    crypto_secretstream_xchacha20poly1305_ABYTES = sodium.crypto_secretstream_xchacha20poly1305_abytes()
+    crypto_secretstream_xchacha20poly1305_HEADERBYTES = sodium.crypto_secretstream_xchacha20poly1305_headerbytes()
+    crypto_secretstream_xchacha20poly1305_KEYBYTES = sodium.crypto_secretstream_xchacha20poly1305_keybytes()
+    crypto_secretstream_xchacha20poly1305_MESSAGEBYTES_MAX = sodium.crypto_secretstream_xchacha20poly1305_messagebytes_max()
+    crypto_secretstream_xchacha20poly1305_TAG_MESSAGE = sodium.crypto_secretstream_xchacha20poly1305_tag_message()
+    crypto_secretstream_xchacha20poly1305_TAG_PUSH = sodium.crypto_secretstream_xchacha20poly1305_tag_push()
+    crypto_secretstream_xchacha20poly1305_TAG_REKEY = sodium.crypto_secretstream_xchacha20poly1305_tag_rekey()
+    crypto_secretstream_xchacha20poly1305_TAG_FINAL = sodium.crypto_secretstream_xchacha20poly1305_tag_final()
+
 
 class CryptoSignState(ctypes.Structure):
     _pack_ = 1
@@ -482,6 +493,110 @@ def crypto_box_open_detached(c, mac, nonce, pk, sk):
     msg = ctypes.create_string_buffer(len(c))
     __check(sodium.crypto_box_open_detached(msg, c, mac, ctypes.c_ulonglong(len(c)), nonce, pk, sk))
     return msg.raw
+
+
+# void crypto_secretstream_xchacha20poly1305_keygen (unsigned char k[crypto_secretstream_xchacha20poly1305_KEYBYTES])
+@sodium_version(1, 0, 15)
+def crypto_secretstream_xchacha20poly1305_keygen():
+    key = ctypes.create_string_buffer(crypto_secretstream_xchacha20poly1305_KEYBYTES)
+    sodium.crypto_secretstream_xchacha20poly1305_keygen(ctypes.byref(key))
+    return key.raw
+
+
+# int crypto_secretstream_xchacha20poly1305_init_push(crypto_secretstream_xchacha20poly1305_state *state,
+#                                                     unsigned char out[crypto_secretstream_xchacha20poly1305_HEADERBYTES],
+#                                                     const unsigned char k[crypto_secretstream_xchacha20poly1305_KEYBYTES])
+@sodium_version(1, 0, 15)
+def crypto_secretstream_xchacha20poly1305_init_push(key):
+    if key == None:
+        raise ValueError("invalid parameters")
+
+    state  = ctypes.create_string_buffer(crypto_secretstream_xchacha20poly1305_STATEBYTES)
+    header = ctypes.create_string_buffer(crypto_secretstream_xchacha20poly1305_HEADERBYTES)
+    __check(sodium.crypto_secretstream_xchacha20poly1305_init_push(state, header, key))
+    return state.raw, header.raw
+
+# int crypto_secretstream_xchacha20poly1305_init_pull(crypto_secretstream_xchacha20poly1305_state *state,
+#                                                     const unsigned char in[crypto_secretstream_xchacha20poly1305_HEADERBYTES],
+#                                                     const unsigned char k[crypto_secretstream_xchacha20poly1305_KEYBYTES])
+@sodium_version(1, 0, 15)
+def crypto_secretstream_xchacha20poly1305_init_pull(header, key):
+    if None in (header, key):
+        raise ValueError("invalid parameters")
+    state  = ctypes.create_string_buffer(crypto_secretstream_xchacha20poly1305_STATEBYTES)
+    __check(sodium.crypto_secretstream_xchacha20poly1305_init_pull(state, header, key))
+    return state.raw
+
+#void crypto_secretstream_xchacha20poly1305_rekey (crypto_secretstream_xchacha20poly1305_state *state)
+@sodium_version(1, 0, 15)
+def crypto_secretstream_xchacha20poly1305_rekey(state):
+    if state == None:
+        raise ValueError("invalid parameters")
+    sodium.crypto_secretstream_xchacha20poly1305_rekey(state)
+
+#int crypto_secretstream_xchacha20poly1305_push (crypto_secretstream_xchacha20poly1305_state *state,
+#                                                unsigned char *out,
+#                                                unsigned long long *outlen_p,
+#                                                const unsigned char *m,
+#                                                unsigned long long mlen,
+#                                                const unsigned char *ad,
+#                                                unsigned long long adlen,
+#                                                unsigned char tag)
+
+@sodium_version(1, 0, 15)
+def crypto_secretstream_xchacha20poly1305_push(state, message, ad, tag):
+    if None in (state, message):
+        raise ValueError("invalid parameters")
+    mlen = ctypes.c_ulonglong(len(message))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    c = ctypes.create_string_buffer(mlen.value + crypto_secretstream_xchacha20poly1305_ABYTES)
+    clen = ctypes.c_ulonglong(0)
+
+    __check(sodium.crypto_secretstream_xchacha20poly1305_push(
+                                                                state,                  #  crypto_secretstream_xchacha20poly1305_state *state,
+                                                                c,                      #  unsigned char *out
+                                                                ctypes.byref(clen),     #  unsigned long long *outlen_p,
+                                                                message,                #  const unsigned char *m,
+                                                                mlen,                   #  unsigned long long mlen,
+                                                                ad,                     #  const unsigned char *ad,
+                                                                adlen,                  #  unsigned long long adlen,
+                                                                tag))                   #  unsigned char tag)
+    return c.raw
+
+
+#crypto_secretstream_xchacha20poly1305_pull (crypto_secretstream_xchacha20poly1305_state *state,
+#                                            unsigned char *m,
+#                                            unsigned long long *mlen_p,
+#                                            unsigned char *tag_p,
+#                                            const unsigned char *in,
+#                                            unsigned long long inlen,
+#                                            const unsigned char *ad,
+#                                            unsigned long long adlen)
+@sodium_version(1, 0, 15)
+def crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
+    if None in (state, ciphertext):
+        raise ValueError("invalid parameters")
+
+    if len(ciphertext) < crypto_secretstream_xchacha20poly1305_ABYTES:
+        raise ValueError("truncated cyphertext")
+
+    m = ctypes.create_string_buffer(len(ciphertext) - crypto_secretstream_xchacha20poly1305_ABYTES)
+    mlen = ctypes.c_ulonglong(0)
+    tag  = ctypes.c_ubyte(0)
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+
+    __check(sodium.crypto_secretstream_xchacha20poly1305_pull(
+                                                                state, 
+                                                                m,                   # char *m,
+                                                                ctypes.byref(mlen),  # long long *mlen_p,
+                                                                ctypes.byref(tag),   # char *tag_p,
+                                                                ciphertext,          # unsigned char *in,
+                                                                clen,                # long long inlen,
+                                                                ad,                  # unsigned char *ad,
+                                                                adlen                # long long adlen)
+                                                                ))
+    return m.raw, tag.value
 
 def crypto_sign_keypair():
     pk = ctypes.create_string_buffer(crypto_sign_PUBLICKEYBYTES)

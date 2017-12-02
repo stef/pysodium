@@ -48,6 +48,12 @@ crypto_scalarmult_curve25519_base(n)
 crypto_scalarmult_curve25519(n, p)
 crypto_secretbox(msg, nonce, k)
 crypto_secretbox_open(c, nonce, k)
+crypto_secretstream_xchacha20poly1305_keygen():
+crypto_secretstream_xchacha20poly1305_init_push(key):
+crypto_secretstream_xchacha20poly1305_init_pull(header, key):
+crypto_secretstream_xchacha20poly1305_rekey(state):
+crypto_secretstream_xchacha20poly1305_push(state, message, ad, tag):
+crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
 crypto_sign_init()
 crypto_sign_update(state, m)
 crypto_sign_final_create(state, sk)
@@ -139,6 +145,15 @@ crypto_secretbox_KEYBYTES
 crypto_secretbox_MACBYTES
 crypto_secretbox_NONCEBYTES
 crypto_secretbox_ZEROBYTES
+crypto_secretstream_xchacha20poly1305_STATEBYTES
+crypto_secretstream_xchacha20poly1305_ABYTES
+crypto_secretstream_xchacha20poly1305_HEADERBYTES
+crypto_secretstream_xchacha20poly1305_KEYBYTES
+crypto_secretstream_xchacha20poly1305_MESSAGEBYTES_MAX
+crypto_secretstream_xchacha20poly1305_TAG_MESSAGE
+crypto_secretstream_xchacha20poly1305_TAG_PUSH
+crypto_secretstream_xchacha20poly1305_TAG_REKEY
+crypto_secretstream_xchacha20poly1305_TAG_FINAL
 crypto_sign_BYTES
 crypto_sign_PUBLICKEYBYTES
 crypto_sign_SECRETKEYBYTES
