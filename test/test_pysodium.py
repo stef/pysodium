@@ -316,6 +316,16 @@ class TestPySodium(unittest.TestCase):
             output = pysodium.crypto_aead_chacha20poly1305_ietf_decrypt(output, ad, nonce, key)
             self.assertEqual(output, input_)
 
+    def test_aead_xchacha20poly1305_ietf(self):
+        if not pysodium.sodium_version_check(1, 0, 12): return
+        key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
+        input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+        nonce = binascii.unhexlify(b"cd7cf67be39c794a")
+        for ad in [binascii.unhexlify(b"87e229d4500845a079c0"), None]:
+            output = pysodium.crypto_aead_xchacha20poly1305_ietf_encrypt(input_, ad, nonce, key)
+            output = pysodium.crypto_aead_xchacha20poly1305_ietf_decrypt(output, ad, nonce, key)
+            self.assertEqual(output, input_)
+
     def test_crypto_stream_chacha20_xor(self):
         key = binascii.unhexlify(b"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
         nonce = binascii.unhexlify(b"0001020304050607")

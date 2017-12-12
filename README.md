@@ -15,6 +15,8 @@ crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key)
 crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key)
 crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key)
 crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key)
+crypto_aead_xchacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key)
+crypto_aead_xchacha20poly1305_ietf_encrypt(message, ad, nonce, key)
 crypto_auth(message, key)
 crypto_auth_verify(tag, message, key)
 crypto_box_afternm(msg, nonce, k)
@@ -82,6 +84,9 @@ crypto_aead_chacha20poly1305_KEYBYTES
 crypto_aead_chacha20poly1305_NONCEBYTES
 crypto_aead_chacha20poly1305_ietf_KEYBYTES
 crypto_aead_chacha20poly1305_ietf_NONCEBYTES
+crypto_aead_xchacha20poly1305_ietf_KEYBYTES
+crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
+crypto_aead_xchacha20poly1305_ietf_ABYTES
 crypto_auth_BYTES
 crypto_auth_KEYBYTES
 crypto_box_BOXZEROBYTES

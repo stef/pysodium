@@ -174,6 +174,9 @@ if sodium_version_check(1, 0, 12):
     crypto_kx_PUBLICKEYBYTES = sodium.crypto_kx_publickeybytes()
     crypto_kx_SECRETKEYBYTES = sodium.crypto_kx_secretkeybytes()
     crypto_kx_SESSIONKEYBYTES = sodium.crypto_kx_sessionkeybytes()
+    crypto_aead_xchacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_xchacha20poly1305_ietf_keybytes()
+    crypto_aead_xchacha20poly1305_ietf_NPUBBYTES = sodium.crypto_aead_xchacha20poly1305_ietf_npubbytes()
+    crypto_aead_xchacha20poly1305_ietf_ABYTES = sodium.crypto_aead_xchacha20poly1305_ietf_abytes()
 if sodium_version_check(1, 0, 15):
     crypto_secretstream_xchacha20poly1305_STATEBYTES = sodium.crypto_secretstream_xchacha20poly1305_statebytes()
     crypto_secretstream_xchacha20poly1305_ABYTES = sodium.crypto_secretstream_xchacha20poly1305_abytes()
@@ -307,6 +310,43 @@ def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
     clen = ctypes.c_ulonglong(len(ciphertext))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     __check(sodium.crypto_aead_chacha20poly1305_ietf_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
+    return m.raw
+
+#crypto_aead_xchacha20poly1305_ietf_encrypt(ciphertext, &ciphertext_len,
+#                                           message, message_len,
+#                                           additional_data, additional_data_len,
+#                                           null, nonce, key);
+@sodium_version(1, 0, 12)
+def crypto_aead_xchacha20poly1305_ietf_encrypt(message, ad, nonce, key):
+
+    mlen = ctypes.c_ulonglong(len(message))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    c = ctypes.create_string_buffer(mlen.value + 16)
+    clen = ctypes.c_ulonglong(0)
+
+    __check(sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(c, ctypes.byref(clen),
+                                                             message, mlen,
+                                                             ad, adlen,
+                                                             None, nonce, key))
+    return c.raw
+
+#crypto_aead_xchacha20poly1305_ietf_decrypt(decrypted, &decrypted_len,
+#                                           null,
+#                                           ciphertext, ciphertext_len,
+#                                           additional_data, additional_data_len,
+#                                           nonce, key);
+@sodium_version(1, 0, 12)
+def crypto_aead_xchacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
+
+    m = ctypes.create_string_buffer(len(ciphertext) - 16)
+    mlen = ctypes.c_ulonglong(0)
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    __check(sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(m, ctypes.byref(mlen),
+                                                              None,
+                                                              ciphertext, clen,
+                                                              ad, adlen,
+                                                              nonce, key))
     return m.raw
 
 # crypto_auth(unsigned char *out, const unsigned char *in, unsigned long long inlen, const unsigned char *k)
