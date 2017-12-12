@@ -320,14 +320,14 @@ def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
 def crypto_aead_xchacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 
     mlen = ctypes.c_ulonglong(len(message))
-    adlen = ctypes.c_ulonglong(len(ad)) if ad is not none else ctypes.c_ulonglong(0)
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     c = ctypes.create_string_buffer(mlen.value + 16)
     clen = ctypes.c_ulonglong(0)
 
     __check(sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(c, ctypes.byref(clen),
                                                              message, mlen,
                                                              ad, adlen,
-                                                             none, nonce, key))
+                                                             None, nonce, key))
     return c.raw
 
 #crypto_aead_xchacha20poly1305_ietf_decrypt(decrypted, &decrypted_len,
@@ -341,9 +341,9 @@ def crypto_aead_xchacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
-    adlen = ctypes.c_ulonglong(len(ad)) if ad is not none else ctypes.c_ulonglong(0)
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     __check(sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(m, ctypes.byref(mlen),
-                                                              none,
+                                                              None,
                                                               ciphertext, clen,
                                                               ad, adlen,
                                                               nonce, key))
