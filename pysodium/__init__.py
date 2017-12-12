@@ -178,7 +178,6 @@ if sodium_version_check(1, 0, 12):
     crypto_aead_xchacha20poly1305_ietf_NPUBBYTES = sodium.crypto_aead_xchacha20poly1305_ietf_npubbytes()
     crypto_aead_xchacha20poly1305_ietf_ABYTES = sodium.crypto_aead_xchacha20poly1305_ietf_abytes()
 
-
 if sodium_version_check(1, 0, 15):
     crypto_secretstream_xchacha20poly1305_STATEBYTES = sodium.crypto_secretstream_xchacha20poly1305_statebytes()
     crypto_secretstream_xchacha20poly1305_ABYTES = sodium.crypto_secretstream_xchacha20poly1305_abytes()
