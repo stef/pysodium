@@ -163,7 +163,7 @@ class TestPySodium(unittest.TestCase):
         state, header = pysodium.crypto_secretstream_xchacha20poly1305_init_push(key)
         ciphertext = pysodium.crypto_secretstream_xchacha20poly1305_push(state, b"howdy", None, pysodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL)
 
-        bad_key = b'this is not correct'
+        bad_key = pysodium.crypto_secretstream_xchacha20poly1305_keygen()
         state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, bad_key)
         self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext, None)
 
