@@ -39,8 +39,10 @@ class TestPySodium(unittest.TestCase):
         pysodium.crypto_stream(32)
 
     def test_crypto_stream_xor(self):
-        pysodium.crypto_stream_xor(b'howdy', len(b'howdy'))
-        pysodium.crypto_stream_xor(b'howdy' * 16, len(b'howdy') * 16)
+        nonce = b'\x00' * pysodium.crypto_stream_NONCEBYTES
+        key = b'\x00' * pysodium.crypto_stream_KEYBYTES
+        pysodium.crypto_stream_xor(b'howdy', len(b'howdy'), nonce, key)
+        pysodium.crypto_stream_xor(b'howdy' * 16, len(b'howdy') * 16, nonce, key)
 
     def test_crypto_generichash(self):
         r=pysodium.crypto_generichash(b'howdy')
@@ -310,7 +312,7 @@ class TestPySodium(unittest.TestCase):
         if not pysodium.sodium_version_check(1, 0, 4): return
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
         input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
-        nonce = binascii.unhexlify(b"cd7cf67be39c794a")
+        nonce = binascii.unhexlify(b"cd7cf67be39c794acd7cf67b")
         for ad in [binascii.unhexlify(b"87e229d4500845a079c0"), None]:
             output = pysodium.crypto_aead_chacha20poly1305_ietf_encrypt(input_, ad, nonce, key)
             output = pysodium.crypto_aead_chacha20poly1305_ietf_decrypt(output, ad, nonce, key)
@@ -320,7 +322,7 @@ class TestPySodium(unittest.TestCase):
         if not pysodium.sodium_version_check(1, 0, 12): return
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
         input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
-        nonce = binascii.unhexlify(b"cd7cf67be39c794a")
+        nonce = binascii.unhexlify(b"cd7cf67be39c794acd7cf67bcd7cf67be39c794acd7cf67b")
         for ad in [binascii.unhexlify(b"87e229d4500845a079c0"), None]:
             output = pysodium.crypto_aead_xchacha20poly1305_ietf_encrypt(input_, ad, nonce, key)
             output = pysodium.crypto_aead_xchacha20poly1305_ietf_decrypt(output, ad, nonce, key)
@@ -367,16 +369,16 @@ class TestPySodium(unittest.TestCase):
         other_salt = binascii.unhexlify(b'4206baae5578933d7cfb315b1c257cc7af162965a91a74ccbb1cfa1d747eb692')
 
         # Use very small limits to avoid burning resources in CI
-        mem_limit = 32 * 1024
-        ops_limit = 1024
+        mem_limit = 16777216
+        ops_limit = 32768
 
         key16 = pysodium.crypto_pwhash_scryptsalsa208sha256(16, passwd, salt, ops_limit, mem_limit)
         self.assertEqual(len(key16), 16)
-        self.assertEqual(key16, binascii.unhexlify(b'34f05e9bef8beccd658acf5f123680b7'))
+        self.assertEqual(key16, b'U\x18aL\xcf\xc9\xa3\xf6(\x8f\xed)\xeej8\xdf')
 
         key = pysodium.crypto_pwhash_scryptsalsa208sha256(32, passwd, salt, ops_limit, mem_limit)
         self.assertEqual(len(key), 32)
-        self.assertEqual(key, binascii.unhexlify(b'34f05e9bef8beccd658acf5f123680b7d30c88d7e9328f9e47ab90185b6ee9ff'))
+        self.assertEqual(key, b'U\x18aL\xcf\xc9\xa3\xf6(\x8f\xed)\xeej8\xdfG\x82hf+vu\xcd\x9c\xdb\xbcmt\xf7\xf1\x10')
 
         self.assertNotEqual(key, pysodium.crypto_pwhash_scryptsalsa208sha256(32, passwd, other_salt, ops_limit, mem_limit))
         self.assertNotEqual(key, pysodium.crypto_pwhash_scryptsalsa208sha256(32, other_passwd, salt, ops_limit, mem_limit))
@@ -385,12 +387,11 @@ class TestPySodium(unittest.TestCase):
         passwd = b'Correct Horse Battery Staple'
 
         # Use very small limits to avoid burning resources in CI
-        mem_limit = 32 * 1024
-        ops_limit = 1024
+        mem_limit = 16777216
+        ops_limit = 32768
 
         storage_string = pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit)
         self.assertTrue(storage_string.startswith(pysodium.crypto_pwhash_scryptsalsa208sha256_STRPREFIX))
-        self.assertNotIn(b'\x00', storage_string)
 
         self.assertNotEqual(storage_string, pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit), "Each call should compute a new random salt.")
 
@@ -399,8 +400,8 @@ class TestPySodium(unittest.TestCase):
         other_passwd = b'correct horse battery staple'
 
         # Use very small limits to avoid burning resources in CI
-        mem_limit = 32 * 1024
-        ops_limit = 1024
+        mem_limit = 16777216
+        ops_limit = 32768
 
         storage_string = pysodium.crypto_pwhash_scryptsalsa208sha256_str(passwd, ops_limit, mem_limit)
 
@@ -424,7 +425,7 @@ class TestPySodium(unittest.TestCase):
     def test_AsymCrypto_With_Seeded_Keypair(self):
         msg     = b"correct horse battery staple"
         nonce   = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
-        pk, sk = pysodium.crypto_box_seed_keypair("howdy")
+        pk, sk = pysodium.crypto_box_seed_keypair(b"\x00" * pysodium.crypto_box_SEEDBYTES)
 
         c = pysodium.crypto_box(msg, nonce, pk, sk)
         m = pysodium.crypto_box_open(c, nonce, pk, sk)
