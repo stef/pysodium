@@ -94,7 +94,7 @@ class TestPySodium(unittest.TestCase):
         c, mac = pysodium.crypto_box_detached(b"howdy", n, pk, sk)
         r = pysodium.crypto_box_open_detached(c, mac, n, pk, sk)
         self.assertEqual(r, b"howdy")
-        changed = "\0"*len(c)
+        changed = b"\0"*len(c)
         self.assertRaises(ValueError, pysodium.crypto_box_open_detached,changed, mac, n, pk, sk)
 
     def test_crypto_secretbox_open(self):
