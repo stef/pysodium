@@ -97,6 +97,7 @@ sodium.crypto_pwhash_scryptsalsa208sha256_strprefix.restype = ctypes.c_char_p
 crypto_auth_KEYBYTES = sodium.crypto_auth_keybytes()
 crypto_auth_BYTES = sodium.crypto_auth_bytes()
 crypto_box_NONCEBYTES = sodium.crypto_box_noncebytes()
+crypto_box_BEFORENMBYTES = sodium.crypto_box_beforenmbytes()
 crypto_box_PUBLICKEYBYTES = sodium.crypto_box_publickeybytes()
 crypto_box_SECRETKEYBYTES = sodium.crypto_box_secretkeybytes()
 crypto_box_ZEROBYTES = sodium.crypto_box_zerobytes()
@@ -117,12 +118,16 @@ crypto_sign_ed25519_SECRETKEYBYTES = sodium.crypto_sign_ed25519_secretkeybytes()
 crypto_sign_ed25519_PUBLICKEYBYTES = sodium.crypto_sign_ed25519_publickeybytes()
 crypto_stream_KEYBYTES = sodium.crypto_stream_keybytes()
 crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
+crypto_stream_chacha20_NONCEBYTES = sodium.crypto_stream_chacha20_noncebytes()
+crypto_stream_chacha20_KEYBYTES = sodium.crypto_stream_chacha20_keybytes()
 crypto_generichash_KEYBYTES_MAX = sodium.crypto_generichash_keybytes_max()
 crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
 crypto_generichash_BYTES_MIN = sodium.crypto_generichash_bytes_min()
 crypto_generichash_BYTES_MAX = sodium.crypto_generichash_bytes_max()
+crypto_generichash_STATEBYTES = sodium.crypto_generichash_statebytes()
 crypto_scalarmult_curve25519_BYTES = sodium.crypto_scalarmult_curve25519_bytes()
 crypto_scalarmult_BYTES = sodium.crypto_scalarmult_bytes()
+crypto_scalarmult_SCALARBYTES = sodium.crypto_scalarmult_curve25519_scalarbytes()
 crypto_generichash_blake2b_KEYBYTES_MAX = sodium.crypto_generichash_blake2b_keybytes_max()
 crypto_generichash_blake2b_BYTES = sodium.crypto_generichash_blake2b_bytes()
 crypto_generichash_blake2b_BYTES_MIN = sodium.crypto_generichash_blake2b_bytes_min()
@@ -136,6 +141,18 @@ crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_s
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
+crypto_pwhash_scryptsalsa208sha256_BYTES_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_bytes_min()
+crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN = sodium.crypto_pwhash_passwd_min()
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_min()
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_min()
+sodium.crypto_pwhash_scryptsalsa208sha256_bytes_max.restype=ctypes.c_uint
+crypto_pwhash_scryptsalsa208sha256_BYTES_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_bytes_max()
+sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_max.restype=ctypes.c_uint
+crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_max()
+sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_max.restype=ctypes.c_ulonglong
+crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_max()
+sodium.crypto_pwhash_scryptsalsa208sha256_passwd_max.restype=ctypes.c_uint
+crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_passwd_max()
 crypto_hash_sha256_BYTES = sodium.crypto_hash_sha256_bytes()
 crypto_hash_sha512_BYTES = sodium.crypto_hash_sha512_bytes()
 crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
@@ -148,6 +165,18 @@ if sodium_version_check(1, 0, 9):
     crypto_aead_chacha20poly1305_ietf_NONCEBYTES = crypto_aead_chacha20poly1305_ietf_NPUBBYTES
     crypto_pwhash_SALTBYTES = sodium.crypto_pwhash_saltbytes()
     crypto_pwhash_STRBYTES = sodium.crypto_pwhash_strbytes()
+    crypto_pwhash_BYTES_MIN = sodium.crypto_pwhash_bytes_min()
+    crypto_pwhash_OPSLIMIT_MIN = sodium.crypto_pwhash_opslimit_min()
+    crypto_pwhash_MEMLIMIT_MIN = sodium.crypto_pwhash_memlimit_min()
+    sodium.crypto_pwhash_bytes_max.restype=ctypes.c_uint
+    crypto_pwhash_BYTES_MAX = sodium.crypto_pwhash_bytes_max()
+    sodium.crypto_pwhash_opslimit_max.restype=ctypes.c_uint
+    crypto_pwhash_OPSLIMIT_MAX = sodium.crypto_pwhash_opslimit_max()
+    sodium.crypto_pwhash_memlimit_max.restype=ctypes.c_uint
+    crypto_pwhash_MEMLIMIT_MAX = sodium.crypto_pwhash_memlimit_max()
+    crypto_pwhash_PASSWD_MIN = sodium.crypto_pwhash_passwd_min()
+    sodium.crypto_pwhash_passwd_max.restype=ctypes.c_uint
+    crypto_pwhash_PASSWD_MAX = sodium.crypto_pwhash_passwd_max()
     crypto_pwhash_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_opslimit_interactive()
     crypto_pwhash_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_memlimit_interactive()
     crypto_pwhash_OPSLIMIT_MODERATE = sodium.crypto_pwhash_opslimit_moderate()
@@ -216,6 +245,10 @@ def pad_buf(buf, length, name = 'buf'):
         return buf
 
 def crypto_scalarmult_curve25519(n, p):
+    if None in (n,p):
+        raise ValueError("invalid parameters")
+    if len(n) != crypto_scalarmult_SCALARBYTES: raise ValueError("truncated scalar")
+    if len(p) != crypto_scalarmult_BYTES: raise ValueError("truncated point")
     buf = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
     __check(sodium.crypto_scalarmult_curve25519(buf, n, p))
     return buf.raw
@@ -224,12 +257,15 @@ def crypto_scalarmult_curve25519(n, p):
 def crypto_scalarmult_curve25519_base(n):
     if n is None:
         raise ValueError("invalid parameters")
+    if len(n) != crypto_scalarmult_SCALARBYTES: raise ValueError("truncated scalar")
     buf = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
     __check(sodium.crypto_scalarmult_curve25519_base(ctypes.byref(buf), n))
     return buf.raw
 
 # crypto_stream_chacha20_xor(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, const unsigned char *k)
 def crypto_stream_chacha20_xor(message, nonce, key):
+    if len(nonce) != crypto_stream_chacha20_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_stream_chacha20_KEYBYTES: raise ValueError("truncated key")
 
     mlen = ctypes.c_longlong(len(message))
 
@@ -242,6 +278,8 @@ def crypto_stream_chacha20_xor(message, nonce, key):
 
 # crypto_aead_chacha20poly1305_encrypt(unsigned char *c, unsigned long long *clen, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k);
 def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
+    if len(nonce) != crypto_aead_chacha20poly1305_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_chacha20poly1305_KEYBYTES: raise ValueError("truncated key")
 
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
@@ -255,6 +293,8 @@ def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
 
 # crypto_aead_chacha20poly1305_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
 def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
+    if len(nonce) != crypto_aead_chacha20poly1305_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_chacha20poly1305_KEYBYTES: raise ValueError("truncated key")
 
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
@@ -267,6 +307,8 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
 @sodium_version(1, 0, 9)
 def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
     """ Return ciphertext, mac tag """
+    if len(nonce) != crypto_aead_chacha20poly1305_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_chacha20poly1305_KEYBYTES: raise ValueError("truncated key")
 
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
@@ -281,7 +323,8 @@ def crypto_aead_chacha20poly1305_encrypt_detached(message, ad, nonce, key):
 @sodium_version(1, 0, 9)
 def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key):
     """ Return message if successful or -1 (ValueError) if not successful"""
-
+    if len(nonce) != crypto_aead_chacha20poly1305_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_chacha20poly1305_KEYBYTES: raise ValueError("truncated key")
     if len(mac) != crypto_aead_chacha20poly1305_ABYTES:
         raise ValueError("mac length != %i" % crypto_aead_chacha20poly1305_ABYTES)
 
@@ -294,6 +337,8 @@ def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, ke
 # crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
 @sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
+    if len(nonce) != crypto_aead_chacha20poly1305_ietf_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_chacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
 
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
@@ -306,6 +351,8 @@ def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 # crypto_aead_chacha20poly1305_ietf_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
 @sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
+    if len(nonce) != crypto_aead_chacha20poly1305_ietf_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_chacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
 
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
@@ -320,7 +367,8 @@ def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
 #                                           null, nonce, key);
 @sodium_version(1, 0, 12)
 def crypto_aead_xchacha20poly1305_ietf_encrypt(message, ad, nonce, key):
-
+    if len(nonce) != crypto_aead_xchacha20poly1305_ietf_NPUBBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_xchacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     c = ctypes.create_string_buffer(mlen.value + 16)
@@ -339,6 +387,8 @@ def crypto_aead_xchacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 #                                           nonce, key);
 @sodium_version(1, 0, 12)
 def crypto_aead_xchacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
+    if len(nonce) != crypto_aead_xchacha20poly1305_ietf_NPUBBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_xchacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
 
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
@@ -376,19 +426,21 @@ def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
 
 # crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
 def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
-    state = ctypes.create_string_buffer(sodium.crypto_generichash_statebytes())
+    state = ctypes.create_string_buffer(crypto_generichash_STATEBYTES)
     __check(sodium.crypto_generichash_init(ctypes.byref(state), k, ctypes.c_size_t(len(k)), ctypes.c_size_t(outlen)))
     return state
 
 
 # crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
 def crypto_generichash_update(state, m):
+    if len(state) != crypto_generichash_STATEBYTES: raise ValueError("invalid state")
     __check(sodium.crypto_generichash_update(ctypes.byref(state), m, ctypes.c_ulonglong(len(m))))
     return state
 
 
 # crypto_generichash_final(crypto_generichash_state *state, unsigned char *out, const size_t outlen);
 def crypto_generichash_final(state, outlen=crypto_generichash_BYTES):
+    if len(state) != crypto_generichash_STATEBYTES: raise ValueError("invalid state")
     buf = ctypes.create_string_buffer(outlen)
     __check(sodium.crypto_generichash_final(ctypes.byref(state), buf, ctypes.c_size_t(outlen)))
     return buf.raw
@@ -428,6 +480,8 @@ def crypto_box_keypair():
 def crypto_box_seed_keypair(seed):
     if seed is None:
         raise ValueError("invalid parameters")
+    if len(seed) != crypto_box_SEEDBYTES: raise ValueError("invalid seed size")
+
     pk = ctypes.create_string_buffer(crypto_box_PUBLICKEYBYTES)
     sk = ctypes.create_string_buffer(crypto_box_SECRETKEYBYTES)
     __check(sodium.crypto_box_seed_keypair(pk, sk, seed))
@@ -436,6 +490,8 @@ def crypto_box_seed_keypair(seed):
 def crypto_box_beforenm(pk, sk):
     if pk is None or sk is None:
         raise ValueError("invalid parameters")
+    if len(pk) != crypto_box_PUBLICKEYBYTES: raise ValueError("pk incorrect size")
+    if len(sk) != crypto_box_SECRETKEYBYTES: raise ValueError("sk incorrect size")
     c = ctypes.create_string_buffer(crypto_secretbox_KEYBYTES)
     __check(sodium.crypto_box_beforenm(c, pk, sk))
     return c.raw
@@ -443,6 +499,9 @@ def crypto_box_beforenm(pk, sk):
 def crypto_box(msg, nonce, pk, sk):
     if None in (msg, nonce, pk, sk):
         raise ValueError("invalid parameters")
+    if len(pk) != crypto_box_PUBLICKEYBYTES: raise ValueError("pk incorrect size")
+    if len(sk) != crypto_box_SECRETKEYBYTES: raise ValueError("sk incorrect size")
+    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
     c = ctypes.create_string_buffer(crypto_box_MACBYTES + len(msg))
     __check(sodium.crypto_box_easy(c, msg, ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
     return c.raw
@@ -450,6 +509,8 @@ def crypto_box(msg, nonce, pk, sk):
 def crypto_box_afternm(msg, nonce, k):
     if None in (msg, nonce, k):
         raise ValueError("invalid parameters")
+    if len(k) != crypto_box_BEFORENMBYTES: raise ValueError("k incorrect size")
+    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
     c = ctypes.create_string_buffer(crypto_box_MACBYTES + len(msg))
     __check(sodium.crypto_box_easy_afternm(c, msg, ctypes.c_ulonglong(len(msg)), nonce, k))
     return c.raw
@@ -457,6 +518,9 @@ def crypto_box_afternm(msg, nonce, k):
 def crypto_box_open(c, nonce, pk, sk):
     if None in (c, nonce, pk, sk):
         raise ValueError("invalid parameters")
+    if len(pk) != crypto_box_PUBLICKEYBYTES: raise ValueError("pk incorrect size")
+    if len(sk) != crypto_box_SECRETKEYBYTES: raise ValueError("sk incorrect size")
+    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
     msg = ctypes.create_string_buffer(len(c) - crypto_box_MACBYTES)
     __check(sodium.crypto_box_open_easy(msg, c, ctypes.c_ulonglong(len(c)), nonce, pk, sk))
     return msg.raw
@@ -464,6 +528,8 @@ def crypto_box_open(c, nonce, pk, sk):
 def crypto_box_open_afternm(c, nonce, k):
     if None in (c, nonce, k):
         raise ValueError("invalid parameters")
+    if len(k) != crypto_box_BEFORENMBYTES: raise ValueError("k incorrect size")
+    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
     msg = ctypes.create_string_buffer(len(c) - crypto_box_MACBYTES)
     __check(sodium.crypto_box_open_easy_afternm(msg, c, ctypes.c_ulonglong(len(c)), nonce, k))
     return msg.raw
@@ -471,6 +537,8 @@ def crypto_box_open_afternm(c, nonce, k):
 def crypto_secretbox(msg, nonce, k):
     if None in (msg, nonce, k):
         raise ValueError("invalid parameters")
+    if len(k) != crypto_secretbox_KEYBYTES: raise ValueError("k incorrect size")
+    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
     padded = b"\x00" * crypto_secretbox_ZEROBYTES + msg
     c = ctypes.create_string_buffer(len(padded))
     __check(sodium.crypto_secretbox(c, padded, ctypes.c_ulonglong(len(padded)), nonce, k))
@@ -480,6 +548,8 @@ def crypto_secretbox(msg, nonce, k):
 def crypto_secretbox_open(c, nonce, k):
     if None in (c, nonce, k):
         raise ValueError("invalid parameters")
+    if len(k) != crypto_secretbox_KEYBYTES: raise ValueError("k incorrect size")
+    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
     padded = b"\x00" * crypto_secretbox_BOXZEROBYTES + c
     msg = ctypes.create_string_buffer(len(padded))
     __check(sodium.crypto_secretbox_open(msg, padded, ctypes.c_ulonglong(len(padded)), nonce, k))
@@ -492,6 +562,7 @@ def crypto_secretbox_open(c, nonce, k):
 def crypto_box_seal(msg, k):
     if msg is None or k is None:
         raise ValueError("invalid parameters")
+    if len(k) != crypto_box_PUBLICKEYBYTES: raise ValueError("k incorrect size")
     c = ctypes.create_string_buffer(len(msg)+crypto_box_SEALBYTES)
     __check(sodium.crypto_box_seal(c, msg, ctypes.c_ulonglong(len(msg)), k))
     return c.raw
@@ -504,6 +575,8 @@ def crypto_box_seal(msg, k):
 def crypto_box_seal_open(c, pk, sk):
     if None in (c, pk, sk):
         raise ValueError("invalid parameters")
+    if len(pk) != crypto_box_PUBLICKEYBYTES: raise ValueError("pk incorrect size")
+    if len(sk) != crypto_box_SECRETKEYBYTES: raise ValueError("sk incorrect size")
     msg = ctypes.create_string_buffer(len(c)-crypto_box_SEALBYTES)
     __check(sodium.crypto_box_seal_open(msg, c, ctypes.c_ulonglong(len(c)), pk, sk))
     return msg.raw
@@ -515,12 +588,14 @@ def crypto_box_seal_open(c, pk, sk):
 #                        const unsigned char *sk);
 
 def crypto_box_detached(msg, nonce, pk, sk):
-        if None in (msg, nonce, pk, sk):
-            raise ValueError("invalid parameters")
-        c = ctypes.create_string_buffer(len(msg))
-        mac = ctypes.create_string_buffer(crypto_box_MACBYTES)
-        __check(sodium.crypto_box_detached(c, mac, msg, ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
-        return c.raw, mac.raw
+    if None in (msg, nonce, pk, sk): raise ValueError("invalid parameters")
+    if len(pk) != crypto_box_PUBLICKEYBYTES: raise ValueError("pk incorrect size")
+    if len(sk) != crypto_box_SECRETKEYBYTES: raise ValueError("sk incorrect size")
+    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
+    c = ctypes.create_string_buffer(len(msg))
+    mac = ctypes.create_string_buffer(crypto_box_MACBYTES)
+    __check(sodium.crypto_box_detached(c, mac, msg, ctypes.c_ulonglong(len(msg)), nonce, pk, sk))
+    return c.raw, mac.raw
 
 # int crypto_box_open_detached(unsigned char *m, const unsigned char *c,
 #                             const unsigned char *mac,
@@ -532,6 +607,9 @@ def crypto_box_detached(msg, nonce, pk, sk):
 def crypto_box_open_detached(c, mac, nonce, pk, sk):
     if None in (c, mac, nonce, pk, sk):
         raise ValueError("invalid parameters")
+    if len(pk) != crypto_box_PUBLICKEYBYTES: raise ValueError("pk incorrect size")
+    if len(sk) != crypto_box_SECRETKEYBYTES: raise ValueError("sk incorrect size")
+    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
     msg = ctypes.create_string_buffer(len(c))
     __check(sodium.crypto_box_open_detached(msg, c, mac, ctypes.c_ulonglong(len(c)), nonce, pk, sk))
     return msg.raw
@@ -552,6 +630,7 @@ def crypto_secretstream_xchacha20poly1305_keygen():
 def crypto_secretstream_xchacha20poly1305_init_push(key):
     if key == None:
         raise ValueError("invalid parameters")
+    if not (len(key) == crypto_secretstream_xchacha20poly1305_KEYBYTES): raise ValueError("Truncated key")
 
     state  = ctypes.create_string_buffer(crypto_secretstream_xchacha20poly1305_STATEBYTES)
     header = ctypes.create_string_buffer(crypto_secretstream_xchacha20poly1305_HEADERBYTES)
@@ -565,6 +644,9 @@ def crypto_secretstream_xchacha20poly1305_init_push(key):
 def crypto_secretstream_xchacha20poly1305_init_pull(header, key):
     if None in (header, key):
         raise ValueError("invalid parameters")
+    if not (len(header) == crypto_secretstream_xchacha20poly1305_HEADERBYTES): raise ValueError("Truncated header")
+    if not (len(key) == crypto_secretstream_xchacha20poly1305_KEYBYTES): raise ValueError("Truncated key")
+
     state  = ctypes.create_string_buffer(crypto_secretstream_xchacha20poly1305_STATEBYTES)
     __check(sodium.crypto_secretstream_xchacha20poly1305_init_pull(state, header, key))
     return state.raw
@@ -574,6 +656,8 @@ def crypto_secretstream_xchacha20poly1305_init_pull(header, key):
 def crypto_secretstream_xchacha20poly1305_rekey(state):
     if state == None:
         raise ValueError("invalid parameters")
+    if not (len(state) == crypto_secretstream_xchacha20poly1305_STATEBYTES): raise ValueError("Truncated state")
+
     sodium.crypto_secretstream_xchacha20poly1305_rekey(state)
 
 #int crypto_secretstream_xchacha20poly1305_push (crypto_secretstream_xchacha20poly1305_state *state,
@@ -589,6 +673,8 @@ def crypto_secretstream_xchacha20poly1305_rekey(state):
 def crypto_secretstream_xchacha20poly1305_push(state, message, ad, tag):
     if None in (state, message):
         raise ValueError("invalid parameters")
+    if not (len(state) == crypto_secretstream_xchacha20poly1305_STATEBYTES): raise ValueError("Truncated state")
+
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
     c = ctypes.create_string_buffer(mlen.value + crypto_secretstream_xchacha20poly1305_ABYTES)
@@ -618,7 +704,7 @@ def crypto_secretstream_xchacha20poly1305_push(state, message, ad, tag):
 def crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
     if None in (state, ciphertext):
         raise ValueError("invalid parameters")
-
+    if not (len(state) == crypto_secretstream_xchacha20poly1305_STATEBYTES): raise ValueError("Truncated state")
     if len(ciphertext) < crypto_secretstream_xchacha20poly1305_ABYTES:
         raise ValueError("truncated cyphertext")
 
@@ -629,7 +715,7 @@ def crypto_secretstream_xchacha20poly1305_pull(state, ciphertext, ad):
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
 
     __check(sodium.crypto_secretstream_xchacha20poly1305_pull(
-                                                                state, 
+                                                                state,
                                                                 m,                   # char *m,
                                                                 ctypes.byref(mlen),  # long long *mlen_p,
                                                                 ctypes.byref(tag),   # char *tag_p,
@@ -648,6 +734,7 @@ def crypto_sign_keypair():
 
 
 def crypto_sign_seed_keypair(seed):
+    if len(seed) != crypto_sign_SEEDBYTES: raise ValueError("invalid seed size")
     pk = ctypes.create_string_buffer(crypto_sign_PUBLICKEYBYTES)
     sk = ctypes.create_string_buffer(crypto_sign_SECRETKEYBYTES)
     __check(sodium.crypto_sign_seed_keypair(pk, sk, seed))
@@ -656,6 +743,8 @@ def crypto_sign_seed_keypair(seed):
 def crypto_sign(m, sk):
     if m is None or sk is None:
         raise ValueError("invalid parameters")
+    if not (len(sk) == crypto_sign_SECRETKEYBYTES): raise ValueError('Truncated secret key')
+
     smsg = ctypes.create_string_buffer(len(m) + crypto_sign_BYTES)
     smsglen = ctypes.c_ulonglong()
     __check(sodium.crypto_sign(smsg, ctypes.byref(smsglen), m, ctypes.c_ulonglong(len(m)), sk))
@@ -665,6 +754,7 @@ def crypto_sign(m, sk):
 def crypto_sign_detached(m, sk):
     if m is None or sk is None:
         raise ValueError("invalid parameters")
+    if not (len(sk) == crypto_sign_SECRETKEYBYTES): raise ValueError('Truncated secret key')
     sig = ctypes.create_string_buffer(crypto_sign_BYTES)
     # second parm is for output of signature len (optional, ignored if NULL)
     __check(sodium.crypto_sign_detached(sig, ctypes.c_void_p(0), m, ctypes.c_ulonglong(len(m)), sk))
@@ -674,6 +764,7 @@ def crypto_sign_detached(m, sk):
 def crypto_sign_open(sm, pk):
     if sm is None or pk is None:
         raise ValueError("invalid parameters")
+    if not (len(pk) == crypto_sign_PUBLICKEYBYTES): raise ValueError('Truncated public key')
     msg = ctypes.create_string_buffer(len(sm))
     msglen = ctypes.c_ulonglong()
     __check(sodium.crypto_sign_open(msg, ctypes.byref(msglen), sm, ctypes.c_ulonglong(len(sm)), pk))
@@ -685,6 +776,7 @@ def crypto_sign_verify_detached(sig, msg, pk):
         raise ValueError
     if len(sig) != crypto_sign_BYTES:
         raise ValueError("invalid sign")
+    if not (len(pk) == crypto_sign_PUBLICKEYBYTES): raise ValueError('Truncated public key')
     __check(sodium.crypto_sign_verify_detached(sig, msg, ctypes.c_ulonglong(len(msg)), pk))
 
 
@@ -699,7 +791,8 @@ def crypto_sign_init():
 # crypto_sign_update(crypto_sign_state *state, const unsigned char *m, unsigned long long mlen);
 @sodium_version(1, 0, 12)
 def crypto_sign_update(state, m):
-    assert isinstance(state, CryptoSignState)
+    if(not isinstance(state, CryptoSignState)):
+        raise TypeError("state is not CryptoSignState")
     if m is None:
         raise ValueError("invalid parameters")
     __check(sodium.crypto_sign_update(ctypes.byref(state), m, ctypes.c_ulonglong(len(m))))
@@ -708,7 +801,8 @@ def crypto_sign_update(state, m):
 # crypto_sign_final_create(crypto_sign_state *state, unsigned char *sig, unsigned long long *siglen_p, const unsigned char *sk);
 @sodium_version(1, 0, 12)
 def crypto_sign_final_create(state, sk):
-    assert isinstance(state, CryptoSignState)
+    if(not isinstance(state, CryptoSignState)):
+        raise TypeError("state is not CryptoSignState")
     if sk is None:
         raise ValueError("invalid parameters")
     if len(sk) != crypto_sign_SECRETKEYBYTES:
@@ -721,7 +815,8 @@ def crypto_sign_final_create(state, sk):
 # crypto_sign_final_verify(crypto_sign_state *state, unsigned char *sig, const unsigned char *sk);
 @sodium_version(1, 0, 12)
 def crypto_sign_final_verify(state, sig, pk):
-    assert isinstance(state, CryptoSignState)
+    if(not isinstance(state, CryptoSignState)):
+        raise TypeError("state is not CryptoSignState")
     if None in (sig, pk):
         raise ValueError("invalid parameters")
     if len(sig) != crypto_sign_BYTES:
@@ -745,12 +840,10 @@ def crypto_stream(cnt, nonce=None, key=None):
 
 # crypto_stream_salsa20_xor(unsigned char *c, const unsigned char *m, unsigned long long mlen,
 #                           const unsigned char *n, const unsigned char *k)
-def crypto_stream_xor(msg, cnt, nonce=None, key=None):
+def crypto_stream_xor(msg, cnt, nonce, key):
     res = ctypes.create_string_buffer(cnt)
-    if not nonce:
-        nonce = randombytes(crypto_stream_NONCEBYTES)
-    if not key:
-        key = randombytes(crypto_stream_KEYBYTES)
+    if len(nonce) != crypto_stream_NONCEBYTES: raise ValueError("invalid nonce")
+    if len(key) != crypto_stream_KEYBYTES: raise ValueError("invalid key")
     __check(sodium.crypto_stream_xor(res, msg, ctypes.c_ulonglong(cnt), nonce, key))
     return res.raw
 
@@ -758,6 +851,7 @@ def crypto_stream_xor(msg, cnt, nonce=None, key=None):
 def crypto_sign_pk_to_box_pk(pk):
     if pk is None:
         raise ValueError
+    if not (len(pk) == crypto_sign_PUBLICKEYBYTES): raise ValueError('Truncated public key')
     res = ctypes.create_string_buffer(crypto_box_PUBLICKEYBYTES)
     __check(sodium.crypto_sign_ed25519_pk_to_curve25519(ctypes.byref(res), pk))
     return res.raw
@@ -766,6 +860,7 @@ def crypto_sign_pk_to_box_pk(pk):
 def crypto_sign_sk_to_box_sk(sk):
     if sk is None:
         raise ValueError
+    if not (len(sk) == crypto_sign_SECRETKEYBYTES): raise ValueError('Truncated secret key')
     res = ctypes.create_string_buffer(crypto_box_SECRETKEYBYTES)
     __check(sodium.crypto_sign_ed25519_sk_to_curve25519(ctypes.byref(res), sk))
     return res.raw
@@ -773,6 +868,7 @@ def crypto_sign_sk_to_box_sk(sk):
 def crypto_sign_sk_to_seed(sk):
     if sk is None:
         raise ValueError
+    if not (len(sk) == crypto_sign_SECRETKEYBYTES): raise ValueError('Truncated secret key')
     seed = ctypes.create_string_buffer(crypto_sign_SEEDBYTES)
     __check(sodium.crypto_sign_ed25519_sk_to_seed(ctypes.byref(seed), sk))
     return seed.raw
@@ -789,6 +885,12 @@ def crypto_sign_sk_to_seed(sk):
 def crypto_pwhash(outlen, passwd, salt, opslimit, memlimit, alg=crypto_pwhash_ALG_DEFAULT):
     if None in (outlen, passwd, salt, opslimit, memlimit):
         raise ValueError("invalid parameters")
+    if len(salt) != crypto_pwhash_SALTBYTES: raise ValueError("invalid salt")
+    if not (crypto_pwhash_BYTES_MIN <= outlen <= crypto_pwhash_BYTES_MAX): raise ValueError("invalid hash len")
+    if not (crypto_pwhash_PASSWD_MIN <= len(passwd) <= crypto_pwhash_PASSWD_MAX): raise ValueError("invalid passwd len")
+    if not (crypto_pwhash_OPSLIMIT_MIN <= opslimit <= crypto_pwhash_OPSLIMIT_MAX): raise ValueError("invalid opslimit")
+    if not (crypto_pwhash_MEMLIMIT_MIN <= memlimit <= crypto_pwhash_MEMLIMIT_MAX): raise ValueError("invalid memlimit")
+
     out = ctypes.create_string_buffer(outlen)
     __check(sodium.crypto_pwhash(ctypes.byref(out), ctypes.c_ulonglong(outlen), passwd, ctypes.c_ulonglong(len(passwd)), salt, ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit), ctypes.c_int(alg)))
     return out.raw
@@ -803,6 +905,9 @@ def crypto_pwhash(outlen, passwd, salt, opslimit, memlimit, alg=crypto_pwhash_AL
 def crypto_pwhash_str(passwd, opslimit, memlimit):
     if None in (passwd, opslimit, memlimit):
         raise ValueError("invalid parameters")
+    if not (crypto_pwhash_PASSWD_MIN <= len(passwd) <= crypto_pwhash_PASSWD_MAX): raise ValueError("invalid passwd len")
+    if not (crypto_pwhash_OPSLIMIT_MIN <= opslimit <= crypto_pwhash_OPSLIMIT_MAX): raise ValueError("invalid opslimit")
+    if not (crypto_pwhash_MEMLIMIT_MIN <= memlimit <= crypto_pwhash_MEMLIMIT_MAX): raise ValueError("invalid memlimit")
     out = ctypes.create_string_buffer(crypto_pwhash_STRBYTES)
     __check(sodium.crypto_pwhash_str(ctypes.byref(out), passwd, ctypes.c_ulonglong(len(passwd)), ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
     return out.raw
@@ -815,6 +920,7 @@ def crypto_pwhash_str(passwd, opslimit, memlimit):
 def crypto_pwhash_str_verify(pstr, passwd):
     if None in (pstr, passwd) or len(pstr) != crypto_pwhash_STRBYTES:
         raise ValueError("invalid parameters")
+    if not (crypto_pwhash_PASSWD_MIN < len(passwd) <= crypto_pwhash_PASSWD_MAX): raise ValueError("invalid passwd len")
     return sodium.crypto_pwhash_str_verify(pstr, passwd, ctypes.c_ulonglong(len(passwd))) == 0
 
 # int crypto_pwhash_scryptsalsa208sha256(unsigned char * const out,
@@ -827,6 +933,13 @@ def crypto_pwhash_str_verify(pstr, passwd):
 def crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit):
     if None in (outlen, passwd, salt, opslimit, memlimit):
         raise ValueError
+
+    if len(salt) != crypto_pwhash_scryptsalsa208sha256_SALTBYTES: raise ValueError("invalid salt")
+    if not (crypto_pwhash_scryptsalsa208sha256_BYTES_MIN <= outlen <= crypto_pwhash_scryptsalsa208sha256_BYTES_MAX): raise ValueError("invalid hash len")
+    if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
+    if not (crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN <= opslimit <= crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX): raise ValueError("invalid opslimit")
+    if not (crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN <= memlimit <= crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX): raise ValueError("invalid memlimit")
+
     out = ctypes.create_string_buffer(outlen)
     __check(sodium.crypto_pwhash_scryptsalsa208sha256(out, ctypes.c_ulonglong(outlen), passwd, ctypes.c_ulonglong(len(passwd)), salt, ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
     return out.raw
@@ -839,9 +952,12 @@ def crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit)
 def crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit):
     if None in (passwd, opslimit, memlimit):
         raise ValueError
+    if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
+    if not (crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN <= opslimit <= crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX): raise ValueError("invalid opslimit")
+    if not (crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN <= memlimit <= crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX): raise ValueError("invalid memlimit")
     out = ctypes.create_string_buffer(crypto_pwhash_scryptsalsa208sha256_STRBYTES)
     __check(sodium.crypto_pwhash_scryptsalsa208sha256_str(out, passwd, ctypes.c_ulonglong(len(passwd)), ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
-    return out.value
+    return out.raw
 
 #int crypto_pwhash_scryptsalsa208sha256_str_verify(const char str[crypto_pwhash_scryptsalsa208sha256_STRBYTES],
 #                                                  const char * const passwd,
@@ -849,6 +965,9 @@ def crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit):
 def crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd):
     if stored is None or passwd is None:
        raise ValueError
+    if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
+    if len(stored) != crypto_pwhash_scryptsalsa208sha256_STRBYTES: raise ValueError('invalid str size')
+
     __check(sodium.crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd, ctypes.c_ulonglong(len(passwd))))
 
 # int crypto_sign_ed25519_sk_to_pk(unsigned char *pk, const unsigned char *sk)
@@ -895,6 +1014,10 @@ def crypto_kx_keypair():
 def crypto_kx_client_session_keys(client_pk, client_sk, server_pk):
     if None in (client_pk, client_sk, server_pk):
         raise ValueError("invalid parameters")
+    if not (len(client_pk) == crypto_kx_PUBLICKEYBYTES): raise ValueError("Invalid client public key")
+    if not (len(client_sk) == crypto_kx_SECRETKEYBYTES): raise ValueError("Invalid client secret key")
+    if not (len(server_pk) == crypto_kx_PUBLICKEYBYTES): raise ValueError("Invalid server public key")
+
     rx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
     tx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
     __check(sodium.crypto_kx_client_session_keys(rx, tx, client_pk, client_sk, server_pk))
@@ -909,6 +1032,10 @@ def crypto_kx_client_session_keys(client_pk, client_sk, server_pk):
 def crypto_kx_server_session_keys(server_pk, server_sk, client_pk):
     if None in (server_pk, server_sk, client_pk):
         raise ValueError("invalid parameters")
+    if not (len(server_pk) == crypto_kx_PUBLICKEYBYTES): raise ValueError("Invalid server public key")
+    if not (len(server_sk) == crypto_kx_SECRETKEYBYTES): raise ValueError("Invalid server secret key")
+    if not (len(client_pk) == crypto_kx_PUBLICKEYBYTES): raise ValueError("Invalid client public key")
+
     rx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
     tx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
     __check(sodium.crypto_kx_server_session_keys(rx, tx, server_pk, server_sk, client_pk))
