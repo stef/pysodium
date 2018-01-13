@@ -141,18 +141,6 @@ crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_s
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_interactive()
 crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive()
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
-crypto_pwhash_scryptsalsa208sha256_BYTES_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_bytes_min()
-crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN = sodium.crypto_pwhash_passwd_min()
-crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_min()
-crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_min()
-sodium.crypto_pwhash_scryptsalsa208sha256_bytes_max.restype=ctypes.c_uint
-crypto_pwhash_scryptsalsa208sha256_BYTES_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_bytes_max()
-sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_max.restype=ctypes.c_uint
-crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_max()
-sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_max.restype=ctypes.c_ulonglong
-crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_max()
-sodium.crypto_pwhash_scryptsalsa208sha256_passwd_max.restype=ctypes.c_uint
-crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_passwd_max()
 crypto_hash_sha256_BYTES = sodium.crypto_hash_sha256_bytes()
 crypto_hash_sha512_BYTES = sodium.crypto_hash_sha512_bytes()
 crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
@@ -208,6 +196,18 @@ if sodium_version_check(1, 0, 12):
     crypto_aead_xchacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_xchacha20poly1305_ietf_keybytes()
     crypto_aead_xchacha20poly1305_ietf_NPUBBYTES = sodium.crypto_aead_xchacha20poly1305_ietf_npubbytes()
     crypto_aead_xchacha20poly1305_ietf_ABYTES = sodium.crypto_aead_xchacha20poly1305_ietf_abytes()
+    crypto_pwhash_scryptsalsa208sha256_BYTES_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_bytes_min()
+    crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_passwd_min()
+    crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_min()
+    crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_min()
+    sodium.crypto_pwhash_scryptsalsa208sha256_bytes_max.restype=ctypes.c_uint
+    crypto_pwhash_scryptsalsa208sha256_BYTES_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_bytes_max()
+    sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_max.restype=ctypes.c_uint
+    crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_max()
+    sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_max.restype=ctypes.c_ulonglong
+    crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_max()
+    sodium.crypto_pwhash_scryptsalsa208sha256_passwd_max.restype=ctypes.c_uint
+    crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_passwd_max()
 if sodium_version_check(1, 0, 15):
     crypto_secretstream_xchacha20poly1305_STATEBYTES = sodium.crypto_secretstream_xchacha20poly1305_statebytes()
     crypto_secretstream_xchacha20poly1305_ABYTES = sodium.crypto_secretstream_xchacha20poly1305_abytes()
@@ -935,10 +935,11 @@ def crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit)
         raise ValueError
 
     if len(salt) != crypto_pwhash_scryptsalsa208sha256_SALTBYTES: raise ValueError("invalid salt")
-    if not (crypto_pwhash_scryptsalsa208sha256_BYTES_MIN <= outlen <= crypto_pwhash_scryptsalsa208sha256_BYTES_MAX): raise ValueError("invalid hash len")
-    if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
-    if not (crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN <= opslimit <= crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX): raise ValueError("invalid opslimit")
-    if not (crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN <= memlimit <= crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX): raise ValueError("invalid memlimit")
+    if(sodium_version_check(1,0,12)):
+        if not (crypto_pwhash_scryptsalsa208sha256_BYTES_MIN <= outlen <= crypto_pwhash_scryptsalsa208sha256_BYTES_MAX): raise ValueError("invalid hash len")
+        if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
+        if not (crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN <= opslimit <= crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX): raise ValueError("invalid opslimit")
+        if not (crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN <= memlimit <= crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX): raise ValueError("invalid memlimit")
 
     out = ctypes.create_string_buffer(outlen)
     __check(sodium.crypto_pwhash_scryptsalsa208sha256(out, ctypes.c_ulonglong(outlen), passwd, ctypes.c_ulonglong(len(passwd)), salt, ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
@@ -952,9 +953,10 @@ def crypto_pwhash_scryptsalsa208sha256(outlen, passwd, salt, opslimit, memlimit)
 def crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit):
     if None in (passwd, opslimit, memlimit):
         raise ValueError
-    if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
-    if not (crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN <= opslimit <= crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX): raise ValueError("invalid opslimit")
-    if not (crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN <= memlimit <= crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX): raise ValueError("invalid memlimit")
+    if(sodium_version_check(1,0,12)):
+        if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
+        if not (crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN <= opslimit <= crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX): raise ValueError("invalid opslimit")
+        if not (crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN <= memlimit <= crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX): raise ValueError("invalid memlimit")
     out = ctypes.create_string_buffer(crypto_pwhash_scryptsalsa208sha256_STRBYTES)
     __check(sodium.crypto_pwhash_scryptsalsa208sha256_str(out, passwd, ctypes.c_ulonglong(len(passwd)), ctypes.c_ulonglong(opslimit), ctypes.c_size_t(memlimit)))
     return out.raw
@@ -965,7 +967,8 @@ def crypto_pwhash_scryptsalsa208sha256_str(passwd, opslimit, memlimit):
 def crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd):
     if stored is None or passwd is None:
        raise ValueError
-    if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
+    if(sodium_version_check(1,0,12)):
+        if not (crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN <= len(passwd) <= crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX): raise ValueError("invalid passwd len")
     if len(stored) != crypto_pwhash_scryptsalsa208sha256_STRBYTES: raise ValueError('invalid str size')
 
     __check(sodium.crypto_pwhash_scryptsalsa208sha256_str_verify(stored, passwd, ctypes.c_ulonglong(len(passwd))))
