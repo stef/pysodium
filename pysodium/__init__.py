@@ -219,6 +219,7 @@ if sodium_version_check(1, 0, 15):
     crypto_secretstream_xchacha20poly1305_TAG_REKEY = sodium.crypto_secretstream_xchacha20poly1305_tag_rekey()
     crypto_secretstream_xchacha20poly1305_TAG_FINAL = sodium.crypto_secretstream_xchacha20poly1305_tag_final()
 
+sodium_init = sodium.sodium_init
 
 class CryptoSignState(ctypes.Structure):
     _pack_ = 1
