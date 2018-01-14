@@ -338,8 +338,9 @@ def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, ke
 # crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
 @sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
-    if len(nonce) != crypto_aead_chacha20poly1305_ietf_NONCEBYTES: raise ValueError("truncated nonce")
-    if len(key) != crypto_aead_chacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
+    if sodium_version_check(1, 0, 9):
+        if len(nonce) != crypto_aead_chacha20poly1305_ietf_NONCEBYTES: raise ValueError("truncated nonce")
+        if len(key) != crypto_aead_chacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
 
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
@@ -352,8 +353,9 @@ def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 # crypto_aead_chacha20poly1305_ietf_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
 @sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
-    if len(nonce) != crypto_aead_chacha20poly1305_ietf_NONCEBYTES: raise ValueError("truncated nonce")
-    if len(key) != crypto_aead_chacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
+    if sodium_version_check(1, 0, 9):
+        if len(nonce) != crypto_aead_chacha20poly1305_ietf_NONCEBYTES: raise ValueError("truncated nonce")
+        if len(key) != crypto_aead_chacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
 
     m = ctypes.create_string_buffer(len(ciphertext) - 16)
     mlen = ctypes.c_ulonglong(0)
