@@ -153,18 +153,6 @@ if sodium_version_check(1, 0, 9):
     crypto_aead_chacha20poly1305_ietf_NPUBBYTES = sodium.crypto_aead_chacha20poly1305_ietf_npubbytes()
     crypto_pwhash_SALTBYTES = sodium.crypto_pwhash_saltbytes()
     crypto_pwhash_STRBYTES = sodium.crypto_pwhash_strbytes()
-    sodium.crypto_pwhash_bytes_max.restype=ctypes.c_uint
-    sodium.crypto_pwhash_opslimit_max.restype=ctypes.c_uint
-    sodium.crypto_pwhash_memlimit_max.restype=ctypes.c_uint
-    sodium.crypto_pwhash_passwd_max.restype=ctypes.c_uint
-    crypto_pwhash_BYTES_MAX = sodium.crypto_pwhash_bytes_max()
-    crypto_pwhash_BYTES_MIN = sodium.crypto_pwhash_bytes_min()
-    crypto_pwhash_MEMLIMIT_MAX = sodium.crypto_pwhash_memlimit_max()
-    crypto_pwhash_MEMLIMIT_MIN = sodium.crypto_pwhash_memlimit_min()
-    crypto_pwhash_OPSLIMIT_MAX = sodium.crypto_pwhash_opslimit_max()
-    crypto_pwhash_OPSLIMIT_MIN = sodium.crypto_pwhash_opslimit_min()
-    crypto_pwhash_PASSWD_MAX = sodium.crypto_pwhash_passwd_max()
-    crypto_pwhash_PASSWD_MIN = sodium.crypto_pwhash_passwd_min()
     crypto_pwhash_OPSLIMIT_INTERACTIVE = sodium.crypto_pwhash_opslimit_interactive()
     crypto_pwhash_MEMLIMIT_INTERACTIVE = sodium.crypto_pwhash_memlimit_interactive()
     crypto_pwhash_OPSLIMIT_MODERATE = sodium.crypto_pwhash_opslimit_moderate()
@@ -183,6 +171,14 @@ else:
     crypto_pwhash_ALG_DEFAULT = None
     crypto_aead_chacha20poly1305_ietf_KEYBYTES = 32
     crypto_aead_chacha20poly1305_ietf_NPUBBYTES = 12
+    crypto_pwhash_BYTES_MAX = 4294967295
+    crypto_pwhash_BYTES_MIN = 16
+    crypto_pwhash_MEMLIMIT_MAX = 4398046510080
+    crypto_pwhash_MEMLIMIT_MIN = 1
+    crypto_pwhash_OPSLIMIT_MAX = 4294967295
+    crypto_pwhash_OPSLIMIT_MIN = 3
+    crypto_pwhash_PASSWD_MAX = 4294967295
+    crypto_pwhash_PASSWD_MIN = 0
 
 crypto_aead_chacha20poly1305_ietf_NONCEBYTES = crypto_aead_chacha20poly1305_ietf_NPUBBYTES
 
@@ -194,10 +190,22 @@ if sodium_version_check(1, 0, 12):
     crypto_aead_xchacha20poly1305_ietf_NPUBBYTES = sodium.crypto_aead_xchacha20poly1305_ietf_npubbytes()
     crypto_aead_xchacha20poly1305_ietf_NONCEBYTES = crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
     crypto_aead_xchacha20poly1305_ietf_ABYTES = sodium.crypto_aead_xchacha20poly1305_ietf_abytes()
+    sodium.crypto_pwhash_bytes_max.restype=ctypes.c_uint
+    sodium.crypto_pwhash_opslimit_max.restype=ctypes.c_uint
+    sodium.crypto_pwhash_memlimit_max.restype=ctypes.c_uint
+    sodium.crypto_pwhash_passwd_max.restype=ctypes.c_uint
     sodium.crypto_pwhash_scryptsalsa208sha256_bytes_max.restype=ctypes.c_uint
     sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_max.restype=ctypes.c_uint
     sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_max.restype=ctypes.c_ulonglong
     sodium.crypto_pwhash_scryptsalsa208sha256_passwd_max.restype=ctypes.c_uint
+    crypto_pwhash_BYTES_MAX = sodium.crypto_pwhash_bytes_max()
+    crypto_pwhash_BYTES_MIN = sodium.crypto_pwhash_bytes_min()
+    crypto_pwhash_MEMLIMIT_MAX = sodium.crypto_pwhash_memlimit_max()
+    crypto_pwhash_MEMLIMIT_MIN = sodium.crypto_pwhash_memlimit_min()
+    crypto_pwhash_OPSLIMIT_MAX = sodium.crypto_pwhash_opslimit_max()
+    crypto_pwhash_OPSLIMIT_MIN = sodium.crypto_pwhash_opslimit_min()
+    crypto_pwhash_PASSWD_MAX = sodium.crypto_pwhash_passwd_max()
+    crypto_pwhash_PASSWD_MIN = sodium.crypto_pwhash_passwd_min()
     crypto_pwhash_scryptsalsa208sha256_BYTES_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_bytes_max()
     crypto_pwhash_scryptsalsa208sha256_BYTES_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_bytes_min()
     crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_max()
