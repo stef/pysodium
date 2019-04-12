@@ -564,7 +564,7 @@ def crypto_secretbox(msg, nonce, k):
     if None in (msg, nonce, k):
         raise ValueError("invalid parameters")
     if len(k) != crypto_secretbox_KEYBYTES: raise ValueError("k incorrect size")
-    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
+    if len(nonce) != crypto_secretbox_NONCEBYTES: raise ValueError("nonce incorrect size")
     padded = b"\x00" * crypto_secretbox_ZEROBYTES + msg
     c = ctypes.create_string_buffer(len(padded))
     __check(sodium.crypto_secretbox(c, padded, ctypes.c_ulonglong(len(padded)), nonce, k))
@@ -575,7 +575,7 @@ def crypto_secretbox_open(c, nonce, k):
     if None in (c, nonce, k):
         raise ValueError("invalid parameters")
     if len(k) != crypto_secretbox_KEYBYTES: raise ValueError("k incorrect size")
-    if len(nonce) != crypto_box_NONCEBYTES: raise ValueError("nonce incorrect size")
+    if len(nonce) != crypto_secretbox_NONCEBYTES: raise ValueError("nonce incorrect size")
     padded = b"\x00" * crypto_secretbox_BOXZEROBYTES + c
     msg = ctypes.create_string_buffer(len(padded))
     __check(sodium.crypto_secretbox_open(msg, padded, ctypes.c_ulonglong(len(padded)), nonce, k))
