@@ -428,17 +428,21 @@ def crypto_aead_xchacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
     return m.raw
 
 # crypto_auth(unsigned char *out, const unsigned char *in, unsigned long long inlen, const unsigned char *k)
-def crypto_auth(m, k=b''):
-    if m is None:
+def crypto_auth(m, k):
+    if m is None or k is None:
         raise ValueError("invalid parameters")
+    if len(k) != crypto_auth_KEYBYTES:
+        raise ValueError("invalid key")
     buf = ctypes.create_string_buffer(crypto_auth_BYTES)
     __check(sodium.crypto_auth(buf, m, ctypes.c_ulonglong(len(m)), k))
     return buf.raw
 
 # crypto_auth_verify(const unsigned char *h, const unsigned char *in, unsigned long long inlen, const unsigned char *k)
-def crypto_auth_verify(h, m, k=b''):
-    if h is None or m is None:
+def crypto_auth_verify(h, m, k):
+    if h is None or m is None or k is None:
         raise ValueError("invalid parameters")
+    if len(k) != crypto_auth_KEYBYTES:
+        raise ValueError("invalid key")
     if len(h) != crypto_auth_BYTES:
         raise ValueError("invalid tag")
     __check(sodium.crypto_auth_verify(h, m, ctypes.c_ulonglong(len(m)), k))
