@@ -301,6 +301,19 @@ def crypto_stream_chacha20_xor(message, nonce, key):
 
     return c.raw
 
+# crypto_stream_chacha20_xor_ic(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, uint64_t ic, const unsigned char *k)
+def crypto_stream_chacha20_xor_ic(message, nonce, initial_counter, key):
+    if len(nonce) != crypto_stream_chacha20_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_stream_chacha20_KEYBYTES: raise ValueError("truncated key")
+
+    mlen = ctypes.c_longlong(len(message))
+    ic = ctypes.c_uint64(initial_counter)
+
+    c = ctypes.create_string_buffer(len(message))
+
+    __check(sodium.crypto_stream_chacha20_xor_ic(c, message, mlen, nonce, ic, key))
+
+    return c.raw
 
 # crypto_aead_chacha20poly1305_encrypt(unsigned char *c, unsigned long long *clen, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k);
 def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
