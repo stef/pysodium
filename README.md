@@ -75,6 +75,7 @@ crypto_stream_chacha20_xor_ic(message, nonce, initial_counter, key)
 crypto_stream(cnt, nonce=None, key=None)
 crypto_stream_xor(msg, cnt, nonce=None, key=None)
 randombytes(size)
+sodium_increment(bytes)
 ```
 
 Constants:

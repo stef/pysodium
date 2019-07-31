@@ -1083,3 +1083,8 @@ def crypto_kx_server_session_keys(server_pk, server_sk, client_pk):
     tx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
     __check(sodium.crypto_kx_server_session_keys(rx, tx, server_pk, server_sk, client_pk))
     return rx.raw, tx.raw
+
+# void sodium_increment(unsigned char *n, const size_t nlen)
+@sodium_version(1, 0, 4)
+def sodium_increment(n):
+    sodium.sodium_increment(n, ctypes.c_size_t(len(n)))
