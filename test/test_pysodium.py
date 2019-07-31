@@ -493,5 +493,10 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(crx, stx)
         self.assertEqual(ctx, srx)
 
+    def test_sodium_inc(self):
+        r = b'A' * 32
+        pysodium.sodium_increment(r)
+        self.assertEqual(r, b'BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+
 if __name__ == '__main__':
     unittest.main()
