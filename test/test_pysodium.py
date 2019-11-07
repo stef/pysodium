@@ -318,6 +318,21 @@ class TestPySodium(unittest.TestCase):
             output = pysodium.crypto_aead_chacha20poly1305_ietf_decrypt(output, ad, nonce, key)
             self.assertEqual(output, input_)
 
+    def test_aead_chacha20poly1305_ietf_detached(self):
+        if not pysodium.sodium_version_check(1, 0, 9): return
+        key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
+        input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+        nonce = binascii.unhexlify(b"cd7cf67be39c794acd7cf67b")
+        for ad, ct in [
+            (binascii.unhexlify(b"87e229d4500845a079c0"), b"09394ed41cf16d3c0820c5e0caf8a7bf"),
+            (None, b"07bf99e3c0d8aaac48c04e1f93b12a63"),
+        ]:
+            output, mac = pysodium.crypto_aead_chacha20poly1305_ietf_encrypt_detached(input_, ad, nonce, key)
+            self.assertEqual(binascii.unhexlify(b"eef4c561bdda5ef7e044"), output)
+            self.assertEqual(binascii.unhexlify(ct), mac)
+            output = pysodium.crypto_aead_chacha20poly1305_ietf_decrypt_detached(output, mac, ad, nonce, key)
+            self.assertEqual(output, input_)
+
     def test_aead_xchacha20poly1305_ietf(self):
         if not pysodium.sodium_version_check(1, 0, 12): return
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
