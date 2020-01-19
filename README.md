@@ -78,6 +78,13 @@ crypto_stream(cnt, nonce=None, key=None)
 crypto_stream_xor(msg, cnt, nonce=None, key=None)
 randombytes(size)
 sodium_increment(bytes)
+crypto_core_ristretto255_is_valid_point(p)
+crypto_core_ristretto255_from_hash(r)
+crypto_scalarmult_ristretto255(n, p)
+crypto_scalarmult_ristretto255_base(n)
+crypto_core_ristretto255_scalar_random()
+crypto_core_ristretto255_scalar_invert(s)
+crypto_core_ristretto255_scalar_reduce(s)
 ```
 
 Constants:
@@ -193,6 +200,10 @@ crypto_stream_KEYBYTES
 crypto_stream_NONCEBYTES
 crypto_stream_chacha20_NONCEBYTES
 crypto_stream_chacha20_KEYBYTES
+crypto_core_ristretto255_BYTES
+crypto_core_ristretto255_HASHBYTES
+crypto_core_ristretto255_SCALARBYTES
+crypto_core_ristretto255_NONREDUCEDSCALARBYTES
 ```
 
 

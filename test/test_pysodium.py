@@ -487,7 +487,7 @@ class TestPySodium(unittest.TestCase):
                 tmp = str(hex(ord(chr(input[i]))))[2:]
             else:
                 tmp = str(hex(ord(input[i])))[2:]
-            if len(tmp) is 1:
+            if len(tmp) == 1:
                 tmp = "0" + tmp
             result += tmp
         return result
@@ -512,6 +512,47 @@ class TestPySodium(unittest.TestCase):
         r = b'A' * 32
         pysodium.sodium_increment(r)
         self.assertEqual(r, b'BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+
+    def test_crypto_core_ristretto255_scalar_random(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        a = pysodium.crypto_core_ristretto255_scalar_random()
+        b = pysodium.crypto_core_ristretto255_scalar_random()
+        # stupid check that random returns different values...
+        self.assertNotEqual(a,b)
+
+    def test_crypto_core_ristretto255_is_valid_point(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        invalid = binascii.unhexlify(b"ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f")
+        self.assertEqual(False, pysodium.crypto_core_ristretto255_is_valid_point(invalid))
+        invalid = binascii.unhexlify(b"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f")
+        self.assertEqual(False, pysodium.crypto_core_ristretto255_is_valid_point(invalid))
+
+    def test_crypto_core_ristretto255_from_hash(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        h = pysodium.crypto_generichash(b'howdy', outlen=pysodium.crypto_core_ristretto255_HASHBYTES)
+        p = pysodium.crypto_core_ristretto255_from_hash(h)
+        pysodium.crypto_core_ristretto255_is_valid_point(p)
+
+    def test_crypto_scalarmult_ristretto255_base(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        p = pysodium.crypto_scalarmult_ristretto255_base(pysodium.crypto_core_ristretto255_scalar_random())
+        pysodium.crypto_core_ristretto255_is_valid_point(p)
+
+    def test_crypto_scalarmult_ristretto255(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        n = pysodium.crypto_scalarmult_ristretto255_base(pysodium.crypto_core_ristretto255_scalar_random())
+        p = pysodium.crypto_scalarmult_ristretto255_base(pysodium.crypto_core_ristretto255_scalar_random())
+        r = pysodium.crypto_scalarmult_ristretto255(n, p)
+        pysodium.crypto_core_ristretto255_is_valid_point(r)
+
+    def test_crypto_core_ristretto255_scalar_invert(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        s = pysodium.crypto_core_ristretto255_scalar_random()
+        r = pysodium.crypto_core_ristretto255_scalar_invert(s)
+        p = pysodium.crypto_scalarmult_ristretto255_base(pysodium.crypto_core_ristretto255_scalar_random())
+        q = pysodium.crypto_scalarmult_ristretto255(s, p)
+        p_ = pysodium.crypto_scalarmult_ristretto255(r, q)
+        self.assertEqual(p,p_)
 
 if __name__ == '__main__':
     unittest.main()

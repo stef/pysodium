@@ -246,6 +246,12 @@ if sodium_version_check(1, 0, 15):
     crypto_secretstream_xchacha20poly1305_TAG_REKEY = sodium.crypto_secretstream_xchacha20poly1305_tag_rekey()
     crypto_secretstream_xchacha20poly1305_TAG_FINAL = sodium.crypto_secretstream_xchacha20poly1305_tag_final()
 
+if sodium_version_check(1, 0, 18):
+    crypto_core_ristretto255_BYTES = sodium.crypto_core_ristretto255_bytes()
+    crypto_core_ristretto255_HASHBYTES = sodium.crypto_core_ristretto255_hashbytes()
+    crypto_core_ristretto255_SCALARBYTES = sodium.crypto_core_ristretto255_scalarbytes()
+    crypto_core_ristretto255_NONREDUCEDSCALARBYTES = sodium.crypto_core_ristretto255_nonreducedscalarbytes()
+
 sodium_init = sodium.sodium_init
 
 class CryptoSignState(ctypes.Structure):
@@ -1121,3 +1127,60 @@ def crypto_kx_server_session_keys(server_pk, server_sk, client_pk):
 @sodium_version(1, 0, 4)
 def sodium_increment(n):
     sodium.sodium_increment(n, ctypes.c_size_t(len(n)))
+
+# int crypto_core_ristretto255_is_valid_point(const unsigned char *p);
+@sodium_version(1, 0, 18)
+def crypto_core_ristretto255_is_valid_point(p):
+    return sodium.crypto_core_ristretto255_is_valid_point(p) == 1
+
+# int crypto_core_ristretto255_from_hash(unsigned char *p, const unsigned char *r);
+@sodium_version(1, 0, 18)
+def crypto_core_ristretto255_from_hash(r):
+    if len(r) != crypto_core_ristretto255_HASHBYTES: raise ValueError("Invalid parameter, must be {} bytes".format(crypto_core_ristretto255_HASHBYTES))
+    p = ctypes.create_string_buffer(crypto_core_ristretto255_BYTES)
+    __check(sodium.crypto_core_ristretto255_from_hash(p,r))
+    return p.raw
+
+# int crypto_scalarmult_ristretto255(unsigned char *q, const unsigned char *n, const unsigned char *p);
+@sodium_version(1, 0, 18)
+def crypto_scalarmult_ristretto255(n, p):
+    if None in (n,p):
+        raise ValueError("invalid parameters")
+    if len(n) != crypto_core_ristretto255_SCALARBYTES: raise ValueError("truncated scalar")
+    if len(p) != crypto_core_ristretto255_BYTES: raise ValueError("truncated point")
+    buf = ctypes.create_string_buffer(crypto_core_ristretto255_BYTES)
+    __check(sodium.crypto_scalarmult_ristretto255(buf, n, p))
+    return buf.raw
+
+# int crypto_scalarmult_ristretto255_base(unsigned char *q, const unsigned char *n);
+@sodium_version(1, 0, 18)
+def crypto_scalarmult_ristretto255_base(n):
+    if n is None:
+        raise ValueError("invalid parameters")
+    if len(n) != crypto_core_ristretto255_SCALARBYTES: raise ValueError("truncated scalar")
+    buf = ctypes.create_string_buffer(crypto_core_ristretto255_BYTES)
+    __check(sodium.crypto_scalarmult_ristretto255_base(buf, n))
+    return buf.raw
+
+# void crypto_core_ristretto255_scalar_random(unsigned char *r);
+@sodium_version(1, 0, 18)
+def crypto_core_ristretto255_scalar_random():
+    r = ctypes.create_string_buffer(crypto_core_ristretto255_SCALARBYTES)
+    sodium.crypto_core_ristretto255_scalar_random(r)
+    return r.raw
+
+# int crypto_core_ristretto255_scalar_invert(unsigned char *recip, const unsigned char *s);
+@sodium_version(1, 0, 18)
+def crypto_core_ristretto255_scalar_invert(s):
+    if not s or len(s)!=crypto_core_ristretto255_SCALARBYTES: raise ValueError("Invalid param, must be {} bytes".format(crypto_core_ristretto255_SCALARBYTES))
+    r = ctypes.create_string_buffer(crypto_core_ristretto255_SCALARBYTES)
+    __check(sodium.crypto_core_ristretto255_scalar_invert(r,s))
+    return r.raw
+
+# void crypto_core_ristretto255_scalar_reduce(unsigned char *r, const unsigned char *s);
+@sodium_version(1, 0, 18)
+def crypto_core_ristretto255_scalar_reduce(s):
+    if not s or len(s)!=crypto_core_ristretto255_NONREDUCEDSCALARBYTES: raise ValueError("Invalid parameter: must be {} bytes".format(crypto_core_ristretto255_NONREDUCEDSCALARBYTES))
+    r = ctypes.create_string_buffer(crypto_core_ristretto255_SCALARBYTES)
+    sodium.crypto_core_ristretto255_scalar_reduce(r,s)
+    return r.raw
