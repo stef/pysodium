@@ -500,6 +500,7 @@ def crypto_auth_verify(h, m, k):
     __check(sodium.crypto_auth_verify(h, m, ctypes.c_ulonglong(len(m)), k))
 
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
+@encode_strings
 def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
     buf = ctypes.create_string_buffer(outlen)
     __check(sodium.crypto_generichash(buf, ctypes.c_size_t(outlen), m, ctypes.c_ulonglong(len(m)), k, ctypes.c_size_t(len(k))))
@@ -507,6 +508,7 @@ def crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES):
 
 
 # crypto_generichash_init(crypto_generichash_state *state, const unsigned char *key, const size_t keylen, const size_t outlen);
+@encode_strings
 def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
     state = ctypes.create_string_buffer(crypto_generichash_STATEBYTES)
     __check(sodium.crypto_generichash_init(ctypes.byref(state), k, ctypes.c_size_t(len(k)), ctypes.c_size_t(outlen)))
@@ -514,6 +516,7 @@ def crypto_generichash_init(outlen=crypto_generichash_BYTES, k=b''):
 
 
 # crypto_generichash_update(crypto_generichash_state *state, const unsigned char *in, unsigned long long inlen);
+@encode_strings
 def crypto_generichash_update(state, m):
     if len(state) != crypto_generichash_STATEBYTES: raise ValueError("invalid state")
     __check(sodium.crypto_generichash_update(ctypes.byref(state), m, ctypes.c_ulonglong(len(m))))

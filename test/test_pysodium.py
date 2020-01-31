@@ -59,6 +59,9 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(r, r1)
         self.assertEqual(r6, r61)
 
+        self.assertNotEqual(pysodium.crypto_generichash( 'salt0'), pysodium.crypto_generichash( 'salt1'))
+        self.assertNotEqual(pysodium.crypto_generichash(b'salt0'), pysodium.crypto_generichash(b'salt1'))
+
     def test_crypto_box_pk_from_sk(self):
         pk1, sk = pysodium.crypto_box_keypair()
         pk2 = pysodium.crypto_scalarmult_curve25519_base(sk)
