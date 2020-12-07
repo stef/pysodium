@@ -668,7 +668,39 @@ def crypto_box_seal_open(c, pk, sk):
     __check(sodium.crypto_box_seal_open(msg, c, ctypes.c_ulonglong(len(c)), pk, sk))
     return msg.raw
 
+# int crypto_secretbox_detached(unsigned char *c, unsigned char *mac,
+#                              	const unsigned char *m,
+#                              	unsigned long long mlen,
+#                              	const unsigned char *n,
+#                              	const unsigned char *k);
 
+def crypto_secretbox_detached(msg, nonce, k):
+    if None in (msg, nonce, k): raise ValueError("invalid parameters")
+    if len(k) != crypto_secretbox_KEYBYTES: raise ValueError("key incorrect size")
+    if len(nonce) != crypto_secretbox_NONCEBYTES: raise ValueError("nonce incorrect size")
+    c = ctypes.create_string_buffer(len(msg))
+    mac = ctypes.create_string_buffer(crypto_secretbox_MACBYTES)
+    __check(sodium.crypto_secretbox_detached(c, mac, msg, ctypes.c_ulonglong(len(msg)), nonce, k))
+    return c.raw, mac.raw
+
+	
+# int crypto_secretbox_open_detached(unsigned char *m,
+#                                   const unsigned char *c,
+#                                   const unsigned char *mac,
+#                                   unsigned long long clen,
+#                                   const unsigned char *n,
+#                                   const unsigned char *k);
+
+def crypto_secretbox_open_detached(c, mac, nonce, k):
+    if None in (c, mac, nonce, k):
+        raise ValueError("invalid parameters")
+    if len(k) != crypto_secretbox_KEYBYTES: raise ValueError("key incorrect size")
+    if len(nonce) != crypto_secretbox_NONCEBYTES: raise ValueError("nonce incorrect size")
+    msg = ctypes.create_string_buffer(len(c))
+    __check(sodium.crypto_secretbox_open_detached(msg, c, mac, ctypes.c_ulonglong(len(c)), nonce, k))
+    return msg.raw
+	
+	
 # int crypto_box_detached(unsigned char *c, unsigned char *mac,
 #                        const unsigned char *m, unsigned long long mlen,
 #                        const unsigned char *n, const unsigned char *pk,

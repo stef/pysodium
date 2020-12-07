@@ -51,7 +51,9 @@ crypto_pwhash_str_verify(pstr, passwd)
 crypto_scalarmult_curve25519_base(n)
 crypto_scalarmult_curve25519(n, p)
 crypto_secretbox(msg, nonce, k)
+crypto_secretbox_detached(msg, nonce, k)
 crypto_secretbox_open(c, nonce, k)
+crypto_secretbox_open_detached(c, mac, nonce, k)
 crypto_secretstream_xchacha20poly1305_keygen():
 crypto_secretstream_xchacha20poly1305_init_push(key):
 crypto_secretstream_xchacha20poly1305_init_pull(header, key):
