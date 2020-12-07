@@ -92,11 +92,11 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(m, plaintext)
 
     def test_crypto_secretbox_open_detached(self):
-		m = b"howdy"
+        m = b"howdy"
         n = pysodium.randombytes(pysodium.crypto_secretbox_NONCEBYTES)
-		k = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
+        k = pysodium.randombytes(pysodium.crypto_secretbox_KEYBYTES)
         c, mac = pysodium.crypto_secretbox_detached(m, n, k)
-		mplain = pysodium.crypto_secretbox_open_detached(c, mac, n, k)
+        mplain = pysodium.crypto_secretbox_open_detached(c, mac, n, k)
         self.assertEqual(m, mplain)
         changed = b"\0"*len(c)
         self.assertRaises(ValueError, pysodium.crypto_secretbox_open_detached, changed, mac, n, k)
