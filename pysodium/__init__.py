@@ -280,6 +280,15 @@ def pad_buf(buf, length, name = 'buf'):
     else:
         return buf
 
+# int crypto_scalarmult_base(unsigned char *q, const unsigned char *n);
+def crypto_scalarmult_base(n):
+    if n is None:
+        raise ValueError("invalid parameters")
+    if len(n) != crypto_scalarmult_SCALARBYTES: raise ValueError("truncated scalar")
+    q = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
+    __check(sodium.crypto_scalarmult_base(q, n))
+    return q.raw
+
 def crypto_scalarmult_curve25519(n, p):
     if None in (n,p):
         raise ValueError("invalid parameters")
@@ -295,7 +304,7 @@ def crypto_scalarmult_curve25519_base(n):
         raise ValueError("invalid parameters")
     if len(n) != crypto_scalarmult_SCALARBYTES: raise ValueError("truncated scalar")
     buf = ctypes.create_string_buffer(crypto_scalarmult_BYTES)
-    __check(sodium.crypto_scalarmult_curve25519_base(ctypes.byref(buf), n))
+    __check(sodium.crypto_scalarmult_curve25519_base(buf, n))
     return buf.raw
 
 # crypto_stream_chacha20_xor(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, const unsigned char *k)
@@ -683,7 +692,7 @@ def crypto_secretbox_detached(msg, nonce, k):
     __check(sodium.crypto_secretbox_detached(c, mac, msg, ctypes.c_ulonglong(len(msg)), nonce, k))
     return c.raw, mac.raw
 
-	
+
 # int crypto_secretbox_open_detached(unsigned char *m,
 #                                   const unsigned char *c,
 #                                   const unsigned char *mac,
@@ -699,8 +708,8 @@ def crypto_secretbox_open_detached(c, mac, nonce, k):
     msg = ctypes.create_string_buffer(len(c))
     __check(sodium.crypto_secretbox_open_detached(msg, c, mac, ctypes.c_ulonglong(len(c)), nonce, k))
     return msg.raw
-	
-	
+
+
 # int crypto_box_detached(unsigned char *c, unsigned char *mac,
 #                        const unsigned char *m, unsigned long long mlen,
 #                        const unsigned char *n, const unsigned char *pk,
