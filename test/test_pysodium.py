@@ -273,7 +273,16 @@ class TestPySodium(unittest.TestCase):
         state2 = pysodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
         self.assertRaises(ValueError, pysodium.crypto_secretstream_xchacha20poly1305_pull, state2, ciphertext2, None)
 
-    def test_test_crypto_scalarmult_curve25519_base(self):
+    def test_crypto_scalarmult_base(self):
+        # In the C code, crypto_scalarmult_base just delegates to
+        # crypto_scalarmult_curve25519_base. If libsodium changes the preferred
+        # algorithm, this answer will change.
+        k = binascii.unhexlify(b"e38e290880cee71a0cbb7b09328fd034c1fe4bd8838b19ab303a64a8c6b01456")
+        expected = binascii.unhexlify(b"4aa82c2514ed88eb46085369a45ddd0db997e53bfee877c4556ab49a1581e545")
+        actual = pysodium.crypto_scalarmult_base(k)
+        self.assertEqual(expected, actual)
+
+    def test_crypto_scalarmult_curve25519_base(self):
         s = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         r = pysodium.crypto_scalarmult_curve25519_base(pysodium.randombytes(pysodium.crypto_scalarmult_BYTES))
         pysodium.crypto_scalarmult_curve25519(s, r)
