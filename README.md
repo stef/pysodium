@@ -88,6 +88,14 @@ crypto_scalarmult_ristretto255_base(n)
 crypto_core_ristretto255_scalar_random()
 crypto_core_ristretto255_scalar_invert(s)
 crypto_core_ristretto255_scalar_reduce(s)
+crypto_core_ristretto255_add(p, q)
+crypto_core_ristretto255_sub(p,q)
+crypto_core_ristretto255_random()
+crypto_core_ristretto255_scalar_negate(s)
+crypto_core_ristretto255_scalar_complement(s)
+crypto_core_ristretto255_scalar_add(x,y)
+crypto_core_ristretto255_scalar_sub(x,y)
+crypto_core_ristretto255_scalar_mul(x,y)
 ```
 
 Constants:

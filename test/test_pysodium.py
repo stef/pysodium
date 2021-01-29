@@ -576,5 +576,54 @@ class TestPySodium(unittest.TestCase):
         p_ = pysodium.crypto_scalarmult_ristretto255(r, q)
         self.assertEqual(p,p_)
 
+    def test_crypto_core_ristretto255_add_sub(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        p = pysodium.crypto_core_ristretto255_random()
+        q = pysodium.crypto_core_ristretto255_random()
+
+        p_q = pysodium.crypto_core_ristretto255_add(p, q)
+        r = pysodium.crypto_core_ristretto255_sub(p_q,q)
+        self.assertEqual(p,r)
+
+    def test_crypto_core_ristretto255_scalar_add_sub(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+
+        x = pysodium.crypto_core_ristretto255_scalar_random()
+        y = pysodium.crypto_core_ristretto255_scalar_random()
+        x_y = pysodium.crypto_core_ristretto255_scalar_add(x,y)
+        r = pysodium.crypto_core_ristretto255_scalar_sub(x_y,y)
+
+        p1 = pysodium.crypto_scalarmult_ristretto255_base(x)
+        p2 = pysodium.crypto_scalarmult_ristretto255_base(r)
+        self.assertEqual(p1,p2)
+
+    def test_crypto_core_ristretto255_scalar_negate(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        s = pysodium.crypto_core_ristretto255_scalar_random()
+        r = pysodium.crypto_core_ristretto255_scalar_negate(s)
+        # s + neg(s) = 0 mod L
+        s_r = pysodium.crypto_core_ristretto255_scalar_add(s,r)
+        self.assertEqual(s_r,b"\x00"*32)
+
+    def test_crypto_core_ristretto255_scalar_complement(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        x = pysodium.crypto_core_ristretto255_scalar_random()
+        x_ = pysodium.crypto_core_ristretto255_scalar_complement(x)
+        # x + complement(x) = 1 mod L
+        one = pysodium.crypto_core_ristretto255_scalar_add(x,x_)
+        self.assertEqual(one,b'\x01'+b"\x00"*31)
+
+    def test_crypto_core_ristretto255_scalar_mul(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        two = b'\x02' + b'\x00' * 31
+        four_mul = pysodium.crypto_core_ristretto255_scalar_mul(two,two)
+        four_add = pysodium.crypto_core_ristretto255_scalar_add(two,two)
+        self.assertEqual(four_mul,four_add)
+
+        x = pysodium.crypto_core_ristretto255_scalar_random()
+        one = b'\x01' + b'\x00' * 31
+        r = pysodium.crypto_core_ristretto255_scalar_mul(x,one)
+        self.assertEqual(x,r)
+
 if __name__ == '__main__':
     unittest.main()
