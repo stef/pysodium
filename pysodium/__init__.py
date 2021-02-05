@@ -143,6 +143,7 @@ crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE = sodium.crypto_pwhash_scr
 crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE = sodium.crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()
 crypto_hash_sha256_BYTES = sodium.crypto_hash_sha256_bytes()
 crypto_hash_sha512_BYTES = sodium.crypto_hash_sha512_bytes()
+crypto_hash_sha512_STATEBYTES = sodium.crypto_hash_sha512_statebytes()
 crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keybytes()
 crypto_aead_chacha20poly1305_NPUBBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
 crypto_aead_chacha20poly1305_NONCEBYTES = crypto_aead_chacha20poly1305_NPUBBYTES
@@ -1122,6 +1123,23 @@ def crypto_hash_sha512(message):
         raise ValueError("invalid parameters")
     out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES)
     __check(sodium.crypto_hash_sha512(out, message, ctypes.c_ulonglong(len(message))))
+    return out.raw
+
+# int crypto_hash_sha512_init(crypto_hash_sha512_state *state)
+def crypto_hash_sha512_init():
+    state = ctypes.create_string_buffer(crypto_hash_sha512_STATEBYTES)
+    __check(sodium.crypto_hash_sha512_init(state))
+    return state
+
+# int crypto_hash_sha512_update(crypto_hash_sha512_state *state, const unsigned char *in, unsigned long long inlen)
+def crypto_hash_sha512_update(state, data):
+    __check(sodium.crypto_hash_sha512_update(state,data,ctypes.c_ulonglong(len(data))))
+    return state
+    
+# int crypto_hash_sha512_final(crypto_hash_sha512_state *state, unsigned char *out)
+def crypto_hash_sha512_final(state):
+    out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES)
+    __check(sodium.crypto_hash_sha512_final(state, out))
     return out.raw
 
 # int crypto_kx_keypair(unsigned char pk[crypto_kx_PUBLICKEYBYTES],

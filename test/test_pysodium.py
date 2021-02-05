@@ -501,18 +501,15 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512(b"\x80")),
             "dfe8ef54110b3324d3b889035c95cfb80c92704614bf76f17546ad4f4b08218a630e16da7df34766a975b3bb85b01df9e99a4ec0a1d0ec3de6bed7b7a40b2f10")
 
+    def test_crypto_hash_sha512_steps(self):
+        s = pysodium.crypto_hash_sha512_init()
+        pysodium.crypto_hash_sha512_update(s, b"Correct Horse ")
+        pysodium.crypto_hash_sha512_update(s, b"Battery Staple")
+        self.assertEqual(self.byteHashToString(pysodium.crypto_hash_sha512_final(s)),
+            "0675070bda47bef936f0b65ae721d90f82ca137841df4d7cae27776501ae4b446ab926d64dc1d282c8758ac0eb02cc4aa11b2452d4f8ffeb795023b797fe2b80")
+
     def byteHashToString(self, input):
-        import sys
-        result = ""
-        for i in range(0, len(input)):
-            if sys.version_info.major == 3:
-                tmp = str(hex(ord(chr(input[i]))))[2:]
-            else:
-                tmp = str(hex(ord(input[i])))[2:]
-            if len(tmp) == 1:
-                tmp = "0" + tmp
-            result += tmp
-        return result
+        return binascii.hexlify(input).decode('utf8')
 
     def test_crypto_auth(self):
         sk = pysodium.randombytes(pysodium.crypto_auth_KEYBYTES)

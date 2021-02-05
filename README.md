@@ -39,6 +39,9 @@ crypto_generichash(m, k=b'', outlen=crypto_generichash_BYTES)
 crypto_generichash_update(state, m)
 crypto_hash_sha256(message)
 crypto_hash_sha512(message)
+crypto_hash_sha512_init()
+crypto_hash_sha512_update(state, data)
+crypto_hash_sha512_final(state)
 crypto_kx_client_session_keys(client_pk, client_sk, server_pk)
 crypto_kx_keypair()
 crypto_kx_server_session_keys(server_pk, server_sk, client_pk)
@@ -134,6 +137,7 @@ crypto_generichash_blake2b_PERSONALBYTES
 crypto_generichash_blake2b_SALTBYTES
 crypto_hash_sha256_BYTES
 crypto_hash_sha512_BYTES
+crypto_hash_sha512_STATEBYTES
 crypto_kx_PUBLICKEYBYTES
 crypto_kx_SECRETKEYBYTES
 crypto_kx_SESSIONKEYBYTES
