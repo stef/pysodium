@@ -539,6 +539,13 @@ class TestPySodium(unittest.TestCase):
         # stupid check that random returns different values...
         self.assertNotEqual(a,b)
 
+    def test_crypto_core_ristretto255_random(self):
+        if not pysodium.sodium_version_check(1, 0, 18): return
+        a = pysodium.crypto_core_ristretto255_random()
+        b = pysodium.crypto_core_ristretto255_random()
+        # same stupid check that random returns different values...
+        self.assertNotEqual(a,b)
+
     def test_crypto_core_ristretto255_is_valid_point(self):
         if not pysodium.sodium_version_check(1, 0, 18): return
         invalid = binascii.unhexlify(b"ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f")
