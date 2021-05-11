@@ -381,6 +381,22 @@ class TestPySodium(unittest.TestCase):
         output = pysodium.crypto_stream_chacha20_xor_ic(input_, nonce, ic, key)
         self.assertEqual(binascii.unhexlify(b"9db9d4f7c7a899151b9a475032b63fc385245fe054e3dd5a97a5f576fe064025d3ce042c566ab2c507b138db853e3d6959660996546cc9c4a6eafdc777c040d70eaf46f76dad3979e5c5360c3317166a1c894c94a371876a94df7628fe4eaaf2ccb27d5aaae0ad7ad0f9d4b6ad3b54098746d4524d38407a6deb3ab78fab78c9"), output)
 
+    def test_crypto_stream_xchacha20_xor(self):
+        # test vectors taken from:
+        # https://github.com/jedisct1/libsodium/blob/609e42be75589f91179d218e24f5e35a7124abfd/test/default/xchacha20.c#L102
+        key = binascii.unhexlify("9d23bd4149cb979ccf3c5c94dd217e9808cb0e50cd0f67812235eaaf601d6232")
+        nonce = binascii.unhexlify("c047548266b7c370d33566a2425cbf30d82d1eaf5294109e")
+        out = binascii.unhexlify("a21209096594de8c5667b1d13ad93f744106d054df210e4782cd396fec692d3515a20bf351eec011a92c367888bc464c32f0807acd6c203a247e0db854148468e9f96bee4cf718d68d5f637cbd5a376457788e6fae90fc31097cfc")
+        output = pysodium.crypto_stream_xchacha20_xor(out, nonce, key)
+        self.assertEqual(b'\x00'*len(output), output)
+
+    def test_crypto_stream_xchacha20_xor_ic(self):
+        key = binascii.unhexlify("9d23bd4149cb979ccf3c5c94dd217e9808cb0e50cd0f67812235eaaf601d6232")
+        nonce = binascii.unhexlify("c047548266b7c370d33566a2425cbf30d82d1eaf5294109e")
+        out = binascii.unhexlify("a21209096594de8c5667b1d13ad93f744106d054df210e4782cd396fec692d3515a20bf351eec011a92c367888bc464c32f0807acd6c203a247e0db854148468e9f96bee4cf718d68d5f637cbd5a376457788e6fae90fc31097cfc")
+        output = pysodium.crypto_stream_xchacha20_xor_ic(out, nonce, 0, key)
+        self.assertEqual(b'\x00'*len(output), output)
+
     def test_crypto_blake2b(self):
         message   = binascii.unhexlify(b'54686520717569636b2062726f776e20666f78206a756d7073206f76657220746865206c617a7920646f67')
         key       = binascii.unhexlify(b'000102030405060708090a0b0c0d0e0f')

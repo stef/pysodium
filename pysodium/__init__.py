@@ -120,6 +120,8 @@ crypto_stream_KEYBYTES = sodium.crypto_stream_keybytes()
 crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
 crypto_stream_chacha20_NONCEBYTES = sodium.crypto_stream_chacha20_noncebytes()
 crypto_stream_chacha20_KEYBYTES = sodium.crypto_stream_chacha20_keybytes()
+crypto_stream_xchacha20_NONCEBYTES = sodium.crypto_stream_xchacha20_noncebytes()
+crypto_stream_xchacha20_KEYBYTES = sodium.crypto_stream_xchacha20_keybytes()
 crypto_generichash_KEYBYTES_MAX = sodium.crypto_generichash_keybytes_max()
 crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
 crypto_generichash_BYTES_MIN = sodium.crypto_generichash_bytes_min()
@@ -332,6 +334,33 @@ def crypto_stream_chacha20_xor_ic(message, nonce, initial_counter, key):
     c = ctypes.create_string_buffer(len(message))
 
     __check(sodium.crypto_stream_chacha20_xor_ic(c, message, mlen, nonce, ic, key))
+
+    return c.raw
+
+# crypto_stream_xchacha20_xor(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, const unsigned char *k)
+def crypto_stream_xchacha20_xor(message, nonce, key):
+    if len(nonce) != crypto_stream_xchacha20_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_stream_xchacha20_KEYBYTES: raise ValueError("truncated key")
+
+    mlen = ctypes.c_longlong(len(message))
+
+    c = ctypes.create_string_buffer(len(message))
+
+    __check(sodium.crypto_stream_xchacha20_xor(c, message, mlen, nonce, key))
+
+    return c.raw
+
+# crypto_stream_xchacha20_xor_ic(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, uint64_t ic, const unsigned char *k)
+def crypto_stream_xchacha20_xor_ic(message, nonce, initial_counter, key):
+    if len(nonce) != crypto_stream_xchacha20_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_stream_xchacha20_KEYBYTES: raise ValueError("truncated key")
+
+    mlen = ctypes.c_longlong(len(message))
+    ic = ctypes.c_uint64(initial_counter)
+
+    c = ctypes.create_string_buffer(len(message))
+
+    __check(sodium.crypto_stream_xchacha20_xor_ic(c, message, mlen, nonce, ic, key))
 
     return c.raw
 
