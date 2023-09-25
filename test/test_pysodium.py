@@ -381,6 +381,22 @@ class TestPySodium(unittest.TestCase):
         output = pysodium.crypto_stream_chacha20_xor_ic(input_, nonce, ic, key)
         self.assertEqual(binascii.unhexlify(b"9db9d4f7c7a899151b9a475032b63fc385245fe054e3dd5a97a5f576fe064025d3ce042c566ab2c507b138db853e3d6959660996546cc9c4a6eafdc777c040d70eaf46f76dad3979e5c5360c3317166a1c894c94a371876a94df7628fe4eaaf2ccb27d5aaae0ad7ad0f9d4b6ad3b54098746d4524d38407a6deb3ab78fab78c9"), output)
 
+    def test_crypto_stream_chacha20_ietf_xor(self):
+        key = binascii.unhexlify(b"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+        nonce = binascii.unhexlify(b"000000090000004a00000000")
+        input_ = b'\x00' * 256
+        output = pysodium.crypto_stream_chacha20_ietf_xor(input_, nonce, key)
+        self.assertEqual(binascii.unhexlify(b"8adc91fd9ff4f0f51b0fad50ff15d637e40efda206cc52c783a74200503c1582cd9833367d0a54d57d3c9e998f490ee69ca34c1ff9e939a75584c52d690a35d410f1e7e4d13b5915500fdd1fa32071c4c7d1f4c733c068030422aa9ac3d46c4ed2826446079faa0914c2d705d98b02a2b5129cd1de164eb9cbd083e8a2503c4e0a88837739d7bf4ef8ccacb0ea2bb9d69d56c394aa351dfda5bf459f0a2e9fe8e721f89255f9c486bf21679c683d4f9c5cf2fa27865526005b06ca374c86af3bdcbfbdcb83be65862ed5c20eae5a43241d6a92da6dca9a156be25297f51c27188a861e93cc3aeb129a76598baccd27453ac6941b4b4e1e5153a9fee95d1ba00e"),
+                         output)
+
+    def test_crypto_stream_chacha20_ietf_xor_ic(self):
+        key = binascii.unhexlify(b"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+        nonce = binascii.unhexlify(b"000000090000004a00000000")
+        input_ = b'\x00' * 128
+        ic = 2
+        output = pysodium.crypto_stream_chacha20_ietf_xor_ic(input_, nonce, ic, key)
+        self.assertEqual(binascii.unhexlify(b"0a88837739d7bf4ef8ccacb0ea2bb9d69d56c394aa351dfda5bf459f0a2e9fe8e721f89255f9c486bf21679c683d4f9c5cf2fa27865526005b06ca374c86af3bdcbfbdcb83be65862ed5c20eae5a43241d6a92da6dca9a156be25297f51c27188a861e93cc3aeb129a76598baccd27453ac6941b4b4e1e5153a9fee95d1ba00e"), output)
+
     def test_crypto_stream_xchacha20_xor(self):
         # test vectors taken from:
         # https://github.com/jedisct1/libsodium/blob/609e42be75589f91179d218e24f5e35a7124abfd/test/default/xchacha20.c#L102

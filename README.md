@@ -80,6 +80,8 @@ crypto_sign_sk_to_seed(sk)
 crypto_sign_verify_detached(sig, msg, pk)
 crypto_stream_chacha20_xor(message, nonce, key)
 crypto_stream_chacha20_xor_ic(message, nonce, initial_counter, key)
+crypto_stream_chacha20_ietf_xor(message, nonce, key)
+crypto_stream_chacha20_ietf_xor_ic(message, nonce, initial_counter, key)
 crypto_stream_xchacha20_xor(message, nonce, key)
 crypto_stream_xchacha20_xor_ic(message, nonce, initial_counter, key)
 crypto_stream(cnt, nonce=None, key=None)
@@ -217,6 +219,8 @@ crypto_stream_KEYBYTES
 crypto_stream_NONCEBYTES
 crypto_stream_chacha20_NONCEBYTES
 crypto_stream_chacha20_KEYBYTES
+crypto_stream_chacha20_ietf_NONCEBYTES
+crypto_stream_chacha20_ietf_KEYBYTES
 crypto_stream_xchacha20_NONCEBYTES
 crypto_stream_xchacha20_KEYBYTES
 crypto_core_ristretto255_BYTES
