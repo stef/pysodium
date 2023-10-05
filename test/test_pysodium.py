@@ -61,6 +61,84 @@ class TestPySodium(unittest.TestCase):
 
         self.assertNotEqual(pysodium.crypto_generichash( 'salt0'), pysodium.crypto_generichash( 'salt1'))
         self.assertNotEqual(pysodium.crypto_generichash(b'salt0'), pysodium.crypto_generichash(b'salt1'))
+    def test_crypto_auth_hmac_256_512_512256(self):
+        """Taken from https://www.rfc-editor.org/rfc/rfc4231#section-4"""
+        vectors = [
+            {
+                "k": b"\x0b" * 20 + b"\x00" * 12,
+                "m": b"Hi There",
+                "256": bytes.fromhex(
+                    "b0344c61d8db38535ca8afceaf0bf12b"
+                    "881dc200c9833da726e9376c2e32cff7"
+                ),
+                "512": bytes.fromhex(
+                    "87aa7cdea5ef619d4ff0b4241a1d6cb0"
+                    "2379f4e2ce4ec2787ad0b30545e17cde"
+                    "daa833b7d6b8a702038b274eaea3f4e4"
+                    "be9d914eeb61f1702e696c203a126854"
+                ),
+                "512256": bytes.fromhex(
+                    "87aa7cdea5ef619d4ff0b4241a1d6cb0"
+                    "2379f4e2ce4ec2787ad0b30545e17cde"
+                ),
+            },
+            {
+                "k": b"Jefe" + b"\x00" * 28,
+                "m": b"what do ya want for nothing?",
+                "256": bytes.fromhex(
+                    "5bdcc146bf60754e6a042426089575c7"
+                    "5a003f089d2739839dec58b964ec3843"
+                ),
+                "512": bytes.fromhex(
+                    "164b7a7bfcf819e2e395fbe73b56e0a3"
+                    "87bd64222e831fd610270cd7ea250554"
+                    "9758bf75c05a994a6d034f65f8f0e6fd"
+                    "caeab1a34d4a6b4b636e070a38bce737"
+                ),
+                "512256": bytes.fromhex(
+                    "164b7a7bfcf819e2e395fbe73b56e0a3"
+                    "87bd64222e831fd610270cd7ea250554"
+                ),
+            },
+        ]
+
+        for v in vectors:
+            self.assertEqual(pysodium.crypto_auth_hmacsha256(v["m"], v["k"]), v["256"])
+            self.assertEqual(pysodium.crypto_auth_hmacsha512(v["m"], v["k"]), v["512"])
+            self.assertEqual(
+                pysodium.crypto_auth_hmacsha512256(v["m"], v["k"]), v["512256"]
+            )
+            try:
+                pysodium.crypto_auth_hmacsha256_verify(v["256"], v["m"], v["k"])
+                pysodium.crypto_auth_hmacsha512_verify(v["512"], v["m"], v["k"])
+                pysodium.crypto_auth_hmacsha512256_verify(v["512256"], v["m"], v["k"])
+            except Exception as e:
+                self.assertTrue(False, f"verification fail: {e}")
+
+        msg = b"pull request plz"
+        try:
+            key = pysodium.crypto_auth_hmacsha256_keygen()
+            hmac = pysodium.crypto_auth_hmacsha256(msg, key)
+            pysodium.crypto_auth_hmacsha256_verify(hmac, msg, key)
+
+        except Exception:
+            self.assertTrue(False)
+
+        try:
+            key = pysodium.crypto_auth_hmacsha256_keygen()
+            hmac = pysodium.crypto_auth_hmacsha256(msg, key)
+            pysodium.crypto_auth_hmacsha256_verify(hmac, msg, key)
+
+        except Exception:
+            self.assertTrue(False)
+
+        try:
+            key = pysodium.crypto_auth_hmacsha256_keygen()
+            hmac = pysodium.crypto_auth_hmacsha256(msg, key)
+            pysodium.crypto_auth_hmacsha256_verify(hmac, msg, key)
+
+        except Exception:
+            self.assertTrue(False)
 
     def test_crypto_box_pk_from_sk(self):
         pk1, sk = pysodium.crypto_box_keypair()
