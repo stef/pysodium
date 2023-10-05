@@ -103,6 +103,15 @@ crypto_core_ristretto255_scalar_complement(s)
 crypto_core_ristretto255_scalar_add(x,y)
 crypto_core_ristretto255_scalar_sub(x,y)
 crypto_core_ristretto255_scalar_mul(x,y)
+crypto_auth_hmacsha256_keygen
+crypto_auth_hmacsha256
+crypto_auth_hmacsha256_verify
+crypto_auth_hmacsha512_keygen
+crypto_auth_hmacsha512
+crypto_auth_hmacsha512_verify
+crypto_auth_hmacsha512256_keygen
+crypto_auth_hmacsha512256
+crypto_auth_hmacsha512256_verify
 ```
 
 Constants:
@@ -227,6 +236,12 @@ crypto_core_ristretto255_BYTES
 crypto_core_ristretto255_HASHBYTES
 crypto_core_ristretto255_SCALARBYTES
 crypto_core_ristretto255_NONREDUCEDSCALARBYTES
+crypto_auth_hmacsha256_BYTES
+crypto_auth_hmacsha256_KEYBYTES
+crypto_auth_hmacsha512_BYTES
+crypto_auth_hmacsha512_KEYBYTES
+crypto_auth_hmacsha512256_BYTES
+crypto_auth_hmacsha512256_KEYBYTES
 ```
 
 
