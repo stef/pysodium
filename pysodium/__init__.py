@@ -257,9 +257,13 @@ if sodium_version_check(1, 0, 18):
     crypto_core_ristretto255_SCALARBYTES = sodium.crypto_core_ristretto255_scalarbytes()
     crypto_core_ristretto255_NONREDUCEDSCALARBYTES = sodium.crypto_core_ristretto255_nonreducedscalarbytes()
     crypto_auth_hmacsha256_BYTES = sodium.crypto_auth_hmacsha256_bytes()
+    crypto_auth_hmacsha256_KEYBYTES = sodium.crypto_auth_hmacsha256_keybytes()
     crypto_hash_sha256_STATEBYTES = sodium.crypto_hash_sha256_statebytes()
     crypto_auth_hmacsha512_BYTES = sodium.crypto_auth_hmacsha512_bytes()
+    crypto_auth_hmacsha512_KEYBYTES = sodium.crypto_auth_hmacsha512_keybytes()
     crypto_hash_sha512_STATEBYTES = sodium.crypto_hash_sha512_statebytes()
+    crypto_auth_hmacsha512256_BYTES = sodium.crypto_auth_hmacsha512256_bytes()
+    crypto_auth_hmacsha512256_KEYBYTES = sodium.crypto_auth_hmacsha512256_keybytes()
 
 sodium_init = sodium.sodium_init
 
