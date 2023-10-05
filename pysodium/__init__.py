@@ -257,9 +257,13 @@ if sodium_version_check(1, 0, 18):
     crypto_core_ristretto255_SCALARBYTES = sodium.crypto_core_ristretto255_scalarbytes()
     crypto_core_ristretto255_NONREDUCEDSCALARBYTES = sodium.crypto_core_ristretto255_nonreducedscalarbytes()
     crypto_auth_hmacsha256_BYTES = sodium.crypto_auth_hmacsha256_bytes()
+    crypto_auth_hmacsha256_KEYBYTES = sodium.crypto_auth_hmacsha256_keybytes()
     crypto_hash_sha256_STATEBYTES = sodium.crypto_hash_sha256_statebytes()
     crypto_auth_hmacsha512_BYTES = sodium.crypto_auth_hmacsha512_bytes()
+    crypto_auth_hmacsha512_KEYBYTES = sodium.crypto_auth_hmacsha512_keybytes()
     crypto_hash_sha512_STATEBYTES = sodium.crypto_hash_sha512_statebytes()
+    crypto_auth_hmacsha512256_BYTES = sodium.crypto_auth_hmacsha512256_bytes()
+    crypto_auth_hmacsha512256_KEYBYTES = sodium.crypto_auth_hmacsha512256_keybytes()
 
 sodium_init = sodium.sodium_init
 
@@ -570,6 +574,145 @@ def crypto_auth_verify(h, m, k):
     if len(h) != crypto_auth_BYTES:
         raise ValueError("invalid tag")
     __check(sodium.crypto_auth_verify(h, m, ctypes.c_ulonglong(len(m)), k))
+
+
+# void crypto_auth_hmacsha256_keygen(unsigned char k[crypto_auth_hmacsha256_KEYBYTES]);
+def crypto_auth_hmacsha256_keygen():
+    k = ctypes.create_string_buffer(crypto_auth_hmacsha256_KEYBYTES)
+    __check(sodium.crypto_auth_hmacsha256_keygen(k))
+    return k.raw
+
+
+# int crypto_auth_hmacsha256(unsigned char *out,
+#                            const unsigned char *in,
+#                            unsigned long long inlen,
+#                            const unsigned char *k);
+def crypto_auth_hmacsha256(m, k):
+    if not len(k) == crypto_auth_hmacsha256_KEYBYTES:
+        raise ValueError("invalid parameters")
+    buf = ctypes.create_string_buffer(crypto_auth_hmacsha256_BYTES)
+    msg = ctypes.create_string_buffer(m)
+    key = ctypes.create_string_buffer(k)
+    __check(
+        sodium.crypto_auth_hmacsha256(
+            ctypes.byref(buf),
+            ctypes.byref(msg),
+            ctypes.c_ulonglong(len(m)),
+            ctypes.byref(key),
+        )
+    )
+    return buf.raw
+
+
+# int crypto_auth_hmacsha256_verify(const unsigned char *h,
+#                                   const unsigned char *in,
+#                                   unsigned long long inlen,
+#                                   const unsigned char *k);
+def crypto_auth_hmacsha256_verify(h, m, k):
+    if not len(k) == crypto_auth_hmacsha256_KEYBYTES:
+        raise ValueError("invalid parameters")
+    hmac = ctypes.create_string_buffer(h)
+    msg = ctypes.create_string_buffer(m)
+    mlen = ctypes.c_ulonglong(len(m))
+    key = ctypes.create_string_buffer(k)
+    __check(
+        sodium.crypto_auth_hmacsha256_verify(
+            ctypes.byref(hmac), ctypes.byref(msg), mlen, ctypes.byref(key)
+        )
+    )
+
+
+# void crypto_auth_hmacsha512_keygen(unsigned char k[crypto_auth_hmacsha512_KEYBYTES]);
+def crypto_auth_hmacsha512_keygen():
+    k = ctypes.create_string_buffer(crypto_auth_hmacsha512_KEYBYTES)
+    __check(sodium.crypto_auth_hmacsha512_keygen(k))
+    return k.raw
+
+
+# int crypto_auth_hmacsha512(unsigned char *out,
+#                            const unsigned char *in,
+#                            unsigned long long inlen,
+#                            const unsigned char *k);
+def crypto_auth_hmacsha512(m, k):
+    if not len(k) == crypto_auth_hmacsha512_KEYBYTES:
+        raise ValueError("invalid parameters")
+    buf = ctypes.create_string_buffer(crypto_auth_hmacsha512_BYTES)
+    msg = ctypes.create_string_buffer(m)
+    key = ctypes.create_string_buffer(k)
+    __check(
+        sodium.crypto_auth_hmacsha512(
+            ctypes.byref(buf),
+            ctypes.byref(msg),
+            ctypes.c_ulonglong(len(m)),
+            ctypes.byref(key),
+        )
+    )
+    return buf.raw
+
+
+# int crypto_auth_hmacsha512_verify(const unsigned char *h,
+#                                   const unsigned char *in,
+#                                   unsigned long long inlen,
+#                                   const unsigned char *k);
+def crypto_auth_hmacsha512_verify(h, m, k):
+    if not len(k) == crypto_auth_hmacsha512_KEYBYTES:
+        raise ValueError("invalid parameters")
+    hmac = ctypes.create_string_buffer(h)
+    msg = ctypes.create_string_buffer(m)
+    mlen = ctypes.c_ulonglong(len(m))
+    key = ctypes.create_string_buffer(k)
+    __check(
+        sodium.crypto_auth_hmacsha512_verify(
+            ctypes.byref(hmac), ctypes.byref(msg), mlen, ctypes.byref(key)
+        )
+    )
+
+
+# void crypto_auth_hmacsha512256_keygen(unsigned char k[crypto_auth_hmacsha512256_KEYBYTES]);
+def crypto_auth_hmacsha512256_keygen():
+    k = ctypes.create_string_buffer(crypto_auth_hmacsha512256_KEYBYTES)
+    __check(sodium.crypto_auth_hmacsha512256_keygen(k))
+    return k.raw
+
+
+# int crypto_auth_hmacsha512256(unsigned char *out,
+#                            const unsigned char *in,
+#                            unsigned long long inlen,
+#                            const unsigned char *k);
+def crypto_auth_hmacsha512256(m, k):
+    if not len(k) == crypto_auth_hmacsha512256_KEYBYTES:
+        raise ValueError("invalid parameters")
+    buf = ctypes.create_string_buffer(crypto_auth_hmacsha512256_BYTES)
+    msg = ctypes.create_string_buffer(m)
+    key = ctypes.create_string_buffer(k)
+    __check(
+        sodium.crypto_auth_hmacsha512256(
+            ctypes.byref(buf),
+            ctypes.byref(msg),
+            ctypes.c_ulonglong(len(m)),
+            ctypes.byref(key),
+        )
+    )
+    return buf.raw
+
+
+# int crypto_auth_hmacsha512256_verify(const unsigned char *h,
+#                                   const unsigned char *in,
+#                                   unsigned long long inlen,
+#                                   const unsigned char *k);
+def crypto_auth_hmacsha512256_verify(h, m, k):
+    if not len(k) == crypto_auth_hmacsha512256_KEYBYTES:
+        raise ValueError("invalid parameters")
+    hmac = ctypes.create_string_buffer(h)
+    msg = ctypes.create_string_buffer(m)
+    mlen = ctypes.c_ulonglong(len(m))
+    key = ctypes.create_string_buffer(k)
+    __check(
+        sodium.crypto_auth_hmacsha512256_verify(
+            ctypes.byref(hmac), ctypes.byref(msg), mlen, ctypes.byref(key)
+        )
+    )
+
 
 # crypto_generichash(unsigned char *out, size_t outlen, const unsigned char *in, unsigned long long inlen, const unsigned char *key, size_t keylen)
 @encode_strings
