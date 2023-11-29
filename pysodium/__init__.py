@@ -265,6 +265,12 @@ if sodium_version_check(1, 0, 18):
     crypto_auth_hmacsha512256_BYTES = sodium.crypto_auth_hmacsha512256_bytes()
     crypto_auth_hmacsha512256_KEYBYTES = sodium.crypto_auth_hmacsha512256_keybytes()
 
+if sodium_version_check(1, 0, 19):
+    crypto_kdf_hkdf_sha256_KEYBYTES = sodium.crypto_kdf_hkdf_sha256_keybytes()
+    crypto_kdf_hkdf_sha256_BYTES_MIN = sodium.crypto_kdf_hkdf_sha256_bytes_min()
+    crypto_kdf_hkdf_sha256_BYTES_MAX = sodium.crypto_kdf_hkdf_sha256_bytes_max()
+    crypto_kdf_hkdf_sha256_STATEBYTES = sodium.crypto_kdf_hkdf_sha256_statebytes()
+
 sodium_init = sodium.sodium_init
 
 class CryptoSignState(ctypes.Structure):
@@ -579,7 +585,7 @@ def crypto_auth_verify(h, m, k):
 # void crypto_auth_hmacsha256_keygen(unsigned char k[crypto_auth_hmacsha256_KEYBYTES]);
 def crypto_auth_hmacsha256_keygen():
     k = ctypes.create_string_buffer(crypto_auth_hmacsha256_KEYBYTES)
-    __check(sodium.crypto_auth_hmacsha256_keygen(k))
+    sodium.crypto_auth_hmacsha256_keygen(k)
     return k.raw
 
 
@@ -625,7 +631,7 @@ def crypto_auth_hmacsha256_verify(h, m, k):
 # void crypto_auth_hmacsha512_keygen(unsigned char k[crypto_auth_hmacsha512_KEYBYTES]);
 def crypto_auth_hmacsha512_keygen():
     k = ctypes.create_string_buffer(crypto_auth_hmacsha512_KEYBYTES)
-    __check(sodium.crypto_auth_hmacsha512_keygen(k))
+    sodium.crypto_auth_hmacsha512_keygen(k)
     return k.raw
 
 
@@ -671,7 +677,7 @@ def crypto_auth_hmacsha512_verify(h, m, k):
 # void crypto_auth_hmacsha512256_keygen(unsigned char k[crypto_auth_hmacsha512256_KEYBYTES]);
 def crypto_auth_hmacsha512256_keygen():
     k = ctypes.create_string_buffer(crypto_auth_hmacsha512256_KEYBYTES)
-    __check(sodium.crypto_auth_hmacsha512256_keygen(k))
+    sodium.crypto_auth_hmacsha512256_keygen(k)
     return k.raw
 
 
@@ -1343,6 +1349,59 @@ def crypto_hash_sha512_update(state, data):
 def crypto_hash_sha512_final(state):
     out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES)
     __check(sodium.crypto_hash_sha512_final(state, out))
+    return out.raw
+
+# int crypto_kdf_hkdf_sha256_extract_init(crypto_kdf_hkdf_sha256_state *state,
+#                                         const unsigned char *salt, size_t salt_len)
+@sodium_version(1, 0, 19)
+def crypto_kdf_hkdf_sha256_extract_init(salt=b''):
+    state = ctypes.create_string_buffer(crypto_kdf_hkdf_sha256_STATEBYTES)
+    __check(sodium.crypto_kdf_hkdf_sha256_extract_init(state, salt, ctypes.c_size_t(len(salt))))
+    return state
+
+# int crypto_kdf_hkdf_sha256_extract_update(crypto_kdf_hkdf_sha256_state *state,
+#                                           const unsigned char *ikm, size_t ikm_len)
+@sodium_version(1, 0, 19)
+def crypto_kdf_hkdf_sha256_extract_update(state, ikm=b''):
+    if len(state) != crypto_kdf_hkdf_sha256_STATEBYTES: raise ValueError("invalid state")
+    __check(sodium.crypto_kdf_hkdf_sha256_extract_update(state, ikm, ctypes.c_size_t(len(ikm))))
+    return state
+
+# int crypto_kdf_hkdf_sha256_extract_final(crypto_kdf_hkdf_sha256_state *state,
+#                                          unsigned char prk[crypto_kdf_hkdf_sha256_KEYBYTES])
+@sodium_version(1, 0, 19)
+def crypto_kdf_hkdf_sha256_extract_final(state):
+    if len(state) != crypto_kdf_hkdf_sha256_STATEBYTES: raise ValueError("invalid state")
+    prk = ctypes.create_string_buffer(crypto_kdf_hkdf_sha256_KEYBYTES)
+    __check(sodium.crypto_kdf_hkdf_sha256_extract_final(state, prk))
+    return prk.raw
+
+# int crypto_kdf_hkdf_sha256_extract(
+#     unsigned char prk[crypto_kdf_hkdf_sha256_KEYBYTES],
+#     const unsigned char *salt, size_t salt_len, const unsigned char *ikm,
+#     size_t ikm_len)
+@sodium_version(1, 0, 19)
+def crypto_kdf_hkdf_sha256_extract(salt=b'', ikm=b''):
+    prk = ctypes.create_string_buffer(crypto_kdf_hkdf_sha256_KEYBYTES)
+    __check(sodium.crypto_kdf_hkdf_sha256_extract(prk, salt, ctypes.c_size_t(len(salt)), ikm, ctypes.c_size_t(len(ikm))))
+    return prk.raw
+
+# void crypto_kdf_hkdf_sha256_keygen(unsigned char prk[crypto_kdf_hkdf_sha256_KEYBYTES])
+@sodium_version(1, 0, 19)
+def crypto_kdf_hkdf_sha256_keygen():
+    k = ctypes.create_string_buffer(crypto_kdf_hkdf_sha256_KEYBYTES)
+    sodium.crypto_kdf_hkdf_sha256_keygen(k)
+    return k.raw
+
+# int crypto_kdf_hkdf_sha256_expand(unsigned char *out, size_t out_len,
+#                                   const char *ctx, size_t ctx_len,
+#                                   const unsigned char prk[crypto_kdf_hkdf_sha256_KEYBYTES])
+@sodium_version(1, 0, 19)
+def crypto_kdf_hkdf_sha256_expand(outlen, prk, ctx=b''):
+    if not (crypto_kdf_hkdf_sha256_BYTES_MIN <= outlen <= crypto_kdf_hkdf_sha256_BYTES_MAX): raise ValueError("invalid output len")
+    if len(prk) != crypto_kdf_hkdf_sha256_KEYBYTES: raise ValueError("invalid prk")
+    out = ctypes.create_string_buffer(outlen)
+    __check(sodium.crypto_kdf_hkdf_sha256_expand(out, ctypes.c_size_t(outlen), ctx, ctypes.c_size_t(len(ctx)), prk))
     return out.raw
 
 # int crypto_kx_keypair(unsigned char pk[crypto_kx_PUBLICKEYBYTES],
