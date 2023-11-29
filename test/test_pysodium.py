@@ -379,6 +379,30 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pk, pk2)
         self.assertEqual(sk, sk2)
 
+    def test_aead_aegis128l(self):
+        if not pysodium.sodium_version_check(1, 0, 19): return
+        key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b50")
+        input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+        nonce = binascii.unhexlify(b"087b5f9fadfb515388394f8035482608")
+        ad = binascii.unhexlify(b"87e229d4500845a079c0")
+        ct = binascii.unhexlify(b"a4fa71e3508259ff98e9e2874d98f97b7b3e14a033b835f25e335735385f604afe227394ad9032c1bcea")
+        output = pysodium.crypto_aead_aegis128l_encrypt(input_, ad, nonce, key)
+        self.assertEqual(bytes.hex(ct), bytes.hex(output))
+        output = pysodium.crypto_aead_aegis128l_decrypt(output, ad, nonce, key)
+        self.assertEqual(output, input_)
+
+    def test_aead_aegis256(self):
+        if not pysodium.sodium_version_check(1, 0, 19): return
+        key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
+        input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+        nonce = binascii.unhexlify(b"087b5f9fadfb515388394f8035482608e17b07153e560e301406cfad9f12c164")
+        ad = binascii.unhexlify(b"87e229d4500845a079c0")
+        ct = binascii.unhexlify(b"5b0b85a1a45a52e0950b2336fa9df3aacd14862fc4e7f670eafd04d6697be30973fa0f6c82cdfbfb1b7a")
+        output = pysodium.crypto_aead_aegis256_encrypt(input_, ad, nonce, key)
+        self.assertEqual(bytes.hex(ct), bytes.hex(output))
+        output = pysodium.crypto_aead_aegis256_decrypt(output, ad, nonce, key)
+        self.assertEqual(output, input_)
+
     def test_aead_chacha20poly1305(self):
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
         input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
@@ -657,6 +681,17 @@ class TestPySodium(unittest.TestCase):
         state = pysodium.crypto_kdf_hkdf_sha256_extract_update(state, ikm)
         self.assertEqual(expected_prk, pysodium.crypto_kdf_hkdf_sha256_extract_final(state))
         self.assertEqual(expected_out, pysodium.crypto_kdf_hkdf_sha256_expand(outlen, expected_prk, ctx))
+
+    def test_crypto_kdf_hkdf_sha512(self):
+        if not pysodium.sodium_version_check(1, 0, 19): return
+        expected_prk = bytes.fromhex("665799823737ded04a88e47e54a5890bb2c3d247c7a4254a8e61350723590a26c36238127d8661b88cf80ef802d57e2f7cebcf1e00e083848be19929c61b4237")
+        expected_out = bytes.fromhex("832390086cda71fb47625bb5ceb168e4c8e26a1a16ed34d9fc7fe92c1481579338da362cb8d9f925d7cb")
+        ikm = bytes.fromhex("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b")
+        salt = bytes.fromhex("000102030405060708090a0b0c")
+        ctx = bytes.fromhex("f0f1f2f3f4f5f6f7f8f9")
+        outlen = 42
+        self.assertEqual(expected_prk, pysodium.crypto_kdf_hkdf_sha512_extract(salt, ikm))
+        self.assertEqual(expected_out, pysodium.crypto_kdf_hkdf_sha512_expand(outlen, expected_prk, ctx))
 
     def test_crypto_kx(self):
         if not pysodium.sodium_version_check(1, 0, 12): return

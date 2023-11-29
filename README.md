@@ -9,6 +9,14 @@ This wrapper requires a pre-installed libsodium from:
 then it provides access to the following functions:
 
 ```
+crypto_aead_aegis128l_decrypt(ciphertext, ad, nonce, key)
+crypto_aead_aegis128l_encrypt(message, ad, nonce, key)
+crypto_aead_aegis128l_decrypt_detached(ciphertext, mac, ad, nonce, key)
+crypto_aead_aegis128l_encrypt_detached(message, ad, nonce, key)
+crypto_aead_aegis256_decrypt(ciphertext, ad, nonce, key)
+crypto_aead_aegis256_encrypt(message, ad, nonce, key)
+crypto_aead_aegis256_decrypt_detached(ciphertext, mac, ad, nonce, key)
+crypto_aead_aegis256_encrypt_detached(message, ad, nonce, key)
 crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key)
 crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key)
 crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key)
@@ -118,6 +126,12 @@ crypto_kdf_hkdf_sha256_extract_final(state)
 crypto_kdf_hkdf_sha256_extract(salt=b'', ikm=b'')
 crypto_kdf_hkdf_sha256_keygen()
 crypto_kdf_hkdf_sha256_expand(outlen, prk, ctx=b'')
+crypto_kdf_hkdf_sha512_extract_init(salt=b'')
+crypto_kdf_hkdf_sha512_extract_update(state, ikm=b'')
+crypto_kdf_hkdf_sha512_extract_final(state)
+crypto_kdf_hkdf_sha512_extract(salt=b'', ikm=b'')
+crypto_kdf_hkdf_sha512_keygen()
+crypto_kdf_hkdf_sha512_expand(outlen, prk, ctx=b'')
 ```
 
 Constants:
