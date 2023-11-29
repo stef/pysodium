@@ -118,6 +118,12 @@ crypto_kdf_hkdf_sha256_extract_final(state)
 crypto_kdf_hkdf_sha256_extract(salt=b'', ikm=b'')
 crypto_kdf_hkdf_sha256_keygen()
 crypto_kdf_hkdf_sha256_expand(outlen, prk, ctx=b'')
+crypto_kdf_hkdf_sha512_extract_init(salt=b'')
+crypto_kdf_hkdf_sha512_extract_update(state, ikm=b'')
+crypto_kdf_hkdf_sha512_extract_final(state)
+crypto_kdf_hkdf_sha512_extract(salt=b'', ikm=b'')
+crypto_kdf_hkdf_sha512_keygen()
+crypto_kdf_hkdf_sha512_expand(outlen, prk, ctx=b'')
 ```
 
 Constants:

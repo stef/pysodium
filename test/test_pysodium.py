@@ -658,6 +658,17 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(expected_prk, pysodium.crypto_kdf_hkdf_sha256_extract_final(state))
         self.assertEqual(expected_out, pysodium.crypto_kdf_hkdf_sha256_expand(outlen, expected_prk, ctx))
 
+    def test_crypto_kdf_hkdf_sha512(self):
+        if not pysodium.sodium_version_check(1, 0, 19): return
+        expected_prk = bytes.fromhex("665799823737ded04a88e47e54a5890bb2c3d247c7a4254a8e61350723590a26c36238127d8661b88cf80ef802d57e2f7cebcf1e00e083848be19929c61b4237")
+        expected_out = bytes.fromhex("832390086cda71fb47625bb5ceb168e4c8e26a1a16ed34d9fc7fe92c1481579338da362cb8d9f925d7cb")
+        ikm = bytes.fromhex("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b")
+        salt = bytes.fromhex("000102030405060708090a0b0c")
+        ctx = bytes.fromhex("f0f1f2f3f4f5f6f7f8f9")
+        outlen = 42
+        self.assertEqual(expected_prk, pysodium.crypto_kdf_hkdf_sha512_extract(salt, ikm))
+        self.assertEqual(expected_out, pysodium.crypto_kdf_hkdf_sha512_expand(outlen, expected_prk, ctx))
+
     def test_crypto_kx(self):
         if not pysodium.sodium_version_check(1, 0, 12): return
         client_pk, client_sk = pysodium.crypto_kx_keypair()
