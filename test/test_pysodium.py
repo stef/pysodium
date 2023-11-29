@@ -380,6 +380,7 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(sk, sk2)
 
     def test_aead_aegis128l(self):
+        if not pysodium.sodium_version_check(1, 0, 19): return
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b50")
         input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
         nonce = binascii.unhexlify(b"087b5f9fadfb515388394f8035482608")
@@ -391,6 +392,7 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(output, input_)
 
     def test_aead_aegis256(self):
+        if not pysodium.sodium_version_check(1, 0, 19): return
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
         input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
         nonce = binascii.unhexlify(b"087b5f9fadfb515388394f8035482608e17b07153e560e301406cfad9f12c164")
