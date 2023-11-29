@@ -153,6 +153,18 @@ crypto_aead_chacha20poly1305_NPUBBYTES = sodium.crypto_aead_chacha20poly1305_npu
 crypto_aead_chacha20poly1305_NONCEBYTES = crypto_aead_chacha20poly1305_NPUBBYTES
 crypto_aead_chacha20poly1305_ABYTES = sodium.crypto_aead_chacha20poly1305_abytes()
 
+if sodium_version_check(1, 0, 19):
+    crypto_aead_aegis128l_KEYBYTES = sodium.crypto_aead_aegis128l_keybytes()
+    crypto_aead_aegis128l_NPUBBYTES = sodium.crypto_aead_aegis128l_npubbytes()
+    crypto_aead_aegis128l_NONCEBYTES = crypto_aead_aegis128l_NPUBBYTES
+    crypto_aead_aegis128l_ABYTES = sodium.crypto_aead_aegis128l_abytes()
+    crypto_aead_aegis128l_MESSAGEBYTES_MAX = ctypes.c_size_t(sodium.crypto_aead_aegis128l_messagebytes_max())
+    crypto_aead_aegis256_KEYBYTES = sodium.crypto_aead_aegis256_keybytes()
+    crypto_aead_aegis256_NPUBBYTES = sodium.crypto_aead_aegis256_npubbytes()
+    crypto_aead_aegis256_NONCEBYTES = crypto_aead_aegis256_NPUBBYTES
+    crypto_aead_aegis256_ABYTES = sodium.crypto_aead_aegis256_abytes()
+    crypto_aead_aegis256_MESSAGEBYTES_MAX = ctypes.c_size_t(sodium.crypto_aead_aegis256_messagebytes_max())
+
 if sodium_version_check(1, 0, 9):
     crypto_aead_chacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_chacha20poly1305_ietf_keybytes()
     crypto_aead_chacha20poly1305_ietf_NPUBBYTES = sodium.crypto_aead_chacha20poly1305_ietf_npubbytes()
@@ -245,7 +257,7 @@ if sodium_version_check(1, 0, 15):
     crypto_secretstream_xchacha20poly1305_ABYTES = sodium.crypto_secretstream_xchacha20poly1305_abytes()
     crypto_secretstream_xchacha20poly1305_HEADERBYTES = sodium.crypto_secretstream_xchacha20poly1305_headerbytes()
     crypto_secretstream_xchacha20poly1305_KEYBYTES = sodium.crypto_secretstream_xchacha20poly1305_keybytes()
-    crypto_secretstream_xchacha20poly1305_MESSAGEBYTES_MAX = sodium.crypto_secretstream_xchacha20poly1305_messagebytes_max()
+    crypto_secretstream_xchacha20poly1305_MESSAGEBYTES_MAX = ctypes.c_size_t(sodium.crypto_secretstream_xchacha20poly1305_messagebytes_max())
     crypto_secretstream_xchacha20poly1305_TAG_MESSAGE = sodium.crypto_secretstream_xchacha20poly1305_tag_message()
     crypto_secretstream_xchacha20poly1305_TAG_PUSH = sodium.crypto_secretstream_xchacha20poly1305_tag_push()
     crypto_secretstream_xchacha20poly1305_TAG_REKEY = sodium.crypto_secretstream_xchacha20poly1305_tag_rekey()
@@ -419,7 +431,7 @@ def crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key):
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
 
-    c = ctypes.create_string_buffer(mlen.value + 16)
+    c = ctypes.create_string_buffer(mlen.value + crypto_aead_chacha20poly1305_ABYTES)
     clen = ctypes.c_ulonglong(0)
 
     __check(sodium.crypto_aead_chacha20poly1305_encrypt(c, ctypes.byref(clen), message, mlen, ad, adlen, None, nonce, key))
@@ -431,7 +443,7 @@ def crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key):
     if len(nonce) != crypto_aead_chacha20poly1305_NONCEBYTES: raise ValueError("truncated nonce")
     if len(key) != crypto_aead_chacha20poly1305_KEYBYTES: raise ValueError("truncated key")
 
-    m = ctypes.create_string_buffer(len(ciphertext) - 16)
+    m = ctypes.create_string_buffer(len(ciphertext) - crypto_aead_chacha20poly1305_ABYTES)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
@@ -469,6 +481,126 @@ def crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, ke
     __check(sodium.crypto_aead_chacha20poly1305_decrypt_detached(m, None, ciphertext, clen, mac, ad, adlen, nonce, key))
     return m.raw
 
+# crypto_aead_aegis128l_encrypt(unsigned char *c, unsigned long long *clen, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k);
+@sodium_version(1, 0, 19)
+def crypto_aead_aegis128l_encrypt(message, ad, nonce, key):
+    if len(nonce) != crypto_aead_aegis128l_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_aegis128l_KEYBYTES: raise ValueError("truncated key")
+
+    mlen = ctypes.c_ulonglong(len(message))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+
+    c = ctypes.create_string_buffer(mlen.value + crypto_aead_aegis128l_ABYTES)
+    clen = ctypes.c_ulonglong(0)
+
+    __check(sodium.crypto_aead_aegis128l_encrypt(c, ctypes.byref(clen), message, mlen, ad, adlen, None, nonce, key))
+    return c.raw
+
+
+# crypto_aead_aegis128l_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 19)
+def crypto_aead_aegis128l_decrypt(ciphertext, ad, nonce, key):
+    if len(nonce) != crypto_aead_aegis128l_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_aegis128l_KEYBYTES: raise ValueError("truncated key")
+
+    m = ctypes.create_string_buffer(len(ciphertext) - crypto_aead_aegis128l_ABYTES)
+    mlen = ctypes.c_ulonglong(0)
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    __check(sodium.crypto_aead_aegis128l_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
+    return m.raw
+
+# crypto_aead_aegis128l_encrypt_detached(unsigned char *c, unsigned char *mac, unsigned long long *maclen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 19)
+def crypto_aead_aegis128l_encrypt_detached(message, ad, nonce, key):
+    """ Return ciphertext, mac tag """
+    if len(nonce) != crypto_aead_aegis128l_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_aegis128l_KEYBYTES: raise ValueError("truncated key")
+
+    mlen = ctypes.c_ulonglong(len(message))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    c = ctypes.create_string_buffer(mlen.value)
+    maclen_p = ctypes.c_ulonglong(crypto_aead_aegis128l_ABYTES)
+    mac = ctypes.create_string_buffer(maclen_p.value)
+
+    __check(sodium.crypto_aead_aegis128l_encrypt_detached(c, mac, ctypes.byref(maclen_p), message, mlen, ad, adlen, None, nonce, key))
+    return c.raw, mac.raw
+
+# crypto_aead_aegis128l_decrypt_detached(unsigned char *m, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *mac, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 19)
+def crypto_aead_aegis128l_decrypt_detached(ciphertext, mac, ad, nonce, key):
+    """ Return message if successful or -1 (ValueError) if not successful"""
+    if len(nonce) != crypto_aead_aegis128l_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_aegis128l_KEYBYTES: raise ValueError("truncated key")
+    if len(mac) != crypto_aead_aegis128l_ABYTES:
+        raise ValueError("mac length != %i" % crypto_aead_aegis128l_ABYTES)
+
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    m = ctypes.create_string_buffer(clen.value)
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    __check(sodium.crypto_aead_aegis128l_decrypt_detached(m, None, ciphertext, clen, mac, ad, adlen, nonce, key))
+    return m.raw
+
+# crypto_aead_aegis256_encrypt(unsigned char *c, unsigned long long *clen, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k);
+@sodium_version(1, 0, 19)
+def crypto_aead_aegis256_encrypt(message, ad, nonce, key):
+    if len(nonce) != crypto_aead_aegis256_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_aegis256_KEYBYTES: raise ValueError("truncated key")
+
+    mlen = ctypes.c_ulonglong(len(message))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+
+    c = ctypes.create_string_buffer(mlen.value + crypto_aead_aegis256_ABYTES)
+    clen = ctypes.c_ulonglong(0)
+
+    __check(sodium.crypto_aead_aegis256_encrypt(c, ctypes.byref(clen), message, mlen, ad, adlen, None, nonce, key))
+    return c.raw
+
+
+# crypto_aead_aegis256_decrypt(unsigned char *m, unsigned long long *mlen, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 19)
+def crypto_aead_aegis256_decrypt(ciphertext, ad, nonce, key):
+    if len(nonce) != crypto_aead_aegis256_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_aegis256_KEYBYTES: raise ValueError("truncated key")
+
+    m = ctypes.create_string_buffer(len(ciphertext) - crypto_aead_aegis256_ABYTES)
+    mlen = ctypes.c_ulonglong(0)
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    __check(sodium.crypto_aead_aegis256_decrypt(m, ctypes.byref(mlen), None, ciphertext, clen, ad, adlen, nonce, key))
+    return m.raw
+
+# crypto_aead_aegis256_encrypt_detached(unsigned char *c, unsigned char *mac, unsigned long long *maclen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 19)
+def crypto_aead_aegis256_encrypt_detached(message, ad, nonce, key):
+    """ Return ciphertext, mac tag """
+    if len(nonce) != crypto_aead_aegis256_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_aegis256_KEYBYTES: raise ValueError("truncated key")
+
+    mlen = ctypes.c_ulonglong(len(message))
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    c = ctypes.create_string_buffer(mlen.value)
+    maclen_p = ctypes.c_ulonglong(crypto_aead_aegis256_ABYTES)
+    mac = ctypes.create_string_buffer(maclen_p.value)
+
+    __check(sodium.crypto_aead_aegis256_encrypt_detached(c, mac, ctypes.byref(maclen_p), message, mlen, ad, adlen, None, nonce, key))
+    return c.raw, mac.raw
+
+# crypto_aead_aegis256_decrypt_detached(unsigned char *m, unsigned char *nsec, const unsigned char *c, unsigned long long clen, const unsigned char *mac, const unsigned char *ad, unsigned long long adlen, const unsigned char *npub, const unsigned char *k)
+@sodium_version(1, 0, 19)
+def crypto_aead_aegis256_decrypt_detached(ciphertext, mac, ad, nonce, key):
+    """ Return message if successful or -1 (ValueError) if not successful"""
+    if len(nonce) != crypto_aead_aegis256_NONCEBYTES: raise ValueError("truncated nonce")
+    if len(key) != crypto_aead_aegis256_KEYBYTES: raise ValueError("truncated key")
+    if len(mac) != crypto_aead_aegis256_ABYTES:
+        raise ValueError("mac length != %i" % crypto_aead_aegis256_ABYTES)
+
+    clen = ctypes.c_ulonglong(len(ciphertext))
+    m = ctypes.create_string_buffer(clen.value)
+    adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
+    __check(sodium.crypto_aead_aegis256_decrypt_detached(m, None, ciphertext, clen, mac, ad, adlen, nonce, key))
+    return m.raw
+
 # crypto_aead_chacha20poly1305_ietf_encrypt(unsigned char *c, unsigned long long *clen_p, const unsigned char *m, unsigned long long mlen, const unsigned char *ad, unsigned long long adlen, const unsigned char *nsec, const unsigned char *npub, const unsigned char *k)
 @sodium_version(1, 0, 4)
 def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
@@ -477,7 +609,7 @@ def crypto_aead_chacha20poly1305_ietf_encrypt(message, ad, nonce, key):
 
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
-    c = ctypes.create_string_buffer(mlen.value + 16)
+    c = ctypes.create_string_buffer(mlen.value + crypto_aead_chacha20poly1305_ietf_ABYTES)
     clen = ctypes.c_ulonglong(0)
 
     __check(sodium.crypto_aead_chacha20poly1305_ietf_encrypt(c, ctypes.byref(clen), message, mlen, ad, adlen, None, nonce, key))
@@ -489,7 +621,7 @@ def crypto_aead_chacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
     if len(nonce) != crypto_aead_chacha20poly1305_ietf_NONCEBYTES: raise ValueError("truncated nonce")
     if len(key) != crypto_aead_chacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
 
-    m = ctypes.create_string_buffer(len(ciphertext) - 16)
+    m = ctypes.create_string_buffer(len(ciphertext) - crypto_aead_chacha20poly1305_ietf_ABYTES)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
@@ -537,7 +669,7 @@ def crypto_aead_xchacha20poly1305_ietf_encrypt(message, ad, nonce, key):
     if len(key) != crypto_aead_xchacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
     mlen = ctypes.c_ulonglong(len(message))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)
-    c = ctypes.create_string_buffer(mlen.value + 16)
+    c = ctypes.create_string_buffer(mlen.value + crypto_aead_xchacha20poly1305_ietf_ABYTES)
     clen = ctypes.c_ulonglong(0)
 
     __check(sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(c, ctypes.byref(clen),
@@ -556,7 +688,7 @@ def crypto_aead_xchacha20poly1305_ietf_decrypt(ciphertext, ad, nonce, key):
     if len(nonce) != crypto_aead_xchacha20poly1305_ietf_NPUBBYTES: raise ValueError("truncated nonce")
     if len(key) != crypto_aead_xchacha20poly1305_ietf_KEYBYTES: raise ValueError("truncated key")
 
-    m = ctypes.create_string_buffer(len(ciphertext) - 16)
+    m = ctypes.create_string_buffer(len(ciphertext) - crypto_aead_xchacha20poly1305_ietf_ABYTES)
     mlen = ctypes.c_ulonglong(0)
     clen = ctypes.c_ulonglong(len(ciphertext))
     adlen = ctypes.c_ulonglong(len(ad)) if ad is not None else ctypes.c_ulonglong(0)

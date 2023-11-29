@@ -379,6 +379,28 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(pk, pk2)
         self.assertEqual(sk, sk2)
 
+    def test_aead_aegis128l(self):
+        key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b50")
+        input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+        nonce = binascii.unhexlify(b"087b5f9fadfb515388394f8035482608")
+        ad = binascii.unhexlify(b"87e229d4500845a079c0")
+        ct = binascii.unhexlify(b"a4fa71e3508259ff98e9e2874d98f97b7b3e14a033b835f25e335735385f604afe227394ad9032c1bcea")
+        output = pysodium.crypto_aead_aegis128l_encrypt(input_, ad, nonce, key)
+        self.assertEqual(bytes.hex(ct), bytes.hex(output))
+        output = pysodium.crypto_aead_aegis128l_decrypt(output, ad, nonce, key)
+        self.assertEqual(output, input_)
+
+    def test_aead_aegis256(self):
+        key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
+        input_ = binascii.unhexlify(b"86d09974840bded2a5ca")
+        nonce = binascii.unhexlify(b"087b5f9fadfb515388394f8035482608e17b07153e560e301406cfad9f12c164")
+        ad = binascii.unhexlify(b"87e229d4500845a079c0")
+        ct = binascii.unhexlify(b"5b0b85a1a45a52e0950b2336fa9df3aacd14862fc4e7f670eafd04d6697be30973fa0f6c82cdfbfb1b7a")
+        output = pysodium.crypto_aead_aegis256_encrypt(input_, ad, nonce, key)
+        self.assertEqual(bytes.hex(ct), bytes.hex(output))
+        output = pysodium.crypto_aead_aegis256_decrypt(output, ad, nonce, key)
+        self.assertEqual(output, input_)
+
     def test_aead_chacha20poly1305(self):
         key = binascii.unhexlify(b"4290bcb154173531f314af57f3be3b5006da371ece272afa1b5dbdd1100a1007")
         input_ = binascii.unhexlify(b"86d09974840bded2a5ca")

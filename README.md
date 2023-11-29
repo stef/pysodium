@@ -9,6 +9,14 @@ This wrapper requires a pre-installed libsodium from:
 then it provides access to the following functions:
 
 ```
+crypto_aead_aegis128l_decrypt(ciphertext, ad, nonce, key)
+crypto_aead_aegis128l_encrypt(message, ad, nonce, key)
+crypto_aead_aegis128l_decrypt_detached(ciphertext, mac, ad, nonce, key)
+crypto_aead_aegis128l_encrypt_detached(message, ad, nonce, key)
+crypto_aead_aegis256_decrypt(ciphertext, ad, nonce, key)
+crypto_aead_aegis256_encrypt(message, ad, nonce, key)
+crypto_aead_aegis256_decrypt_detached(ciphertext, mac, ad, nonce, key)
+crypto_aead_aegis256_encrypt_detached(message, ad, nonce, key)
 crypto_aead_chacha20poly1305_decrypt(ciphertext, ad, nonce, key)
 crypto_aead_chacha20poly1305_encrypt(message, ad, nonce, key)
 crypto_aead_chacha20poly1305_decrypt_detached(ciphertext, mac, ad, nonce, key)
