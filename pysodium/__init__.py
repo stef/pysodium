@@ -888,10 +888,10 @@ def crypto_box_seal_open(c, pk, sk):
     return msg.raw
 
 # int crypto_secretbox_detached(unsigned char *c, unsigned char *mac,
-#                              	const unsigned char *m,
-#                              	unsigned long long mlen,
-#                              	const unsigned char *n,
-#                              	const unsigned char *k);
+#                               const unsigned char *m,
+#                               unsigned long long mlen,
+#                               const unsigned char *n,
+#                               const unsigned char *k);
 
 def crypto_secretbox_detached(msg, nonce, k):
     if None in (msg, nonce, k): raise ValueError("invalid parameters")
