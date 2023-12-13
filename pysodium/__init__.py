@@ -1,8 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """
 Wrapper for libsodium library
 
-Copyright (c) 2013-2014, Marsiske Stefan.
+Copyright (c) 2013-2023, Marsiske Stefan.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -245,7 +245,8 @@ if sodium_version_check(1, 0, 15):
     crypto_secretstream_xchacha20poly1305_ABYTES = sodium.crypto_secretstream_xchacha20poly1305_abytes()
     crypto_secretstream_xchacha20poly1305_HEADERBYTES = sodium.crypto_secretstream_xchacha20poly1305_headerbytes()
     crypto_secretstream_xchacha20poly1305_KEYBYTES = sodium.crypto_secretstream_xchacha20poly1305_keybytes()
-    crypto_secretstream_xchacha20poly1305_MESSAGEBYTES_MAX = ctypes.c_size_t(sodium.crypto_secretstream_xchacha20poly1305_messagebytes_max())
+    sodium.crypto_secretstream_xchacha20poly1305_messagebytes_max.restype = ctypes.c_size_t
+    crypto_secretstream_xchacha20poly1305_MESSAGEBYTES_MAX = sodium.crypto_secretstream_xchacha20poly1305_messagebytes_max()
     crypto_secretstream_xchacha20poly1305_TAG_MESSAGE = sodium.crypto_secretstream_xchacha20poly1305_tag_message()
     crypto_secretstream_xchacha20poly1305_TAG_PUSH = sodium.crypto_secretstream_xchacha20poly1305_tag_push()
     crypto_secretstream_xchacha20poly1305_TAG_REKEY = sodium.crypto_secretstream_xchacha20poly1305_tag_rekey()
@@ -277,12 +278,14 @@ if sodium_version_check(1, 0, 19):
     crypto_aead_aegis128l_NPUBBYTES = sodium.crypto_aead_aegis128l_npubbytes()
     crypto_aead_aegis128l_NONCEBYTES = crypto_aead_aegis128l_NPUBBYTES
     crypto_aead_aegis128l_ABYTES = sodium.crypto_aead_aegis128l_abytes()
-    crypto_aead_aegis128l_MESSAGEBYTES_MAX = ctypes.c_size_t(sodium.crypto_aead_aegis128l_messagebytes_max())
+    sodium.crypto_aead_aegis128l_messagebytes_max.restype = ctypes.c_size_t
+    crypto_aead_aegis128l_MESSAGEBYTES_MAX = sodium.crypto_aead_aegis128l_messagebytes_max()
     crypto_aead_aegis256_KEYBYTES = sodium.crypto_aead_aegis256_keybytes()
     crypto_aead_aegis256_NPUBBYTES = sodium.crypto_aead_aegis256_npubbytes()
     crypto_aead_aegis256_NONCEBYTES = crypto_aead_aegis256_NPUBBYTES
     crypto_aead_aegis256_ABYTES = sodium.crypto_aead_aegis256_abytes()
-    crypto_aead_aegis256_MESSAGEBYTES_MAX = ctypes.c_size_t(sodium.crypto_aead_aegis256_messagebytes_max())
+    sodium.crypto_aead_aegis256_messagebytes_max.restype = ctypes.c_size_t
+    crypto_aead_aegis256_MESSAGEBYTES_MAX = sodium.crypto_aead_aegis256_messagebytes_max()
 
 if sodium_version_check(1, 0, 20):
     crypto_kdf_hkdf_sha512_STATEBYTES = sodium.crypto_kdf_hkdf_sha512_statebytes()
