@@ -1500,7 +1500,7 @@ def crypto_hash_sha512_final(state):
 #                                const unsigned char key[crypto_kdf_KEYBYTES])
 def crypto_kdf_derive_from_key(subkey_len, subkey_id, ctx, key):
     if len(ctx) != crypto_kdf_CONTEXTBYTES: raise ValueError("invalid context")
-    if len(key) != crypto_kdf_KEYBYTES: raise ValueError("invalid context")
+    if len(key) != crypto_kdf_KEYBYTES: raise ValueError("invalid key")
     if not (crypto_kdf_BYTES_MIN <= subkey_len <= crypto_kdf_BYTES_MAX): raise ValueError("invalid subkey len")
     subkey = ctypes.create_string_buffer(subkey_len)
     si = ctypes.c_uint64(subkey_id)
