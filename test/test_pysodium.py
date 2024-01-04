@@ -650,6 +650,24 @@ class TestPySodium(unittest.TestCase):
         tag = pysodium.crypto_auth("howdy", sk)
         pysodium.crypto_auth_verify(tag, "howdy", sk)
 
+    def test_crypto_kdf_keygen(self):
+        key = pysodium.crypto_kdf_keygen()
+        self.assertEqual(pysodium.crypto_kdf_KEYBYTES, len(key))
+
+    def test_crypto_kdf_derive_from_key(self):
+        # https://github.com/jedisct1/libsodium/blob/master/test/default/kdf.exp
+        expected_subkey = bytes.fromhex("a0c724404728c8bb95e5433eb6a9716171144d61efb23e74b873fcbeda51d8071b5d70aae12066dfc94ce943f145aa176c055040c3dd73b0a15e36254d450614")
+        subkey_id = 0
+        ctx = b'KDF test'
+        key = bytes.fromhex("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+        self.assertEqual(expected_subkey, pysodium. crypto_kdf_derive_from_key(pysodium.crypto_kdf_BYTES_MAX, subkey_id, ctx, key))
+
+        expected_subkey = bytes.fromhex("02507f144fa9bf19010bf7c70b235b4c2663cc00e074f929602a5e2c10a780757d2a3993d06debc378a90efdac196dd841817b977d67b786804f6d3cd585bab5")
+        subkey_id = 1
+        ctx = b'KDF test'
+        key = bytes.fromhex("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+        self.assertEqual(expected_subkey, pysodium.crypto_kdf_derive_from_key(pysodium.crypto_kdf_BYTES_MAX, subkey_id, ctx, key))
+
     def test_crypto_kdf_hkdf_sha256(self):
         # test vectors: https://datatracker.ietf.org/doc/html/rfc5869
         if not pysodium.sodium_version_check(1, 0, 19): return

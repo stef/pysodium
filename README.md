@@ -120,6 +120,8 @@ crypto_auth_hmacsha512_verify
 crypto_auth_hmacsha512256_keygen
 crypto_auth_hmacsha512256
 crypto_auth_hmacsha512256_verify
+crypto_kdf_derive_from_key(subkey_len, subkey_id, ctx, key)
+crypto_kdf_keygen()
 crypto_kdf_hkdf_sha256_extract_init(salt=b'')
 crypto_kdf_hkdf_sha256_extract_update(state, ikm=b'')
 crypto_kdf_hkdf_sha256_extract_final(state)
@@ -262,6 +264,10 @@ crypto_auth_hmacsha512_BYTES
 crypto_auth_hmacsha512_KEYBYTES
 crypto_auth_hmacsha512256_BYTES
 crypto_auth_hmacsha512256_KEYBYTES
+crypto_kdf_BYTES_MIN
+crypto_kdf_BYTES_MAX
+crypto_kdf_CONTEXTBYTES
+crypto_kdf_KEYBYTES
 crypto_kdf_hkdf_sha256_KEYBYTES
 crypto_kdf_hkdf_sha256_BYTES_MIN
 crypto_kdf_hkdf_sha256_BYTES_MAX

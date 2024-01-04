@@ -152,6 +152,10 @@ crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keyb
 crypto_aead_chacha20poly1305_NPUBBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
 crypto_aead_chacha20poly1305_NONCEBYTES = crypto_aead_chacha20poly1305_NPUBBYTES
 crypto_aead_chacha20poly1305_ABYTES = sodium.crypto_aead_chacha20poly1305_abytes()
+crypto_kdf_BYTES_MIN = sodium.crypto_kdf_bytes_min()
+crypto_kdf_BYTES_MAX = sodium.crypto_kdf_bytes_max()
+crypto_kdf_CONTEXTBYTES = sodium.crypto_kdf_contextbytes()
+crypto_kdf_KEYBYTES = sodium.crypto_kdf_keybytes()
 
 if sodium_version_check(1, 0, 9):
     crypto_aead_chacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_chacha20poly1305_ietf_keybytes()
@@ -1489,6 +1493,25 @@ def crypto_hash_sha512_final(state):
     out = ctypes.create_string_buffer(crypto_hash_sha512_BYTES)
     __check(sodium.crypto_hash_sha512_final(state, out))
     return out.raw
+
+# int crypto_kdf_derive_from_key(unsigned char *subkey, size_t subkey_len,
+#                                uint64_t subkey_id,
+#                                const char ctx[crypto_kdf_CONTEXTBYTES],
+#                                const unsigned char key[crypto_kdf_KEYBYTES])
+def crypto_kdf_derive_from_key(subkey_len, subkey_id, ctx, key):
+    if len(ctx) != crypto_kdf_CONTEXTBYTES: raise ValueError("invalid context")
+    if len(key) != crypto_kdf_KEYBYTES: raise ValueError("invalid context")
+    if not (crypto_kdf_BYTES_MIN <= subkey_len <= crypto_kdf_BYTES_MAX): raise ValueError("invalid subkey len")
+    subkey = ctypes.create_string_buffer(subkey_len)
+    si = ctypes.c_uint64(subkey_id)
+    __check(sodium.crypto_kdf_derive_from_key(subkey, ctypes.c_size_t(subkey_len), si, ctx, key))
+    return subkey.raw
+
+# void crypto_kdf_keygen(unsigned char k[crypto_kdf_KEYBYTES])
+def crypto_kdf_keygen():
+    k = ctypes.create_string_buffer(crypto_kdf_KEYBYTES)
+    sodium.crypto_kdf_keygen(k)
+    return k.raw
 
 # int crypto_kdf_hkdf_sha256_extract_init(crypto_kdf_hkdf_sha256_state *state,
 #                                         const unsigned char *salt, size_t salt_len)
