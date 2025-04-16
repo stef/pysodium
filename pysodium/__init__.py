@@ -387,13 +387,13 @@ def crypto_stream_chacha20_ietf_xor(message, nonce, key):
 
     return c.raw
 
-# crypto_stream_chacha20_ietf_xor_ic(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, uint64_t ic, const unsigned char *k)
+# crypto_stream_chacha20_ietf_xor_ic(unsigned char *c, const unsigned char *m, unsigned long long mlen, const unsigned char *n, uint32_t ic, const unsigned char *k)
 def crypto_stream_chacha20_ietf_xor_ic(message, nonce, initial_counter, key):
     if len(nonce) != crypto_stream_chacha20_ietf_NONCEBYTES: raise ValueError("truncated nonce")
     if len(key) != crypto_stream_chacha20_ietf_KEYBYTES: raise ValueError("truncated key")
 
     mlen = ctypes.c_longlong(len(message))
-    ic = ctypes.c_uint64(initial_counter)
+    ic = ctypes.c_uint32(initial_counter)
 
     c = ctypes.create_string_buffer(len(message))
 
