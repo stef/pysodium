@@ -197,6 +197,7 @@ if sodium_version_check(1, 0, 12):
     crypto_kx_PUBLICKEYBYTES = sodium.crypto_kx_publickeybytes()
     crypto_kx_SECRETKEYBYTES = sodium.crypto_kx_secretkeybytes()
     crypto_kx_SESSIONKEYBYTES = sodium.crypto_kx_sessionkeybytes()
+    crypto_kx_SEEDBYTES = sodium.crypto_kx_seedbytes()
     crypto_aead_xchacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_xchacha20poly1305_ietf_keybytes()
     crypto_aead_xchacha20poly1305_ietf_NPUBBYTES = sodium.crypto_aead_xchacha20poly1305_ietf_npubbytes()
     crypto_aead_xchacha20poly1305_ietf_NONCEBYTES = crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
@@ -1663,6 +1664,18 @@ def crypto_kx_server_session_keys(server_pk, server_sk, client_pk):
     tx = ctypes.create_string_buffer(crypto_kx_SESSIONKEYBYTES)
     __check(sodium.crypto_kx_server_session_keys(rx, tx, server_pk, server_sk, client_pk))
     return rx.raw, tx.raw
+
+# int crypto_kx_seed_keypair(unsigned char pk[crypto_kx_PUBLICKEYBYTES],
+#                            unsigned char sk[crypto_kx_SECRETKEYBYTES],
+#                            const unsigned char seed[crypto_kx_SEEDBYTES])
+@sodium_version(1, 0, 12)
+def crypto_kx_seed_keypair(seed):
+    if len(seed) != crypto_kx_SEEDBYTES:
+        raise ValueError("Invalid parameters")
+    pk = ctypes.create_string_buffer(crypto_kx_PUBLICKEYBYTES)
+    sk = ctypes.create_string_buffer(crypto_kx_SECRETKEYBYTES)
+    __check(sodium.crypto_kx_seed_keypair(pk, sk, seed))
+    return pk.raw, sk.raw
 
 # void sodium_increment(unsigned char *n, const size_t nlen)
 @sodium_version(1, 0, 4)

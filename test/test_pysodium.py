@@ -722,6 +722,13 @@ class TestPySodium(unittest.TestCase):
         self.assertEqual(crx, stx)
         self.assertEqual(ctx, srx)
 
+    def test_crypto_kx_seed_keypair(self):
+        if not pysodium.sodium_version_check(1, 0, 12): return
+        seed = b'\x00' * 32
+        pk, sk = pysodium.crypto_kx_seed_keypair(seed)
+        self.assertEqual(pk, bytes.fromhex('557e23d7346f213ec5a23713b2a2497eef35354d5b52088ac6a5993a5fdb091e'))
+        self.assertEqual(sk, bytes.fromhex('89eb0d6a8a691dae2cd15ed0369931ce0a949ecafa5c3f93f8121833646e15c3'))
+
     def test_sodium_inc(self):
         r = b'A' * 32
         pysodium.sodium_increment(r)
