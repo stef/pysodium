@@ -121,9 +121,6 @@ crypto_stream_NONCEBYTES = sodium.crypto_stream_noncebytes()
 crypto_stream_chacha20_NONCEBYTES = sodium.crypto_stream_chacha20_noncebytes()
 crypto_stream_chacha20_KEYBYTES = sodium.crypto_stream_chacha20_keybytes()
 crypto_stream_chacha20_ietf_NONCEBYTES = sodium.crypto_stream_chacha20_ietf_noncebytes()
-crypto_stream_chacha20_ietf_KEYBYTES = sodium.crypto_stream_chacha20_ietf_keybytes()
-crypto_stream_xchacha20_NONCEBYTES = sodium.crypto_stream_xchacha20_noncebytes()
-crypto_stream_xchacha20_KEYBYTES = sodium.crypto_stream_xchacha20_keybytes()
 crypto_generichash_KEYBYTES_MAX = sodium.crypto_generichash_keybytes_max()
 crypto_generichash_BYTES = sodium.crypto_generichash_bytes()
 crypto_generichash_BYTES_MIN = sodium.crypto_generichash_bytes_min()
@@ -152,10 +149,6 @@ crypto_aead_chacha20poly1305_KEYBYTES = sodium.crypto_aead_chacha20poly1305_keyb
 crypto_aead_chacha20poly1305_NPUBBYTES = sodium.crypto_aead_chacha20poly1305_npubbytes()
 crypto_aead_chacha20poly1305_NONCEBYTES = crypto_aead_chacha20poly1305_NPUBBYTES
 crypto_aead_chacha20poly1305_ABYTES = sodium.crypto_aead_chacha20poly1305_abytes()
-crypto_kdf_BYTES_MIN = sodium.crypto_kdf_bytes_min()
-crypto_kdf_BYTES_MAX = sodium.crypto_kdf_bytes_max()
-crypto_kdf_CONTEXTBYTES = sodium.crypto_kdf_contextbytes()
-crypto_kdf_KEYBYTES = sodium.crypto_kdf_keybytes()
 
 if sodium_version_check(1, 0, 9):
     crypto_aead_chacha20poly1305_ietf_KEYBYTES = sodium.crypto_aead_chacha20poly1305_ietf_keybytes()
@@ -226,6 +219,13 @@ if sodium_version_check(1, 0, 12):
     crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_opslimit_min()
     crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX = sodium.crypto_pwhash_scryptsalsa208sha256_passwd_max()
     crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN = sodium.crypto_pwhash_scryptsalsa208sha256_passwd_min()
+    crypto_stream_chacha20_ietf_KEYBYTES = sodium.crypto_stream_chacha20_ietf_keybytes()
+    crypto_stream_xchacha20_NONCEBYTES = sodium.crypto_stream_xchacha20_noncebytes()
+    crypto_stream_xchacha20_KEYBYTES = sodium.crypto_stream_xchacha20_keybytes()
+    crypto_kdf_BYTES_MIN = sodium.crypto_kdf_bytes_min()
+    crypto_kdf_BYTES_MAX = sodium.crypto_kdf_bytes_max()
+    crypto_kdf_CONTEXTBYTES = sodium.crypto_kdf_contextbytes()
+    crypto_kdf_KEYBYTES = sodium.crypto_kdf_keybytes()
 else:
     crypto_pwhash_scryptsalsa208sha256_BYTES_MIN = 16
     crypto_pwhash_scryptsalsa208sha256_BYTES_MAX = 4294967264
@@ -235,6 +235,13 @@ else:
     crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX =4294967295
     crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX = 4294967295
     crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN = 0
+    crypto_stream_chacha20_ietf_KEYBYTES = 32
+    crypto_stream_xchacha20_NONCEBYTES = 24
+    crypto_stream_xchacha20_KEYBYTES = 32
+    crypto_kdf_BYTES_MIN = 16
+    crypto_kdf_BYTES_MAX = 64
+    crypto_kdf_CONTEXTBYTES = 8 
+    crypto_kdf_KEYBYTES = 32
 
 if sodium_version_check(1, 0, 13):
     crypto_pwhash_ALG_ARGON2ID13 = sodium.crypto_pwhash_alg_argon2id13()
